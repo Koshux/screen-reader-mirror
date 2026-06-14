@@ -1,0 +1,35 @@
+name: "🐞 Bug report"
+description: Something the tool gets wrong — especially an incorrect screen-reader interpretation.
+title: "[bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: "A wrong accessible-name/role/reading-order is a correctness defect — thank you for reporting it."
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What did the tool output, and what's wrong about it?
+    validations:
+      required: true
+  - type: textarea
+    id: markup
+    attributes:
+      label: Minimal HTML to reproduce
+      description: The smallest markup snippet that shows the problem (ideal for a golden fixture).
+      render: html
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected interpretation
+      description: What should a screen reader interpret here? Cite AccName/WAI-ARIA or a real SR if you can.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version / target
+      description: e.g. screen-reader-mirror@0.1.0, via npm / CDN / extension.

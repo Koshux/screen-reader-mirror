@@ -1,0 +1,49 @@
+name: Deploy demo to Pages
+
+# The hosted demo (packages/web) is a planned target. This workflow is manual (workflow_dispatch)
+# for now; uncomment the push trigger once packages/web has a real `build` producing packages/web/dist.
+on:
+  workflow_dispatch:
+  # push:
+  #   branches: [main]
+  #   paths: ["packages/web/**", "packages/core/**"]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: pnpm install
+      - name: Guard — web target must exist
+        run: |
+          if [ ! -f packages/web/package.json ]; then
+            echo "::error::packages/web does not exist yet. Build the hosted-demo target first."
+            exit 1
+          fi
+      - run: pnpm --filter "./packages/web" build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: packages/web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,59 @@
+# Canonical label set for the board. Applied by scripts/setup-github.sh (gh label create).
+# Edit here, then re-run the script's `labels` step to sync.
+
+# --- Type ---
+- name: task
+  color: "0e8a16"
+  description: A board-ready unit of work
+- name: bug
+  color: "d73a4a"
+  description: Something the tool gets wrong
+- name: enhancement
+  color: "a2eeef"
+  description: New capability or improvement
+- name: docs
+  color: "0075ca"
+  description: Documentation / SDLC artifacts
+- name: dependencies
+  color: "ededed"
+  description: Dependency updates
+- name: ci
+  color: "bfdadc"
+  description: Build / release / workflows
+
+# --- Area ---
+- name: "area: core"
+  color: "5319e7"
+  description: The shared client-side engine
+- name: "area: extension"
+  color: "5319e7"
+  description: Browser (MV3) target
+- name: "area: cli"
+  color: "5319e7"
+  description: npx CLI target
+- name: "area: web"
+  color: "5319e7"
+  description: Hosted demo target
+- name: "area: a11y-fidelity"
+  color: "5319e7"
+  description: Accuracy of the screen-reader interpretation
+- name: "area: infra"
+  color: "5319e7"
+  description: Tooling, packaging, distribution
+
+# --- Workflow / meta ---
+- name: good first issue
+  color: "7057ff"
+  description: A friendly entry point for new contributors
+- name: help wanted
+  color: "008672"
+  description: Maintainer would welcome a contributor here
+- name: "needs: spec"
+  color: "fbca04"
+  description: Needs a spec before implementation
+- name: "needs: spec-review"
+  color: "fbca04"
+  description: Has a spec; needs the Stage 2.5 review
+- name: blocked
+  color: "b60205"
+  description: Waiting on something else

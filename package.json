@@ -1,0 +1,43 @@
+{
+  "name": "screen-reader-mirror-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Monorepo for screen-reader-mirror — see what a screen reader interprets from your UI, with zero install and no data leaving the machine.",
+  "license": "MIT",
+  "type": "module",
+  "packageManager": "pnpm@9.12.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "author": "James Lanzon",
+  "homepage": "https://github.com/Koshux/screen-reader-mirror",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Koshux/screen-reader-mirror.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Koshux/screen-reader-mirror/issues"
+  },
+  "scripts": {
+    "build": "pnpm -r --filter \"./packages/*\" build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "pnpm -r --filter \"./packages/*\" typecheck",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "pnpm build && changeset publish",
+    "verify": "pnpm typecheck && pnpm lint && pnpm test"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.27.9",
+    "@eslint/js": "^9.13.0",
+    "@vitest/coverage-v8": "^2.1.4",
+    "eslint": "^9.13.0",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.12.2",
+    "vitest": "^2.1.4"
+  }
+}

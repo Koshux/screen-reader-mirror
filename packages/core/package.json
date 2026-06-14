@@ -1,0 +1,55 @@
+{
+  "name": "screen-reader-mirror",
+  "version": "0.0.0",
+  "description": "See what a screen reader interprets from your UI — a zero-install, client-side accessibility-tree linearization engine. No data leaves the machine.",
+  "license": "MIT",
+  "author": "James Lanzon",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist", "README.md"],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "keywords": [
+    "accessibility",
+    "a11y",
+    "screen-reader",
+    "aria",
+    "wcag",
+    "accessibility-tree",
+    "ax-tree",
+    "accname",
+    "testing",
+    "semantics"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Koshux/screen-reader-mirror.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/Koshux/screen-reader-mirror#readme",
+  "bugs": {
+    "url": "https://github.com/Koshux/screen-reader-mirror/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "devDependencies": {
+    "tsup": "^8.3.0"
+  }
+}

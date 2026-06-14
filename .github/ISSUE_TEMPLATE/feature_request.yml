@@ -1,0 +1,24 @@
+name: "✨ Feature request"
+description: Propose a capability. Larger ideas become a journey, then a spec.
+title: "[feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem / who it's for
+      description: Describe the user and the need — the "why", not the solution. This may become a journey.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Proposed capability
+      description: What would the tool do? Roughly.
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Fits the project's constraints
+      options:
+        - label: Works client-side with no data leaving the machine
+        - label: No vendor lock-in / paid service / required account

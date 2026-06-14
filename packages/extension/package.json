@@ -1,0 +1,11 @@
+{
+  "name": "@screen-reader-mirror/extension",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Browser (MV3) extension target — planned. Thin live-DOM UI over the screen-reader-mirror core engine.",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "screen-reader-mirror": "workspace:*"
+  }
+}

@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+.output/
+coverage/
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+*.log
+
+# Env & secrets (this tool is client-side only — there should be no server secrets,
+# but never commit local env files regardless)
+.env
+.env.*
+!.env.example
+
+# Claude Code local overrides (machine-specific, never shared)
+.claude/settings.local.json
+
+# Test artifacts
+test-results/
+playwright-report/
+
+# Extension packaging artifacts
+*.zip
+*.crx
+*.pem

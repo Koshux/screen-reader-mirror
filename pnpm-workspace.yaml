@@ -1,0 +1,4 @@
+# pnpm workspaces — one shared `core` engine consumed by every distribution target.
+# Adding a target (extension, cli, web, vscode…) means adding a folder under packages/.
+packages:
+  - "packages/*"

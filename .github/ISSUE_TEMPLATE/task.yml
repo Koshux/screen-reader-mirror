@@ -1,0 +1,52 @@
+name: "📋 Task"
+description: A well-defined unit of work for the board (the default way work is tracked).
+title: "[task]: "
+labels: ["task"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A task is a board-ready unit of work. Keep it small enough to ship in one PR. If it needs
+        a journey/spec, link or create them — see [docs/sdlc/README.md](../../docs/sdlc/README.md).
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome
+      description: What should be true when this is done? (User- or developer-observable.)
+      placeholder: "linearize() excludes aria-hidden subtrees, with a golden fixture proving it."
+    validations:
+      required: true
+  - type: input
+    id: spec
+    attributes:
+      label: Related journey / spec
+      description: e.g. JNY-001, SPEC-001 — or "needs a spec" / "fast path".
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: The checklist that defines "done". Each should be testable.
+      value: |
+        - [ ]
+        - [ ]
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options: [core, extension, cli, web, docs, sdlc, infra, a11y-fidelity]
+    validations:
+      required: true
+  - type: dropdown
+    id: size
+    attributes:
+      label: Size
+      options: ["XS (<1h)", "S (½ day)", "M (1–2 days)", "L (needs splitting?)"]
+  - type: checkboxes
+    id: guardrails
+    attributes:
+      label: Guardrails
+      options:
+        - label: This keeps `core` client-side / offline (no network, no telemetry)
+        - label: I will branch from `main` and open a PR for the maintainer to review (I won't merge to `main`)

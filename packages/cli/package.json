@@ -1,0 +1,11 @@
+{
+  "name": "@screen-reader-mirror/cli",
+  "version": "0.0.0",
+  "private": true,
+  "description": "CLI target — planned. `npx screen-reader-mirror <url>` runs the core engine over a page via Playwright/CDP, offline and CI-friendly.",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "screen-reader-mirror": "workspace:*"
+  }
+}

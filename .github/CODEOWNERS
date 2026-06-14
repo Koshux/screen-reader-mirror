@@ -1,0 +1,7 @@
+# Code owners — drives "require review from Code Owners" on protected branches.
+# The maintainer owns everything, so every PR routes to them for review. This is the mechanism
+# behind the rule "contributor PRs are blocked until the maintainer approves" (see GOVERNANCE.md).
+#
+# Add co-maintainers here (and to branch protection) to grant them review/merge rights.
+
+* @Koshux

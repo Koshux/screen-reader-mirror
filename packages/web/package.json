@@ -1,0 +1,11 @@
+{
+  "name": "@screen-reader-mirror/web",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Hosted demo target — planned. Paste HTML / public URL and see the interpretation, running the core engine in the browser. Deploys to GitHub Pages.",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "screen-reader-mirror": "workspace:*"
+  }
+}

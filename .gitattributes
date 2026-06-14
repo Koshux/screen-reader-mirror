@@ -1,0 +1,9 @@
+# Normalise line endings to LF in the repo for cross-platform consistency.
+* text=auto eol=lf
+
+# These must stay LF or they break when executed.
+*.sh text eol=lf
+*.cjs text eol=lf
+
+# Generated lockfile — collapse diffs in review.
+pnpm-lock.yaml linguist-generated=true -diff
