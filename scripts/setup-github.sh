@@ -90,8 +90,8 @@ protect_branch() {
   #     reviewer — GitHub never lets you approve your own PR, so this is how "only the creator can
   #     self-merge" is expressed. Contributors are not admins, so they stay blocked.
   #   - CI ('verify') must pass; stale approvals dismissed on new commits.
-  gh api -X PUT "repos/$OWNER/$REPO/branches/$DEFAULT_BRANCH/protection" \
-    -H "Accept: application/vnd.github+json" --input - <<JSON
+  local payload
+  payload=$(cat <<JSON
 {
   "required_status_checks": { "strict": true, "contexts": ["$REQUIRED_CHECK"] },
   "enforce_admins": false,
@@ -107,7 +107,17 @@ protect_branch() {
   "required_conversation_resolution": true
 }
 JSON
-  echo "Branch protection applied."
+)
+  if printf '%s' "$payload" | gh api -X PUT "repos/$OWNER/$REPO/branches/$DEFAULT_BRANCH/protection" \
+       -H "Accept: application/vnd.github+json" --input - >/tmp/srm-bp.out 2>&1; then
+    echo "Branch protection applied (PR + code-owner review required; admins exempt so you can self-merge)."
+  else
+    warn "Branch protection could NOT be applied (everything else above succeeded)."
+    warn "Most likely cause: branch protection on a PRIVATE repo needs a paid plan — GitHub Free allows it only on PUBLIC repos."
+    echo "  Options: (a) make the repo public, (b) upgrade to GitHub Pro, or (c) rely on CODEOWNERS review-requests without hard enforcement."
+    echo "  API said: $(head -c 300 /tmp/srm-bp.out 2>/dev/null)"
+    return 0
+  fi
 }
 
 create_project() {
@@ -118,7 +128,7 @@ create_project() {
     echo "$out"; return 1
   }
   echo "$out"
-  PROJECT_NUMBER=$(printf '%s' "$out" | grep -oE '[0-9]+' | tail -1 || true)
+  PROJECT_NUMBER=$(printf '%s' "$out" | grep -oE 'projects/[0-9]+' | grep -oE '[0-9]+' | tail -1 || true)
   echo "PROJECT_NUMBER=$PROJECT_NUMBER (use it for 'issues')"
 }
 
@@ -177,9 +187,9 @@ main() {
     all)
       create_repo
       create_labels
-      protect_branch
       create_project
       seed_issues
+      protect_branch
       say "Done. Next: open the repo, check the board, and invite your collaborator (Settings → Collaborators)."
       ;;
     *) echo "Unknown step '$1'. See the usage header."; exit 1 ;;
