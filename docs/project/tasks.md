@@ -58,10 +58,10 @@ T1 first.
 - **AC:** one focused fixture per phenomenon (AC-1…AC-6); `pnpm test` green; meaningful assertions
   (not snapshots-of-bugs); a circular-`aria-labelledby` fixture confirms termination.
 
-### T7 — Commit lockfile + enable CI cache  · XS · 🟢 · `area: infra`
-- **Outcome:** reproducible installs and faster CI.
-- **AC:** `pnpm install` run and `pnpm-lock.yaml` committed; `cache: pnpm` enabled in `ci.yml`;
-  `pnpm install` switched to `--frozen-lockfile` in CI.
+### T7 — Enable CI cache + frozen install  · XS · 🟢 · `area: infra`
+- **Outcome:** faster, stricter CI. (`pnpm-lock.yaml` is already committed.)
+- **AC:** uncomment `cache: pnpm` in `ci.yml`; switch the CI install to `pnpm install --frozen-lockfile`
+  in both `ci.yml` and `release.yml`; confirm CI stays green.
 
 ### T8 — README quickstart verified  · XS · `docs`
 - **Outcome:** the npm + CDN snippets in `README.md` actually run against the published `core`.
