@@ -34,7 +34,7 @@ jobs:
             exit 1
           fi
       - run: pnpm --filter "./packages/web" build
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: packages/web/dist
 
