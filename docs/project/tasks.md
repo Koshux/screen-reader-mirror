@@ -5,6 +5,10 @@ The single, human-readable backlog. Each task is small enough to ship in one PR 
 guessing. `scripts/setup-github.sh issues` seeds the **M1** tasks here as GitHub issues and adds
 them to the Project board; keep this doc and the board roughly in sync.
 
+> **The whole roadmap is now live as GitHub issues (#1–#25), grouped by milestone, with blocking
+> dependencies.** See [board.md](board.md) for the lifecycle state diagram, the dependency graph,
+> and the T-id ↔ issue ↔ blocked-by table. The T-ids below map there.
+
 > **How to take a task:** comment to claim it (or assign yourself), branch from `main`
 > (`<type>/SPEC-XXX-<slug>`), follow [the SDLC](../sdlc/README.md), open a PR. The maintainer
 > reviews and merges — contributors don't self-merge ([GOVERNANCE.md](../../GOVERNANCE.md)).

@@ -1,8 +1,9 @@
 # Roadmap
 
 The shape of the work, in milestones. This is the "why now / in what order" companion to the
-[task backlog](tasks.md). Order reflects the decision to ship the **developer-facing core first**
-(npm + CDN), then widen reach.
+[task backlog](tasks.md) and the [board / dependency graph](board.md). Order reflects the decision
+to ship the **developer-facing core first** (npm + CDN), then widen reach. Each milestone below is a
+GitHub [Milestone](https://github.com/Koshux/screen-reader-mirror/milestones) holding its issues.
 
 ## M0 — Foundation ✅ (this scaffold)
 
