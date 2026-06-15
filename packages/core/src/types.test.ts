@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest";
-import type { InterpretationNode, NodeFlags } from "./types";
+// Import from the package entry (not ./types) so this contract test also pins the *public* surface:
+// if index.ts ever stops re-exporting these, the test fails. Type-only import — erased at runtime.
+import type { InterpretationNode, NodeFlags } from "./index";
 
 // These tests pin the public node contract from SPEC-001 §3. They are deliberately data-only
 // (no DOM) — the shape is what every consumer and every later feature depends on.
