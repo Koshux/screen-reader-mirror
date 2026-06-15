@@ -1,7 +1,7 @@
 ---
 id: SPEC-001
 title: Core linearization foundation — linearize(element) → ordered interpretation
-status: draft
+status: spec-reviewed
 journeys: [JNY-001]
 target: core
 created: 2026-06-14
@@ -9,10 +9,17 @@ created: 2026-06-14
 
 # SPEC-001 — Core linearization foundation
 
-> **Draft.** This spec is the founding contract for `packages/core`. It still needs a Stage-2.5
-> spec-review pass against the (currently scaffold-only) codebase before implementation — that
-> review is itself a good first task (see the board). Treat the API below as a strong proposal,
-> not yet frozen.
+> **Self-review applied (2026-06-15 · Stage 2.5 · issue #1).** Reviewed against the live
+> `packages/core` scaffold. HIGH findings folded in below:
+> 1. Defined the **name-vs-text "no double-read" rule** so an element's accessible name and the
+>    descendant text that produced it are never read twice (§3) — the correctness crux.
+> 2. Clarified that **role resolution is ours to build**: `dom-accessibility-api` computes the
+>    *name* only; `aria-query` gives role *definitions*; implicit roles are **conditional**
+>    (`<a>` is a link only with `href`), with `getComputedRole()` as the oracle where reachable
+>    (§3, AC-2). The scaffold's unconditional `IMPLICIT_ROLES` is replaced, not grown (§4).
+> 3. Noted the `getComputedStyle`/jsdom caveat for CSS-hidden detection (§5).
+>
+> Verdict: **implementation-ready.** The public API shape below is now the contract.
 
 ## 1. Summary
 
@@ -26,15 +33,18 @@ mismatch detection, the hosts) builds on.
 
 - **AC-1** — `linearize(root: Element)` returns an ordered array of interpretation nodes in
   depth-first document order (the screen-reader reading order for static content).
-- **AC-2** — Each node includes a `role` computed per WAI-ARIA (explicit `role` wins over implicit;
-  via `aria-query`) and an `name` (accessible name per AccName 1.2; via `dom-accessibility-api`).
+- **AC-2** — Each node includes a `role` resolved per WAI-ARIA (explicit `role` wins; otherwise the
+  **conditional** implicit role via `aria-query`'s `elementRoles` — e.g. `<a>` without `href` is
+  *not* a link) and a `name` (accessible name per AccName 1.2 via `dom-accessibility-api`). An
+  element whose role takes its name from content does **not** also emit its descendant text (§3).
 - **AC-3** — Subtrees excluded from the accessibility tree are omitted: `aria-hidden="true"`,
   `display:none`, `visibility:hidden`, and `hidden`.
 - **AC-4** — A heading carries its `level` (1–6, from `<h1>`–`<h6>` or `aria-level`); a styled
   `<span>` that is not a heading is **not** reported as one (it surfaces as text) — making the
   "looks like a heading but isn't" mistake visible.
-- **AC-5** — An interactive element with no accessible name is reported with an explicit
-  empty-name marker (e.g. `name: ""` + `flags.unnamed: true`), not silently blank.
+- **AC-5** — An interactive element (a widget role per `aria-query` — button, link, textbox,
+  checkbox, …) with no accessible name is reported with an explicit empty-name marker (`name: ""`
+  + `flags.unnamed: true`), not silently blank.
 - **AC-6** — `<img>` with **missing** `alt` is flagged (`flags.missingAlt: true`); `<img alt="">`
   (intentionally decorative) is omitted from the reading order, not flagged.
 - **AC-7** — The public API is exported from the package root, is ESM, side-effect-free, and
@@ -42,12 +52,33 @@ mismatch detection, the hosts) builds on.
 
 ## 3. Design
 
-Depth-first traversal of `root`. For each element: determine AT visibility (skip + don't recurse if
-hidden); compute role (`aria-query` implicit-role map + explicit `role`); compute accessible name
-(`dom-accessibility-api`'s `computeAccessibleName`); emit a node. Text nodes that are not covered
-by an element's accessible name surface as `text` nodes so reading order is complete. Shadow DOM,
-iframes, and live regions are **out of scope for SPEC-001** (tracked as follow-ups) but the node
-model must not preclude them.
+Depth-first traversal of `root` in document order. For each element: determine AT visibility (skip
+the element **and its subtree** if hidden); resolve its role; compute its accessible name; emit a
+node — consuming descendant text into the name where the role takes its name from content (see
+below). Shadow DOM, iframes, and live regions are **out of scope for SPEC-001** (tracked
+follow-ups) but the node model must not preclude them.
+
+#### Role resolution (genuinely ours — do not under-scope)
+
+`dom-accessibility-api` computes the **name only**, not the role. `aria-query` provides role
+*definitions* and an `elementRoles` map, but an element's implicit role is **conditional**:
+`<a>`/`<area>` are `link` only with an `href` (else generic); `<input>`'s role depends on `type`;
+`<li>` is `listitem` only inside a list; `<header>`/`<footer>` are `banner`/`contentinfo` only when
+not scoped to a sectioning element. Resolution: an explicit `role` attribute wins; otherwise apply
+the conditional implicit mapping from `aria-query`'s `elementRoles`. Where a host can reach it,
+`Element.getComputedRole()` (Chrome/Edge) is the higher-fidelity oracle; the JS computation is the
+portable fallback. The scaffold's unconditional `IMPLICIT_ROLES` map (`a → link`, …) is a
+placeholder and is **replaced** by this resolution, not extended.
+
+#### Name vs. text — the no-double-read rule (correctness-critical)
+
+A screen reader reads an element's accessible **name** *instead of* re-reading the descendant text
+that produced it. So an element whose role takes its **name from content** (button, link, heading,
+cell… per AccName step 2F) **consumes** its descendant text into its `name`, and we do **not** also
+emit `text` nodes for that subtree. Text under elements that do **not** get a name from content (a
+`<p>`, a generic `<div>` of prose) surfaces as `text` node(s) so reading order stays complete.
+Getting this rule right is what stops the output reading every label twice or dropping paragraph
+text; it is the most fixture-tested part of the engine.
 
 ### Public API / data shapes
 
@@ -77,7 +108,7 @@ an optional second argument — additive, non-breaking.
 | `packages/core/src/types.ts` | `InterpretationNode` + supporting types |
 | `packages/core/src/linearize.ts` | the traversal + node emission |
 | `packages/core/src/visibility.ts` | AT-visibility predicate (aria-hidden/display/visibility/hidden) |
-| `packages/core/src/index.ts` | export `linearize`, types (replace the placeholder) |
+| `packages/core/src/index.ts` | export `linearize` + types; **remove the stub `IMPLICIT_ROLES`/`implicitRole`** (replaced by the §3 role resolution) |
 | `packages/core/package.json` | add `dom-accessibility-api`, `aria-query` deps |
 
 ## 5. Edge cases
@@ -87,6 +118,13 @@ an optional second argument — additive, non-breaking.
 - **Deferred (own specs):** shadow DOM + slots, cross-origin iframes, live regions, circular
   `aria-labelledby` (note: `dom-accessibility-api` already terminates these — add a fixture to
   confirm), verbosity-profile phrasing.
+- **Test-environment caveat:** `display:none` / `visibility:hidden` detection needs
+  `getComputedStyle`, which jsdom implements only partially (no layout). Visibility fixtures should
+  use **inline styles** or `happy-dom`/a real browser; attribute hiding (`aria-hidden`, `hidden`)
+  is reliable everywhere. The predicate must read computed style defensively.
+- **Reading order = DOM order.** Screen readers traverse the DOM/AX order, not the *visual* order,
+  so CSS reordering (flex/grid `order`, positioning) is intentionally not reflected — a known,
+  accepted divergence for this engine.
 
 ## 6. Privacy check (mandatory)
 
@@ -109,6 +147,8 @@ is enforced by ESLint (`no-restricted-globals`) and the `block-no-telemetry` hoo
 |---|---|---|---|
 | AC-1 | reading order of a nested document | fixture | `packages/core/src/linearize.test.ts` |
 | AC-2 | role + name for button/link/heading/img | fixture | `…/linearize.test.ts` |
+| AC-2 | name-from-content consumed **once**: button "Save" not double-read; `<p>` text surfaces as `text` | fixture | `…/linearize.test.ts` |
+| AC-2 | `<a>` without `href` is generic (not `link`); `<a href>` is `link` | fixture | `…/linearize.test.ts` |
 | AC-3 | aria-hidden / display:none subtree omitted | fixture | `…/visibility.test.ts` |
 | AC-4 | `<span class="h2">` ≠ heading; `<h2>`/`aria-level` = heading w/ level | fixture | `…/linearize.test.ts` |
 | AC-5 | icon-only `<button>` → `unnamed:true` | fixture | `…/linearize.test.ts` |
