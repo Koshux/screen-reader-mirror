@@ -6,7 +6,8 @@ companion to the live [GitHub Project board #4](https://github.com/users/Koshux/
 [📍 Roadmap & dependency overview issue (#26)](https://github.com/Koshux/screen-reader-mirror/issues/26).
 
 The narrative roadmap is in [roadmap.md](roadmap.md); the task detail is in [tasks.md](tasks.md);
-the process rules are in [../sdlc/README.md](../sdlc/README.md).
+the process rules are in [../sdlc/README.md](../sdlc/README.md). New to a term? See the plain-English
+[glossary](glossary.md).
 
 ---
 
@@ -55,7 +56,7 @@ flowchart TD
   classDef ready fill:#2da44e,color:#fff,stroke:#1a7f37;
   classDef blocked fill:#fff3cd,stroke:#b08800,color:#3d2e00;
 
-  subgraph M1["M1 · Core engine (npm + CDN)"]
+  subgraph M1["M1 · Interpreter library"]
     I1["#1 spec-review SPEC-001"]:::ready
     I2["#2 visibility predicate"]:::blocked
     I3["#3 node types"]:::blocked
@@ -65,19 +66,19 @@ flowchart TD
     I19["#19 README quickstart"]:::blocked
     I12["#12 CI cache/frozen"]:::ready
   end
-  subgraph M2["M2 · Fidelity"]
+  subgraph M2["M2 · Realistic voices + mistakes"]
     I10["#10 verbosity profiles"]:::blocked
     I11["#11 mismatch heuristics"]:::blocked
   end
-  subgraph M3["M3 · Extension"]
+  subgraph M3["M3 · Browser add-on"]
     I7["#7 extension MVP"]:::blocked
     I20["#20 chrome.debugger AX"]:::blocked
   end
-  subgraph M4["M4 · CLI + demo"]
+  subgraph M4["M4 · CLI + try-it site"]
     I8["#8 npx CLI"]:::blocked
     I9["#9 hosted demo"]:::blocked
   end
-  subgraph LATER["Later / exploratory"]
+  subgraph LATER["Later · Advanced & extras"]
     I21["#21 shadow DOM"]:::blocked
     I22["#22 iframes"]:::blocked
     I23["#23 live regions"]:::blocked
