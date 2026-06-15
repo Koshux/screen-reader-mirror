@@ -19,6 +19,9 @@ jobs:
   release:
     name: release
     runs-on: ubuntu-latest
+    # Expose the secret as env so the publish step can be guarded on its presence.
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -35,7 +38,12 @@ jobs:
 
       - run: pnpm build
 
+      # Only run the release machinery once an NPM_TOKEN secret exists. Until then this is a
+      # no-op (green), so every push to main doesn't fail trying to publish 0.0.0 with no auth.
+      # To cut M1: add the NPM_TOKEN secret, then push a changeset — the action opens a
+      # "Version Packages" PR; merging it bumps the version off 0.0.0 and the next run publishes.
       - name: Create Release PR or publish
+        if: ${{ env.NPM_TOKEN != '' }}
         uses: changesets/action@v1
         with:
           version: pnpm version-packages
