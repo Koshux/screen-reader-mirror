@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, afterEach } from "vitest";
 import { isHiddenFromAT } from "./visibility";
 
 /** Build an element from an HTML string and attach it so it has a document view. */
@@ -12,13 +12,19 @@ function el(html: string): Element {
   return child;
 }
 
+// Keep each test isolated — el() attaches to document.body, so reset it between tests.
+afterEach(() => {
+  document.body.innerHTML = "";
+});
+
 describe("isHiddenFromAT (SPEC-001 AC-3)", () => {
   it("a plain visible element is not hidden", () => {
     expect(isHiddenFromAT(el("<p>hi</p>"))).toBe(false);
   });
 
-  it('aria-hidden="true" hides; aria-hidden="false" does not', () => {
+  it('aria-hidden="true" hides (case-insensitive); aria-hidden="false" does not', () => {
     expect(isHiddenFromAT(el('<div aria-hidden="true">x</div>'))).toBe(true);
+    expect(isHiddenFromAT(el('<div aria-hidden="TRUE">x</div>'))).toBe(true);
     expect(isHiddenFromAT(el('<div aria-hidden="false">x</div>'))).toBe(false);
   });
 

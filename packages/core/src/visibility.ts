@@ -26,8 +26,9 @@ export interface VisibilityOptions {
 }
 
 export function isHiddenFromAT(el: Element, options: VisibilityOptions = {}): boolean {
-  // 1. aria-hidden — only the literal "true" hides (aria-hidden="false" does not).
-  if (el.getAttribute("aria-hidden") === "true") return true;
+  // 1. aria-hidden — case-insensitive "true" token (matches browser/Blink behaviour; any non-"true"
+  //    value, including "false" and the empty string, does not hide).
+  if (el.getAttribute("aria-hidden")?.toLowerCase() === "true") return true;
 
   // 2. the `hidden` attribute, except hidden="until-found" (visually hidden but still in the tree).
   const hidden = el.getAttribute("hidden");
