@@ -10,7 +10,7 @@
  */
 import type { InterpretationNode } from "./types";
 
-export type { InterpretationNode } from "./types";
+export type { InterpretationNode, NodeFlags } from "./types";
 
 /**
  * A small subset of HTML→implicit-ARIA-role mappings. SPEC-001 (task T4) replaces this with the
