@@ -58,3 +58,9 @@ SPEC-001 AC-1..AC-6 are implemented; AC-7 (exports/CDN/changeset) is #5.
    fixtures for broader real-world coverage) → then M1 is publishable.
 3. Consider filing a follow-up ticket for the nested-interactive-in-name-from-content refinement.
 4. Local-dev reminder persists: `pnpm install --force` after the folder rename (symlinks).
+
+## Addendum (2026-09-07)
+
+The "nested interactive inside a name-from-content role" limitation above was **not** a SPEC-001
+non-goal (§10 does not list it) — it was a defect, and the same leaf rule also dropped every table
+body. Both fixed on this branch; see `2026-09-07-spec-001-pr33-review-fixes.md`.
