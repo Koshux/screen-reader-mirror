@@ -34,7 +34,10 @@ export interface InterpretationNode {
   role: string;
   /** Accessible name per AccName 1.2. May be an empty string (see {@link NodeFlags.unnamed}). */
   name: string;
-  /** Heading level 1–6, present only when the node is a heading. */
+  /**
+   * Heading level, present only when the node is a heading: 1–6 from `<h1>`–`<h6>`, any integer
+   * ≥ 1 from an author `aria-level` (which wins over the tag), 2 when neither is given.
+   */
   level?: number;
   /** Notable conditions; omitted entirely when there are none. */
   flags?: NodeFlags;
