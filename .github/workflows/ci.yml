@@ -28,11 +28,10 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: 20
-          # Enable pnpm cache once pnpm-lock.yaml is committed:
-          # cache: pnpm
+          cache: pnpm # keyed on pnpm-lock.yaml
 
       - name: Install
-        run: pnpm install
+        run: pnpm install --frozen-lockfile # lockfile is the source of truth; fail if out of sync
 
       - name: Type-check
         run: pnpm typecheck
