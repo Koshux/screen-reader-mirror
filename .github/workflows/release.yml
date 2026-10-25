@@ -23,13 +23,13 @@ jobs:
     env:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - uses: pnpm/action-setup@v6
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org
@@ -44,7 +44,7 @@ jobs:
       # "Version Packages" PR; merging it bumps the version off 0.0.0 and the next run publishes.
       - name: Create Release PR or publish
         if: ${{ env.NPM_TOKEN != '' }}
-        uses: changesets/action@v1
+        uses: changesets/action@v2
         with:
           version: pnpm version-packages
           publish: pnpm release

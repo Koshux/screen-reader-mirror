@@ -41,14 +41,14 @@ function isLog(p) {
 }
 
 function main() {
-  let raw = "";
+  let raw;
   try {
     raw = fs.readFileSync(0, "utf8").trim();
   } catch {
     return;
   }
 
-  let payload = {};
+  let payload;
   try {
     payload = raw ? JSON.parse(raw) : {};
   } catch {
