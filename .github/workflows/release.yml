@@ -44,7 +44,7 @@ jobs:
       # "Version Packages" PR; merging it bumps the version off 0.0.0 and the next run publishes.
       - name: Create Release PR or publish
         if: ${{ env.NPM_TOKEN != '' }}
-        uses: changesets/action@v1
+        uses: changesets/action@v2
         with:
           version: pnpm version-packages
           publish: pnpm release
