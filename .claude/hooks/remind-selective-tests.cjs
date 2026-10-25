@@ -8,7 +8,7 @@
 const fs = require("fs");
 
 function main() {
-  let raw = "";
+  let raw;
   try {
     raw = fs.readFileSync(0, "utf8").trim();
   } catch {

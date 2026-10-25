@@ -30,7 +30,7 @@ function isGuardedCoreSource(filePath) {
 }
 
 function main() {
-  let raw = "";
+  let raw;
   try {
     raw = require("fs").readFileSync(0, "utf8").trim();
   } catch {
