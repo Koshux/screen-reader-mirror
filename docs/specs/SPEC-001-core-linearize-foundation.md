@@ -161,7 +161,7 @@ is enforced by ESLint (`no-restricted-globals`) and the `block-no-telemetry` hoo
 - [x] `visibility.ts`: AT-visibility predicate + fixtures (#2, PR #32).
 - [x] `types.ts`: `InterpretationNode` (#3, PR #31).
 - [x] `linearize.ts`: depth-first traversal, role + name, level, flags (#4, PR #33).
-- [x] Wire exports in `index.ts`; ESM build + `sideEffects:false` confirmed (PR #33). CDN consumability check → #5.
+- [x] Wire exports in `index.ts`; ESM build + `sideEffects:false` confirmed (PR #33). Dist smoke test + README quickstart (#5); post-publish CDN check → #19.
 - [x] Golden HTML fixtures for each AC (PR #33; broader real-world coverage → #6).
 - [x] `pnpm verify` green; `minor` changeset added (PR #33).
 
@@ -177,7 +177,7 @@ is enforced by ESLint (`no-restricted-globals`) and the `block-no-telemetry` hoo
 | AC-4 | `<span class="h2">` ≠ heading; `<h2>`/`aria-level` = heading w/ level | fixture | `…/linearize.test.ts` |
 | AC-5 | icon-only `<button>` → `unnamed:true` | fixture | `…/linearize.test.ts` |
 | AC-6 | missing `alt` flagged; `alt=""` omitted; `<img alt="" role="img">` exposed (explicit role wins) | fixture | `…/linearize.test.ts` |
-| AC-7 | package exports ESM; no network globals referenced | unit/lint | CI `lint` + `build` |
+| AC-7 | built package: ESM, `sideEffects:false`, exports → real files, only the two runtime deps imported, no Node/network globals, `linearize()` works from the bundle | dist smoke fixture | `packages/core/test/dist-smoke.test.ts` (+ CI `lint`/`build`) |
 | AC-1 | nested document: `nav > ul > li > a`, `main > section[aria-label] > h2 + p` | fixture | `…/linearize.test.ts` |
 | AC-1/2 | table keeps its body: rowgroup → row → columnheader/cell → link | fixture | `…/linearize.test.ts` |
 | AC-2 | nested elements inside link/heading emitted; their text not re-read | fixture | `…/linearize.test.ts` |

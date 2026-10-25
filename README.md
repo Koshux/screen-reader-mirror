@@ -61,9 +61,9 @@ Or use it straight from a CDN — no build step, globally available, no account 
 </script>
 ```
 
-> **Pre-alpha.** The public API is being shaped through the SDLC in [`docs/specs/`](./docs/specs/).
-> The first published release will be cut once `SPEC-001` lands. Watch the
-> [roadmap](./docs/project/roadmap.md).
+> **Pre-release.** `SPEC-001` (the reading-order engine) has landed; the first npm release, `0.1.0`,
+> is being cut. Until then the CDN URLs above resolve nothing. Watch the
+> [roadmap](./docs/project/board.md).
 
 ## Why it's safe for regulated and EU environments
 

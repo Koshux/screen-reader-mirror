@@ -29,7 +29,7 @@
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "pnpm build && changeset publish",
-    "verify": "pnpm typecheck && pnpm lint && pnpm test"
+    "verify": "pnpm typecheck && pnpm lint && pnpm build && pnpm test"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.1",
