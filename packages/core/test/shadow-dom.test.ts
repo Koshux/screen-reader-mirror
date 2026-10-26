@@ -35,13 +35,16 @@ describe("shadow DOM and slots (SPEC-003)", () => {
     ]);
   });
 
-  it("emits a host with a role as a container over its composed children (AC-2)", () => {
+  it("emits a host with an explicit or implicit role as a container over its composed children (AC-2)", () => {
     expect(pairs("host-role")).toEqual([
       ["list", ""],
       ["listitem", ""],
       ["text", "One"],
       ["listitem", ""],
       ["text", "Two"],
+      ["article", ""],
+      ["heading", "Built-in host"],
+      ["text", "Article text"],
     ]);
   });
 

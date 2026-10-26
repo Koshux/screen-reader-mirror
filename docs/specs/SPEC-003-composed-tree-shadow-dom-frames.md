@@ -1,7 +1,7 @@
 ---
 id: SPEC-003
 title: Composed-tree traversal, shadow DOM, slots, and frames
-status: spec-reviewed
+status: implemented # feat/SPEC-003-composed-tree
 journeys: [JNY-003]
 target: core
 created: 2026-10-26
@@ -34,6 +34,29 @@ created: 2026-10-26
 > 6. The `document` node carries its own frame index as well, so "frame n starts here" and
 >    "inside frame n" read the same field (§3). Cross-origin frames are simulated in tests by
 >    making `contentDocument` throw (§8). The output never includes a frame's URL (§6).
+
+> **Implementation notes (backfilled 2026-10-26).** What building it clarified:
+> 1. Slots are walked with `assignedNodes()`, not `{ flatten: true }`: an assigned slot is walked
+>    as an element in its turn, so a hidden slot at any level hides what it carries (AC-8). The
+>    test DOM's flattened call also omits fallback content.
+> 2. Role rules that read the parent now read the composed parent, which the walk records as it
+>    goes. The Chrome probe showed two cases the light-tree parent gets wrong: an `<li>` slotted
+>    into a shadow `<ul>` is a listitem, and a `<header>` at the top of a shadow root inside an
+>    `<article>` is scoped to the article, not the body.
+> 3. Text runs inside a frame carry `ref: { tag: "#text", frame }`, so the frame's extent is
+>    unambiguous when it ends with text. Outside frames, text runs still have no `ref`.
+> 4. A frame is unreachable only when `contentDocument` is null or throws. A readable document
+>    with no body is an empty frame.
+> 5. A host named from its content (`role="button"` on a custom element) gets only its light
+>    text: `dom-accessibility-api` walks slots but not a host's shadow root. Chrome includes the
+>    shadow text. Pinned with an `it.fails` test as an upstream limit.
+> 6. The tests live in `packages/core/test/` with the other file-reading tests, because the core
+>    typecheck covers `src` only. Each case is written once in a probe page under
+>    `fixtures/probes/`; the unit tests load it by `data-case` and attach the declarative roots in
+>    code, and `pnpm ax:compare` loads the same page in Chrome.
+> 7. `LinearizeOptions` stays in `linearize.ts`, where it was already defined. The oracle finds
+>    child frames from the frame owner's `frameId` in the DOM snapshot rather than
+>    `Page.getFrameTree`, which gives the owner-to-frame mapping directly.
 
 ## 1. Summary
 
@@ -239,17 +262,17 @@ ESLint guard and the hook are unchanged.
 
 Branch from `main` after PR #52 has merged: the oracle scripts and `labelledControl` come from it.
 
-- [ ] `types.ts`: the three additive fields and the option.
-- [ ] `linearize.ts`: `composedChildren()`, slot fallback, host handling, `ref.shadow`.
-- [ ] `linearize.ts`: frame handling, `ref.frame`, `flags.unreachable`; `roles.ts`: `iframe`, and
+- [x] `types.ts`: the three additive fields and the option.
+- [x] `linearize.ts`: `composedChildren()`, slot fallback, host handling, `ref.shadow`.
+- [x] `linearize.ts`: frame handling, `ref.frame`, `flags.unreachable`; `roles.ts`: `iframe`, and
       `labelledControl` scoped to `getRootNode()`.
-- [ ] `shadow-dom.test.ts` and `frames.test.ts`: one fixture per AC, including a nested case
+- [x] `shadow-dom.test.ts` and `frames.test.ts`: one fixture per AC, including a nested case
       checked line for line against the Chrome oracle.
-- [ ] `scripts/ax-tree.mjs`: frame descent; a declarative-shadow-DOM probe page under
+- [x] `scripts/ax-tree.mjs`: frame descent; a declarative-shadow-DOM probe page under
       `packages/core/test/fixtures/probes/` for the oracle. Not under `fixtures/pages`, where the
       golden-page test would pick it up, and the test DOM cannot parse declarative roots.
-- [ ] README: composed tree, frames, closed-root limit, `getShadowRoot`.
-- [ ] `minor` changeset; `pnpm verify` green; log.
+- [x] README: composed tree, frames, closed-root limit, `getShadowRoot`.
+- [x] `minor` changeset; `pnpm verify` green; log.
 
 ## 8. Test plan
 

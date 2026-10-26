@@ -105,10 +105,14 @@ export async function openPage(absolutePath) {
         if (raw) return nodes;
         const { root } = await cdp.send("DOM.getDocument", { depth: -1, pierce: true }, sessionId);
         const tags = new Map();
-        const frameOwners = new Map(); // iframe backendNodeId -> the child frame's id
+        const frameOwners = new Map(); // iframe backendNodeId -> the child frame's id, or null
         const walk = (n) => {
           tags.set(n.backendNodeId, (n.nodeName ?? "").toLowerCase());
-          if (n.frameId && n.contentDocument) frameOwners.set(n.backendNodeId, n.frameId);
+          // A frame owner carries its child frame's id (the html element carries its own frame's
+          // id too, so match on the tag). An out-of-process frame has no document in this DOM.
+          if (n.frameId && /^i?frame$/i.test(n.nodeName ?? "")) {
+            frameOwners.set(n.backendNodeId, n.contentDocument ? n.frameId : null);
+          }
           for (const c of n.children ?? []) walk(c);
           if (n.contentDocument) walk(n.contentDocument);
           for (const s of n.shadowRoots ?? []) walk(s);
@@ -116,6 +120,10 @@ export async function openPage(absolutePath) {
         walk(root);
         const frames = new Map(); // iframe backendNodeId -> that frame's AX nodes, or null
         for (const [owner, frameId] of frameOwners) {
+          if (!frameId) {
+            frames.set(owner, null);
+            continue;
+          }
           try {
             const r = await cdp.send("Accessibility.getFullAXTree", { frameId }, sessionId);
             frames.set(owner, r.nodes);
