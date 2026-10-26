@@ -1,0 +1,629 @@
+[
+  {
+    "role": "banner",
+    "name": "",
+    "ref": {
+      "tag": "header"
+    }
+  },
+  {
+    "role": "navigation",
+    "name": "Site",
+    "ref": {
+      "tag": "nav"
+    }
+  },
+  {
+    "role": "link",
+    "name": "Docs home",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "img",
+    "name": "Docs home",
+    "ref": {
+      "tag": "img"
+    }
+  },
+  {
+    "role": "list",
+    "name": "",
+    "ref": {
+      "tag": "ul"
+    }
+  },
+  {
+    "role": "listitem",
+    "name": "",
+    "ref": {
+      "tag": "li"
+    }
+  },
+  {
+    "role": "link",
+    "name": "Guides",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "listitem",
+    "name": "",
+    "ref": {
+      "tag": "li"
+    }
+  },
+  {
+    "role": "link",
+    "name": "Reference",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "navigation",
+    "name": "On this page",
+    "ref": {
+      "tag": "nav"
+    }
+  },
+  {
+    "role": "heading",
+    "name": "In this article",
+    "ref": {
+      "tag": "h2"
+    },
+    "level": 2
+  },
+  {
+    "role": "list",
+    "name": "",
+    "ref": {
+      "tag": "ol"
+    }
+  },
+  {
+    "role": "listitem",
+    "name": "",
+    "ref": {
+      "tag": "li"
+    }
+  },
+  {
+    "role": "link",
+    "name": "Syntax",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "listitem",
+    "name": "",
+    "ref": {
+      "tag": "li"
+    }
+  },
+  {
+    "role": "link",
+    "name": "Values",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "list",
+    "name": "",
+    "ref": {
+      "tag": "ol"
+    }
+  },
+  {
+    "role": "listitem",
+    "name": "",
+    "ref": {
+      "tag": "li"
+    }
+  },
+  {
+    "role": "link",
+    "name": "Keywords",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "listitem",
+    "name": "",
+    "ref": {
+      "tag": "li"
+    }
+  },
+  {
+    "role": "link",
+    "name": "Lengths",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "listitem",
+    "name": "",
+    "ref": {
+      "tag": "li"
+    }
+  },
+  {
+    "role": "link",
+    "name": "Examples",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "main",
+    "name": "",
+    "ref": {
+      "tag": "main"
+    }
+  },
+  {
+    "role": "article",
+    "name": "",
+    "ref": {
+      "tag": "article"
+    }
+  },
+  {
+    "role": "heading",
+    "name": "gap",
+    "ref": {
+      "tag": "h1"
+    },
+    "level": 1
+  },
+  {
+    "role": "text",
+    "name": "The gap property sets the space between rows and columns in grid, flex, and multi-column layouts. It is a shorthand for row-gap and column-gap."
+  },
+  {
+    "role": "figure",
+    "name": "",
+    "ref": {
+      "tag": "figure"
+    }
+  },
+  {
+    "role": "img",
+    "name": "Three boxes in a row with equal space between them",
+    "ref": {
+      "tag": "img"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Gaps apply between items, never on the outer edges."
+  },
+  {
+    "role": "heading",
+    "name": "Syntax",
+    "ref": {
+      "tag": "h2"
+    },
+    "level": 2
+  },
+  {
+    "role": "text",
+    "name": "gap: 1rem; gap: 1rem 2rem; gap: calc(1rem + 2px);"
+  },
+  {
+    "role": "heading",
+    "name": "Values",
+    "ref": {
+      "tag": "h2"
+    },
+    "level": 2
+  },
+  {
+    "role": "term",
+    "name": "",
+    "ref": {
+      "tag": "dt"
+    }
+  },
+  {
+    "role": "text",
+    "name": "<length>"
+  },
+  {
+    "role": "definition",
+    "name": "",
+    "ref": {
+      "tag": "dd"
+    }
+  },
+  {
+    "role": "text",
+    "name": "A fixed size, such as 16px or 1rem. Negative values are invalid."
+  },
+  {
+    "role": "term",
+    "name": "",
+    "ref": {
+      "tag": "dt"
+    }
+  },
+  {
+    "role": "text",
+    "name": "<percentage>"
+  },
+  {
+    "role": "definition",
+    "name": "",
+    "ref": {
+      "tag": "dd"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Relative to the size of the container along the relevant axis."
+  },
+  {
+    "role": "term",
+    "name": "",
+    "ref": {
+      "tag": "dt"
+    }
+  },
+  {
+    "role": "text",
+    "name": "normal"
+  },
+  {
+    "role": "definition",
+    "name": "",
+    "ref": {
+      "tag": "dd"
+    }
+  },
+  {
+    "role": "text",
+    "name": "The browser default: 1em for multi-column layout, 0 elsewhere."
+  },
+  {
+    "role": "heading",
+    "name": "Keywords",
+    "ref": {
+      "tag": "h3"
+    },
+    "level": 3
+  },
+  {
+    "role": "text",
+    "name": "Only normal is a keyword. Earlier drafts also allowed auto, which was removed."
+  },
+  {
+    "role": "heading",
+    "name": "Lengths",
+    "ref": {
+      "tag": "h3"
+    },
+    "level": 3
+  },
+  {
+    "role": "table",
+    "name": "",
+    "ref": {
+      "tag": "table"
+    }
+  },
+  {
+    "role": "rowgroup",
+    "name": "",
+    "ref": {
+      "tag": "thead"
+    }
+  },
+  {
+    "role": "row",
+    "name": "",
+    "ref": {
+      "tag": "tr"
+    }
+  },
+  {
+    "role": "columnheader",
+    "name": "Unit",
+    "ref": {
+      "tag": "th"
+    }
+  },
+  {
+    "role": "columnheader",
+    "name": "Relative to",
+    "ref": {
+      "tag": "th"
+    }
+  },
+  {
+    "role": "columnheader",
+    "name": "Example",
+    "ref": {
+      "tag": "th"
+    }
+  },
+  {
+    "role": "row",
+    "name": "",
+    "ref": {
+      "tag": "tr"
+    }
+  },
+  {
+    "role": "cell",
+    "name": "px",
+    "ref": {
+      "tag": "td"
+    }
+  },
+  {
+    "role": "cell",
+    "name": "nothing",
+    "ref": {
+      "tag": "td"
+    }
+  },
+  {
+    "role": "cell",
+    "name": "gap: 8px",
+    "ref": {
+      "tag": "td"
+    }
+  },
+  {
+    "role": "row",
+    "name": "",
+    "ref": {
+      "tag": "tr"
+    }
+  },
+  {
+    "role": "cell",
+    "name": "rem",
+    "ref": {
+      "tag": "td"
+    }
+  },
+  {
+    "role": "cell",
+    "name": "the root font size",
+    "ref": {
+      "tag": "td"
+    }
+  },
+  {
+    "role": "cell",
+    "name": "gap: 0.5rem",
+    "ref": {
+      "tag": "td"
+    }
+  },
+  {
+    "role": "row",
+    "name": "",
+    "ref": {
+      "tag": "tr"
+    }
+  },
+  {
+    "role": "cell",
+    "name": "%",
+    "ref": {
+      "tag": "td"
+    }
+  },
+  {
+    "role": "cell",
+    "name": "the container",
+    "ref": {
+      "tag": "td"
+    }
+  },
+  {
+    "role": "cell",
+    "name": "gap: 5%",
+    "ref": {
+      "tag": "td"
+    }
+  },
+  {
+    "role": "heading",
+    "name": "Examples",
+    "ref": {
+      "tag": "h2"
+    },
+    "level": 2
+  },
+  {
+    "role": "text",
+    "name": "A two-column grid with a 1rem gap:"
+  },
+  {
+    "role": "text",
+    "name": ".grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }"
+  },
+  {
+    "role": "blockquote",
+    "name": "",
+    "ref": {
+      "tag": "blockquote"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Use gap instead of margins on grid items; it does not add space at the edges."
+  },
+  {
+    "role": "text",
+    "name": "From the Layout Cookbook"
+  },
+  {
+    "role": "complementary",
+    "name": "Browser support",
+    "ref": {
+      "tag": "aside"
+    }
+  },
+  {
+    "role": "heading",
+    "name": "Browser support",
+    "ref": {
+      "tag": "h2"
+    },
+    "level": 2
+  },
+  {
+    "role": "text",
+    "name": "Chrome"
+  },
+  {
+    "role": "text",
+    "name": "84"
+  },
+  {
+    "role": "text",
+    "name": "Firefox"
+  },
+  {
+    "role": "text",
+    "name": "63"
+  },
+  {
+    "role": "text",
+    "name": "Safari"
+  },
+  {
+    "role": "text",
+    "name": "14.1"
+  },
+  {
+    "role": "text",
+    "name": "Data from the compatibility tables, updated 30 Sep 2026."
+  },
+  {
+    "role": "heading",
+    "name": "See also",
+    "ref": {
+      "tag": "h2"
+    },
+    "level": 2
+  },
+  {
+    "role": "list",
+    "name": "",
+    "ref": {
+      "tag": "ul"
+    }
+  },
+  {
+    "role": "listitem",
+    "name": "",
+    "ref": {
+      "tag": "li"
+    }
+  },
+  {
+    "role": "link",
+    "name": "row-gap",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "listitem",
+    "name": "",
+    "ref": {
+      "tag": "li"
+    }
+  },
+  {
+    "role": "link",
+    "name": "column-gap",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "listitem",
+    "name": "",
+    "ref": {
+      "tag": "li"
+    }
+  },
+  {
+    "role": "link",
+    "name": "The specification (ext)",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "region",
+    "name": "Was this page helpful?",
+    "ref": {
+      "tag": "section"
+    }
+  },
+  {
+    "role": "heading",
+    "name": "Was this page helpful?",
+    "ref": {
+      "tag": "h2"
+    },
+    "level": 2
+  },
+  {
+    "role": "button",
+    "name": "Yes",
+    "ref": {
+      "tag": "button"
+    }
+  },
+  {
+    "role": "button",
+    "name": "No",
+    "ref": {
+      "tag": "button"
+    }
+  },
+  {
+    "role": "link",
+    "name": "Edit this page",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "contentinfo",
+    "name": "",
+    "ref": {
+      "tag": "footer"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Content is available under the"
+  },
+  {
+    "role": "link",
+    "name": "CC-BY-SA",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "text",
+    "name": "license."
+  }
+]

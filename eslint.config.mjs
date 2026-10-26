@@ -36,6 +36,20 @@ export default tseslint.config(
     },
   },
   {
+    // Node ESM dev scripts (the Chrome accessibility-tree oracle). Node globals by design.
+    files: ["scripts/**/*.mjs"],
+    languageOptions: {
+      globals: {
+        process: "readonly",
+        console: "readonly",
+        fetch: "readonly",
+        WebSocket: "readonly",
+        setTimeout: "readonly",
+        URL: "readonly",
+      },
+    },
+  },
+  {
     // The core engine must stay client-side and offline. Flag any sign of a network
     // client sneaking in. Targets that legitimately need the network (cli, web server)
     // override this in their own config.

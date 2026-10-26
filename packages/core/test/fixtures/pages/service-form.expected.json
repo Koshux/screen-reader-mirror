@@ -1,0 +1,465 @@
+[
+  {
+    "role": "banner",
+    "name": "",
+    "ref": {
+      "tag": "header"
+    }
+  },
+  {
+    "role": "link",
+    "name": "Apply for a parking permit",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "navigation",
+    "name": "Breadcrumb",
+    "ref": {
+      "tag": "nav"
+    }
+  },
+  {
+    "role": "list",
+    "name": "",
+    "ref": {
+      "tag": "ol"
+    }
+  },
+  {
+    "role": "listitem",
+    "name": "",
+    "ref": {
+      "tag": "li"
+    }
+  },
+  {
+    "role": "link",
+    "name": "Home",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "listitem",
+    "name": "",
+    "ref": {
+      "tag": "li"
+    }
+  },
+  {
+    "role": "link",
+    "name": "Permits",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "listitem",
+    "name": "",
+    "ref": {
+      "tag": "li"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Your details"
+  },
+  {
+    "role": "main",
+    "name": "",
+    "ref": {
+      "tag": "main"
+    }
+  },
+  {
+    "role": "link",
+    "name": "Back",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "alert",
+    "name": "",
+    "ref": {
+      "tag": "div"
+    }
+  },
+  {
+    "role": "heading",
+    "name": "There is a problem",
+    "ref": {
+      "tag": "h2"
+    },
+    "level": 2
+  },
+  {
+    "role": "list",
+    "name": "",
+    "ref": {
+      "tag": "ul"
+    }
+  },
+  {
+    "role": "listitem",
+    "name": "",
+    "ref": {
+      "tag": "li"
+    }
+  },
+  {
+    "role": "link",
+    "name": "Enter an email address in the correct format",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "listitem",
+    "name": "",
+    "ref": {
+      "tag": "li"
+    }
+  },
+  {
+    "role": "link",
+    "name": "Select your nationality",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Step 2 of 4"
+  },
+  {
+    "role": "heading",
+    "name": "Your details",
+    "ref": {
+      "tag": "h1"
+    },
+    "level": 1
+  },
+  {
+    "role": "text",
+    "name": "We use these details to send you the permit and to check you are eligible."
+  },
+  {
+    "role": "form",
+    "name": "",
+    "ref": {
+      "tag": "form"
+    }
+  },
+  {
+    "role": "group",
+    "name": "Full name",
+    "ref": {
+      "tag": "fieldset"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Full name"
+  },
+  {
+    "role": "text",
+    "name": "First name"
+  },
+  {
+    "role": "textbox",
+    "name": "First name",
+    "ref": {
+      "tag": "input"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Last name"
+  },
+  {
+    "role": "textbox",
+    "name": "Last name",
+    "ref": {
+      "tag": "input"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Email address"
+  },
+  {
+    "role": "text",
+    "name": "We will only use this to send the permit."
+  },
+  {
+    "role": "text",
+    "name": "Error: Enter an email address in the correct format"
+  },
+  {
+    "role": "textbox",
+    "name": "Email address",
+    "ref": {
+      "tag": "input"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Phone number"
+  },
+  {
+    "role": "textbox",
+    "name": "Phone number",
+    "ref": {
+      "tag": "input"
+    }
+  },
+  {
+    "role": "textbox",
+    "name": "Vehicle registration",
+    "ref": {
+      "tag": "input"
+    }
+  },
+  {
+    "role": "group",
+    "name": "Date of birth",
+    "ref": {
+      "tag": "fieldset"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Date of birth"
+  },
+  {
+    "role": "text",
+    "name": "For example, 27 3 1990"
+  },
+  {
+    "role": "text",
+    "name": "Day"
+  },
+  {
+    "role": "textbox",
+    "name": "Day",
+    "ref": {
+      "tag": "input"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Month"
+  },
+  {
+    "role": "textbox",
+    "name": "Month",
+    "ref": {
+      "tag": "input"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Year"
+  },
+  {
+    "role": "textbox",
+    "name": "Year",
+    "ref": {
+      "tag": "input"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Nationality"
+  },
+  {
+    "role": "combobox",
+    "name": "Nationality",
+    "ref": {
+      "tag": "select"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Select your nationality"
+  },
+  {
+    "role": "group",
+    "name": "",
+    "ref": {
+      "tag": "details"
+    }
+  },
+  {
+    "role": "button",
+    "name": "Help with nationality",
+    "ref": {
+      "tag": "summary"
+    }
+  },
+  {
+    "role": "group",
+    "name": "Which days do you need the permit?",
+    "ref": {
+      "tag": "fieldset"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Which days do you need the permit?"
+  },
+  {
+    "role": "checkbox",
+    "name": "Weekdays",
+    "ref": {
+      "tag": "input"
+    }
+  },
+  {
+    "role": "checkbox",
+    "name": "Weekends",
+    "ref": {
+      "tag": "input"
+    }
+  },
+  {
+    "role": "group",
+    "name": "Do you have a blue badge?",
+    "ref": {
+      "tag": "fieldset"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Do you have a blue badge?"
+  },
+  {
+    "role": "radio",
+    "name": "Yes",
+    "ref": {
+      "tag": "input"
+    }
+  },
+  {
+    "role": "radio",
+    "name": "No",
+    "ref": {
+      "tag": "input"
+    }
+  },
+  {
+    "role": "term",
+    "name": "",
+    "ref": {
+      "tag": "dt"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Permit type"
+  },
+  {
+    "role": "definition",
+    "name": "",
+    "ref": {
+      "tag": "dd"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Resident"
+  },
+  {
+    "role": "term",
+    "name": "",
+    "ref": {
+      "tag": "dt"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Zone"
+  },
+  {
+    "role": "definition",
+    "name": "",
+    "ref": {
+      "tag": "dd"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Valletta CPZ 3"
+  },
+  {
+    "role": "text",
+    "name": "Continue"
+  },
+  {
+    "role": "button",
+    "name": "Save and come back later",
+    "ref": {
+      "tag": "input"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Progress is saved for 30 days."
+  },
+  {
+    "role": "text",
+    "name": "You can return at any time."
+  },
+  {
+    "role": "contentinfo",
+    "name": "",
+    "ref": {
+      "tag": "footer"
+    }
+  },
+  {
+    "role": "navigation",
+    "name": "Support links",
+    "ref": {
+      "tag": "nav"
+    }
+  },
+  {
+    "role": "list",
+    "name": "",
+    "ref": {
+      "tag": "ul"
+    }
+  },
+  {
+    "role": "listitem",
+    "name": "",
+    "ref": {
+      "tag": "li"
+    }
+  },
+  {
+    "role": "link",
+    "name": "Help",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "listitem",
+    "name": "",
+    "ref": {
+      "tag": "li"
+    }
+  },
+  {
+    "role": "link",
+    "name": "Accessibility statement",
+    "ref": {
+      "tag": "a"
+    }
+  }
+]

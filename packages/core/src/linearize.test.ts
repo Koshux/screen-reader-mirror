@@ -163,13 +163,14 @@ describe("conditional role resolution (SPEC-001 §3)", () => {
     ]);
   });
 
-  it("<section> and <form> are landmarks only when they have an accessible name", () => {
+  it("<section> is a landmark only when named; every <form> is exposed as a form, as Chrome does", () => {
     expect(linearize(root("<section><p>Hi</p></section>"))).toEqual([{ role: "text", name: "Hi" }]);
     expect(linearize(root('<section aria-label="News"><p>Hi</p></section>'))).toEqual([
       { role: "region", name: "News", ref: { tag: "section" } },
       { role: "text", name: "Hi" },
     ]);
     expect(linearize(root('<form><input aria-label="Q"></form>'))).toEqual([
+      { role: "form", name: "", ref: { tag: "form" } },
       { role: "textbox", name: "Q", ref: { tag: "input" } },
     ]);
     expect(linearize(root('<form aria-labelledby="t"><h2 id="t">Search</h2></form>'))).toEqual([
@@ -180,7 +181,7 @@ describe("conditional role resolution (SPEC-001 §3)", () => {
 });
 
 describe("containers, leaves and the no-double-read rule (SPEC-001 §3)", () => {
-  it("a table keeps its body: rowgroups, rows, header cells, cells and the links inside them", () => {
+  it("a table keeps its body: the head row group, unnamed rows, header cells, cells and the links inside them", () => {
     const out = linearize(
       root(
         "<table><thead><tr><th>Col</th></tr></thead>" +
@@ -190,10 +191,9 @@ describe("containers, leaves and the no-double-read rule (SPEC-001 §3)", () => 
     expect(out.map((n) => [n.role, n.name, n.ref?.tag])).toEqual([
       ["table", "", "table"],
       ["rowgroup", "", "thead"],
-      ["row", "Col", "tr"],
+      ["row", "", "tr"],
       ["columnheader", "Col", "th"],
-      ["rowgroup", "", "tbody"],
-      ["row", "A Edit", "tr"],
+      ["row", "", "tr"],
       ["cell", "A", "td"],
       ["cell", "Edit", "td"],
       ["link", "Edit", "a"],
@@ -234,8 +234,7 @@ describe("containers, leaves and the no-double-read rule (SPEC-001 §3)", () => 
     const out = linearize(root('<table><tr><th scope="row">Name</th><td>Ann</td></tr></table>'));
     expect(out.map((n) => [n.role, n.name])).toEqual([
       ["table", ""],
-      ["rowgroup", ""],
-      ["row", "Name Ann"],
+      ["row", ""],
       ["rowheader", "Name"],
       ["cell", "Ann"],
     ]);
@@ -307,8 +306,7 @@ describe("flags on real-world markup (AC-5 / AC-6)", () => {
     expect(out.some((n) => n.flags?.unnamed)).toBe(false);
     expect(out.map((n) => [n.role, n.name])).toEqual([
       ["table", ""],
-      ["rowgroup", ""],
-      ["row", "Q1"],
+      ["row", ""],
       ["columnheader", ""],
       ["columnheader", "Q1"],
       ["row", ""],
@@ -331,11 +329,12 @@ describe("flags on real-world markup (AC-5 / AC-6)", () => {
 
 describe("text context resets per container (SPEC-001 §3)", () => {
   it("a list inside a table cell keeps its item text; a rowgroup does not consume text", () => {
-    const out = linearize(root("<table><tr><td><ul><li>A</li><li>B</li></ul></td></tr></table>"));
+    // The header cell keeps this a data table under the layout-table heuristic.
+    const out = linearize(root("<table><tr><th>K</th><td><ul><li>A</li><li>B</li></ul></td></tr></table>"));
     expect(out.map((n) => [n.role, n.name])).toEqual([
       ["table", ""],
-      ["rowgroup", ""],
-      ["row", "A B"],
+      ["row", ""],
+      ["rowheader", "K"],
       ["cell", "A B"],
       ["list", ""],
       ["listitem", ""],
@@ -350,7 +349,7 @@ describe("text context resets per container (SPEC-001 §3)", () => {
       ["table", ""],
       ["rowgroup", ""],
       ["text", "Note"],
-      ["row", "A"],
+      ["row", ""],
       ["cell", "A"],
     ]);
   });
@@ -445,7 +444,6 @@ describe("more conditional implicit roles (SPEC-001 §3)", () => {
   it("<td> in a role=grid table is a gridcell", () => {
     expect(linearize(root('<table role="grid"><tr><td>x</td></tr></table>')).map((n) => n.role)).toEqual([
       "grid",
-      "rowgroup",
       "row",
       "gridcell",
     ]);
@@ -529,8 +527,7 @@ describe("fidelity gaps closed on 2026-10-26 (SPEC-001 §3)", () => {
       ["table", "Sales"],
       ["caption", ""],
       ["text", "Sales"],
-      ["rowgroup", ""],
-      ["row", "1"],
+      ["row", ""],
       ["cell", "1"],
     ]);
   });
@@ -561,6 +558,112 @@ describe("fidelity gaps closed on 2026-10-26 (SPEC-001 §3)", () => {
     expect(linearize(root('<ul role="navigation"><li><a href="/x">X</a></li></ul>')).map((n) => n.role)).toEqual([
       "navigation",
       "link",
+    ]);
+  });
+});
+
+describe("behaviour checked against Chrome's accessibility tree (#6)", () => {
+  it("exposes thead and tfoot as row groups, never tbody; rows are named by the author or not at all", () => {
+    const out = linearize(
+      root(
+        "<table><thead><tr><th>H</th></tr></thead><tbody><tr><td>1</td></tr></tbody>" +
+          "<tfoot><tr><td>F</td></tr></tfoot></table>",
+      ),
+    );
+    expect(out.map((n) => [n.role, n.name, n.ref?.tag])).toEqual([
+      ["table", "", "table"],
+      ["rowgroup", "", "thead"],
+      ["row", "", "tr"],
+      ["columnheader", "H", "th"],
+      ["row", "", "tr"],
+      ["cell", "1", "td"],
+      ["rowgroup", "", "tfoot"],
+      ["row", "", "tr"],
+      ["cell", "F", "td"],
+    ]);
+    expect(linearize(root('<table><tr aria-label="Totals"><th>k</th><td>v</td></tr></table>')).map((n) => [n.role, n.name])).toEqual([
+      ["table", ""],
+      ["row", "Totals"],
+      ["rowheader", "k"],
+      ["cell", "v"],
+    ]);
+  });
+
+  it("applies the layout-table heuristic: no headers, caption, or sections plus one row or column, or no borders, is not a table", () => {
+    expect(linearize(root("<table><tr><td>a</td><td>b</td></tr></table>")).map((n) => [n.role, n.name])).toEqual([
+      ["text", "a"],
+      ["text", "b"],
+    ]);
+    expect(
+      linearize(root("<table><tr><td>a</td><td>b</td></tr><tr><td>c</td><td>d</td></tr></table>")).map((n) => n.role),
+    ).toEqual(["text", "text", "text", "text"]);
+    const cell = (t: string) => `<td style="border:1px solid #000">${t}</td>`;
+    expect(
+      linearize(root(`<table><tr>${cell("a")}${cell("b")}</tr><tr>${cell("c")}${cell("d")}</tr></table>`)).map((n) => n.role),
+    ).toEqual(["table", "row", "cell", "cell", "row", "cell", "cell"]);
+    expect(linearize(root("<table><tr><th>k</th><td>v</td></tr></table>")).map((n) => n.role)).toEqual([
+      "table",
+      "row",
+      "rowheader",
+      "cell",
+    ]);
+    // The border attribute is a presentation signal: it counts only once the size rule is silent.
+    expect(linearize(root('<table border="1"><tr><td>1</td></tr></table>')).map((n) => [n.role, n.name])).toEqual([["text", "1"]]);
+    expect(
+      linearize(root('<table border="1"><tr><td>a</td><td>b</td></tr><tr><td>c</td><td>d</td></tr></table>')).map((n) => n.role),
+    ).toEqual(["table", "row", "cell", "cell", "row", "cell", "cell"]);
+    expect(linearize(root('<table summary="Totals"><tr><td>1</td></tr></table>')).map((n) => [n.role, n.name])).toEqual([
+      ["table", "Totals"],
+      ["row", ""],
+      ["cell", "1"],
+    ]);
+  });
+
+  it("maps dt and dd to term and definition (unnamed; the text reads as content) and blockquote to blockquote", () => {
+    expect(
+      linearize(root("<dl><dt>Zone</dt><dd>Valletta</dd></dl><blockquote>Keep it small.</blockquote>")).map((n) => [n.role, n.name]),
+    ).toEqual([
+      ["term", ""],
+      ["text", "Zone"],
+      ["definition", ""],
+      ["text", "Valletta"],
+      ["blockquote", ""],
+      ["text", "Keep it small."],
+    ]);
+  });
+
+  it("names a text field from its placeholder when nothing else names it", () => {
+    expect(linearize(root('<input type="text" placeholder="Vehicle registration">'))).toEqual([
+      { role: "textbox", name: "Vehicle registration", ref: { tag: "input" } },
+    ]);
+    expect(linearize(root('<textarea placeholder="Notes"></textarea>'))).toEqual([
+      { role: "textbox", name: "Notes", ref: { tag: "textarea" } },
+    ]);
+  });
+
+  it("reads a label's text only as the name of a checkbox or radio, but also as text for a text field", () => {
+    expect(
+      linearize(root('<label><input type="checkbox"> Weekdays</label><label for="r">Yes</label><input id="r" type="radio">')).map(
+        (n) => [n.role, n.name],
+      ),
+    ).toEqual([
+      ["checkbox", "Weekdays"],
+      ["radio", "Yes"],
+    ]);
+    expect(linearize(root('<label>Town <input type="text"></label>')).map((n) => [n.role, n.name])).toEqual([
+      ["text", "Town"],
+      ["textbox", "Town"],
+    ]);
+  });
+
+  it("<progress> and <meter> are leaves named by the author", () => {
+    expect(
+      linearize(
+        root('<progress value="40" max="100" aria-label="Progress">40%</progress><meter value="0.7" aria-label="Priority">High</meter>'),
+      ).map((n) => [n.role, n.name]),
+    ).toEqual([
+      ["progressbar", "Progress"],
+      ["meter", "Priority"],
     ]);
   });
 });

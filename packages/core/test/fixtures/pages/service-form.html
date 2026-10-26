@@ -1,0 +1,97 @@
+<header>
+  <a href="/">Apply for a parking permit</a>
+  <nav aria-label="Breadcrumb">
+    <ol>
+      <li><a href="/">Home</a></li>
+      <li><a href="/permits">Permits</a></li>
+      <li aria-current="page">Your details</li>
+    </ol>
+  </nav>
+</header>
+
+<main>
+  <a href="/permits/start" class="back">Back</a>
+  <div role="alert" tabindex="-1">
+    <h2>There is a problem</h2>
+    <ul>
+      <li><a href="#email">Enter an email address in the correct format</a></li>
+      <li><a href="#nationality">Select your nationality</a></li>
+    </ul>
+  </div>
+
+  <span class="caption">Step 2 of 4</span>
+  <h1>Your details</h1>
+  <p class="lead">We use these details to send you the permit and to check you are eligible.</p>
+
+  <form method="post">
+    <fieldset>
+      <legend>Full name</legend>
+      <label for="first">First name</label>
+      <input id="first" type="text" autocomplete="given-name">
+      <label for="last">Last name</label>
+      <input id="last" type="text" autocomplete="family-name">
+    </fieldset>
+
+    <label for="email">Email address</label>
+    <div id="email-hint">We will only use this to send the permit.</div>
+    <p id="email-error"><span class="visually-hidden">Error:</span> Enter an email address in the correct format</p>
+    <input id="email" type="email" aria-describedby="email-hint email-error" aria-invalid="true" value="priya@example">
+
+    <label>Phone number
+      <input type="tel" autocomplete="tel">
+    </label>
+
+    <input type="text" placeholder="Vehicle registration">
+
+    <fieldset>
+      <legend>Date of birth</legend>
+      <div id="dob-hint">For example, 27 3 1990</div>
+      <label for="dob-day">Day</label><input id="dob-day" inputmode="numeric" aria-describedby="dob-hint">
+      <label for="dob-month">Month</label><input id="dob-month" inputmode="numeric">
+      <label for="dob-year">Year</label><input id="dob-year" inputmode="numeric">
+    </fieldset>
+
+    <label for="nationality">Nationality</label>
+    <select id="nationality" aria-describedby="nationality-error">
+      <option value="">Select</option>
+      <option>Maltese</option>
+      <option>Other</option>
+    </select>
+    <p id="nationality-error">Select your nationality</p>
+    <details>
+      <summary>Help with nationality</summary>
+      <p>Choose the nationality shown on your passport.</p>
+    </details>
+
+    <fieldset>
+      <legend>Which days do you need the permit?</legend>
+      <label><input type="checkbox" name="d" value="weekday"> Weekdays</label>
+      <label><input type="checkbox" name="d" value="weekend"> Weekends</label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Do you have a blue badge?</legend>
+      <label><input type="radio" name="badge" value="yes"> Yes</label>
+      <label><input type="radio" name="badge" value="no" checked> No</label>
+    </fieldset>
+
+    <dl class="summary">
+      <dt>Permit type</dt><dd>Resident</dd>
+      <dt>Zone</dt><dd>Valletta <abbr title="Controlled parking zone">CPZ</abbr> 3</dd>
+    </dl>
+
+    <div class="button" onclick="submit()">Continue</div>
+    <input type="submit" value="Save and come back later">
+  </form>
+
+  <p>Progress is saved for 30 days.<br>You can return at any time.</p>
+</main>
+
+<footer>
+  <nav aria-label="Support links">
+    <ul>
+      <li><a href="/help">Help</a></li>
+      <li><a href="/accessibility">Accessibility statement</a></li>
+    </ul>
+  </nav>
+</footer>

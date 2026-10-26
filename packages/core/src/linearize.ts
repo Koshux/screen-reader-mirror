@@ -7,6 +7,8 @@ import {
   isChildrenPresentational,
   isNameProhibited,
   isWidget,
+  hasAuthorName,
+  labelledControl,
 } from "./roles";
 
 export type LinearizeOptions = VisibilityOptions;
@@ -96,7 +98,9 @@ function emitElement(el: Element, walk: Walk, textConsumed: boolean): void {
   if (role === null || TRANSPARENT_ROLES.has(role)) {
     const block = BLOCK_TAGS.has(tag);
     if (block) flushText(walk);
-    walkChildren(el, walk, textConsumed);
+    // The text of a label for a checkbox or radio is read only as the control name (Chrome drops
+    // it from the tree); the text of a label for a text field is read on its own as well.
+    walkChildren(el, walk, textConsumed || (tag === "label" && labelsToggle(el)));
     if (block) flushText(walk);
     return;
   }
@@ -112,6 +116,13 @@ function emitElement(el: Element, walk: Walk, textConsumed: boolean): void {
   // Container: fresh text context, suppressed only if this node's own name came from content.
   walkChildren(el, walk, consumesText);
   flushText(walk);
+}
+
+function labelsToggle(label: Element): boolean {
+  const control = labelledControl(label);
+  if (!control || control.tagName.toLowerCase() !== "input") return false;
+  const type = (control.getAttribute("type") ?? "text").toLowerCase();
+  return type === "checkbox" || type === "radio";
 }
 
 function isLeaf(tag: string, role: string): boolean {
@@ -143,8 +154,14 @@ function flushText(walk: Walk): void {
 
 function buildNode(el: Element, role: string, tag: string): InterpretationNode {
   // ARIA prohibits naming some roles (caption, paragraph, ...): the node carries no name and its
-  // text reads as content instead.
-  const name = isNameProhibited(role) ? "" : accessibleName(el);
+  // text reads as content instead. A table row is named by the author or not at all. A text
+  // field with no other name source takes its placeholder, as HTML-AAM and browsers do.
+  let name = isNameProhibited(role) || (role === "row" && !hasAuthorName(el)) ? "" : accessibleName(el);
+  if (name === "" && (tag === "input" || tag === "textarea")) {
+    name = collapseWhitespace(el.getAttribute("placeholder") ?? "");
+  }
+  // HTML-AAM still names a table from its obsolete summary attribute, and so does Chrome.
+  if (name === "" && tag === "table") name = collapseWhitespace(el.getAttribute("summary") ?? "");
   const node: InterpretationNode = { role, name, ref: { tag } };
   const level = headingLevel(el, role);
   if (level !== undefined) node.level = level;
