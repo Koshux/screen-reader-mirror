@@ -48,6 +48,17 @@ created: 2026-10-26
 >    `test/probes.ts`. Nothing in `dom-accessibility-api` or `aria-query` computes these
 >    heuristics; axe-core does in part and is not a dependency (§10).
 
+> **Backfill (2026-10-26, from the fidelity follow-ups PR).** Facts that changed after review:
+> 1. Text runs now end by computed display, so flex and grid items are separate runs. The probe
+>    row "PlanPrice" in §3 records the engine as it was; it now reads "Plan", "Price".
+> 2. `isLayoutTable` now reads style through the `getComputedStyle` option, and `safeStyle` is
+>    gone; the presentation helper this spec extracts takes that style source (§3, heuristic 2).
+> 3. The operator decided the engine follows the W3C specifications first. An empty `<label>`
+>    with a placeholder is named by the placeholder, as HTML-AAM 4.1 says, and that stays: it is
+>    not a follow-up to fix. Chrome gives it no name; matching Chrome is a separate option.
+> 4. happy-dom 21.0.4 does give `<style>` and `<script>` `display: none`, so the walk would not
+>    read their text. §3 is corrected; keeping them outside the case roots is still tidy.
+
 ## 1. Summary
 
 The engine shows what a screen reader is told. It does not yet show where that differs from what
@@ -141,7 +152,7 @@ mismatch heuristics, so the probe confirms the semantic side of each case, not t
   `aria-labelledby` that resolves to text. It fires for an empty `aria-label`, an empty `<label>`,
   and an `aria-labelledby` that points at nothing. Buttons and hidden inputs are not fields. The
   signal follows the engine's name, so a field with an empty `<label>` and a placeholder reports
-  `placeholder`, where Chrome gives it no name (a known divergence, §10).
+  `placeholder`, as HTML-AAM names it. Chrome gives it no name (backfill 3).
 
 ### Real pages and the real browser
 
@@ -208,11 +219,11 @@ What this settles:
 - Text next to a field is never used as its name. A placeholder and a title are.
 - Probe 2's two differences are not about this spec: the oracle joins Chrome's text pieces around
   the promoted spans without the spaces between them, and an empty `<label>` gives Chrome an empty
-  name where the engine falls back to the placeholder. The second is an engine divergence that
-  predates this spec, recorded as a follow-up (§10).
-- The flex rows run their cells together ("PlanPrice"), in Chrome's text and the engine's. Flex
-  items are laid out as blocks, but the engine breaks text runs by tag, not by computed display.
-  That is a reading-order question, recorded as a follow-up, not part of this spec.
+  name where the engine falls back to the placeholder. The engine follows HTML-AAM there
+  (backfill 3).
+- The flex rows ran their cells together ("PlanPrice"), in Chrome's text and the engine's. Flex
+  items are laid out as blocks, but the engine broke text runs by tag. Fixed since: runs now end
+  by computed display (backfill 1).
 
 The probe pages become `packages/core/test/fixtures/probes/mismatches.html` (§4).
 
@@ -466,8 +477,9 @@ So the tests supply style in three ways:
 
 1. **Author CSS in the probe page,** in px, in one `<style>` block outside every `data-case`
    root, which happy-dom applies when `loadCase` sets the page. The same CSS applies in Chrome.
-   The `<style>` and the probe's one `<script>` stay outside the case roots, because happy-dom
-   gives them no `display: none` and the walk would read their text.
+   The `<style>` and the probe's one `<script>` stay outside the case roots, so each case holds
+   only the markup under test. (happy-dom gives both `display: none`, so the walk would skip them
+   anyway; corrected in the backfill.)
 2. **The `getComputedStyle` option,** for what happy-dom does not compute: a test wraps the real
    function and overrides chosen properties, for example `fontWeight: "700"` on a `strong`, as
    the visibility tests already do.
@@ -588,7 +600,5 @@ Branch `feat/SPEC-005-mismatch-heuristics` from `main` after this spec merges.
 - Geometry: no `getBoundingClientRect`. Alignment is read from layout properties, so the tests run
   without a layout engine.
 - Phrasing (#10) and how hosts lay out the marks (the design gate).
-- Known follow-ups found while probing, not acted on here: an empty associated `<label>` gives
-  Chrome an empty name where the engine falls back to the placeholder; flex items are laid out as
-  blocks but do not end a text run in the engine; `isLayoutTable` reads style from the window and
-  not from the `getComputedStyle` option.
+- The follow-ups found while probing are settled (backfill): flex items now end a text run,
+  `isLayoutTable` reads style through the option, and an empty `<label>` keeps the HTML-AAM name.

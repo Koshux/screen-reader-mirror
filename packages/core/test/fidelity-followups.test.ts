@@ -2,8 +2,8 @@
 /**
  * Fidelity follow-ups found while probing for SPEC-003, SPEC-004, and SPEC-005. Each case lives in
  * fixtures/probes/fidelity-followups.html, which is also compared with Chrome's accessibility tree
- * (`pnpm ax:compare`); the expected output below agrees with Chrome except where a test says
- * otherwise. Probed in Chrome on 2026-10-26.
+ * (`pnpm ax:compare`). The engine follows the W3C specifications first; where Chrome differs, the
+ * test says what Chrome gives. Probed in Chrome on 2026-10-26.
  */
 import { describe, it, expect, afterEach } from "vitest";
 import { linearize } from "../src/index";
@@ -16,47 +16,49 @@ afterEach(() => {
   document.body.innerHTML = "";
 });
 
-describe("names from content leave out what Chrome leaves out", () => {
-  it("drops the content of a status, group, note, or alert from the name and reads it once", () => {
-    // Chrome (Chromium SupportsNameFromContents, recursive) keeps a descendant's content in the
-    // name only for name-from-content roles, no role, and a short list (list, region, paragraph,
-    // ...). AccName 1.2 step 2H keeps all of it; the mirror follows Chrome.
+describe("names from content follow AccName 1.2", () => {
+  it("keeps the content of a status, group, note, or alert in a name built from content", () => {
+    // AccName 1.2 (recursive name from content) takes every descendant's text, whatever its role.
+    // Chrome leaves out the content of roles that do not count toward an ancestor's name
+    // (Chromium SupportsNameFromContents, recursive): it gives "Save", "Send", "Go", and "Orders".
+    // Pinned difference; matching Chrome is the job of a later option, not the default.
+    // Each emitted container starts a fresh text context (SPEC-001 §3), so the text inside the
+    // status, group, list, note, alert, and details is read again after the name, as a list
+    // inside a table cell is.
     expect(pairs("name-from-content")).toEqual([
-      ["button", "Save"],
+      ["button", "Save 3"],
       ["status", ""],
       ["text", "3"],
-      ["button", "Send"],
+      ["button", "Send to all"],
       ["group", ""],
       ["text", "to all"],
       ["button", "Open menu"],
       ["list", ""],
       ["listitem", ""],
-      // Pinned: Chrome counts "menu" as part of the button's name only. The engine reads it again,
-      // because each emitted container starts a fresh text context (SPEC-001 §3), as a list inside
-      // a table cell does.
       ["text", "menu"],
-      ["button", "Mark read"],
+      ["button", "Mark read"], // an author name stands in for the region's content, in both
       ["region", "read"],
       ["text", "unread"],
-      ["link", "Go"],
+      ["link", "Go new"],
       ["note", ""],
       ["text", "new"],
-      ["heading", "Orders"],
+      ["heading", "Orders 1 failed"],
       ["alert", ""],
       ["text", "1 failed"],
       ["button", "Show more details"],
       ["group", ""],
       ["button", "more"],
-      ["text", "details"], // Pinned, as "menu" above: <details> counts toward Chrome's name.
+      ["text", "details"],
     ]);
   });
 
-  it("applies the same rule to a label's content, and not inside aria-labelledby", () => {
+  it("does the same for a label's content and for aria-labelledby", () => {
+    // Chrome gives the first field "Qty" (the status left out) and the second "Total 9".
     expect(pairs("label-name")).toEqual([
       ["text", "Qty"],
       ["status", ""],
       ["text", "3"],
-      ["textbox", "Qty"],
+      ["textbox", "Qty 3"],
       ["text", "Total"],
       ["status", ""],
       ["text", "9"],
@@ -65,19 +67,20 @@ describe("names from content leave out what Chrome leaves out", () => {
   });
 });
 
-describe("a field with only empty labels has no name", () => {
-  it("uses neither title nor placeholder once a label is associated, as Chrome does", () => {
-    // HTML-AAM falls back to title and then placeholder when the label text is empty; Chrome does
-    // not, and the mirror follows Chrome. An empty aria-label or aria-labelledby target still falls
-    // back to the placeholder in both.
+describe("a field with only empty labels follows HTML-AAM", () => {
+  it("falls back to the title, then the placeholder", () => {
+    // HTML-AAM 4.1: when the associated label gives an empty name, use the title, then the
+    // placeholder. Chrome uses neither once a label is associated and gives the first six fields
+    // no name. Pinned difference. An empty aria-label or aria-labelledby target falls back to the
+    // placeholder in both.
     const out = linearize(loadCase(PAGE, "empty-labels").root);
     expect(out.map((n) => [n.role, n.name, n.flags?.unnamed ?? false])).toEqual([
-      ["textbox", "", true],
-      ["textbox", "", true],
-      ["textbox", "", true],
-      ["textbox", "", true],
-      ["checkbox", "", true],
-      ["combobox", "", true],
+      ["textbox", "Empty for", false],
+      ["textbox", "Empty wrap", false],
+      ["textbox", "Hidden text", false],
+      ["textbox", "Title only", false],
+      ["checkbox", "Check title", false],
+      ["combobox", "Select title", false],
       ["textbox", "Empty aria-label", false],
       ["textbox", "Empty labelledby", false],
       ["img", "Search", false],
@@ -86,7 +89,7 @@ describe("a field with only empty labels has no name", () => {
   });
 });
 
-describe("header, footer, and aside scoping follow Chrome", () => {
+describe("header, footer, and aside scoping follow HTML-AAM and ARIA in HTML", () => {
   it("gives sectionheader and sectionfooter inside main or sectioning content, banner elsewhere", () => {
     expect(pairs("header-scope")).toEqual([
       ["article", ""],
@@ -107,7 +110,7 @@ describe("header, footer, and aside scoping follow Chrome", () => {
       ["article", ""],
       ["sectionheader", ""],
       ["text", "Role header"],
-      // A sectioning root does not scope, and neither does role="region".
+      // A sectioning root does not scope: ARIA in HTML does not list it, and Chrome agrees.
       ["blockquote", ""],
       ["banner", ""],
       ["text", "Quote header"],
@@ -120,8 +123,10 @@ describe("header, footer, and aside scoping follow Chrome", () => {
       ["text", "Group"],
       ["banner", ""],
       ["text", "Fieldset header"],
+      // ARIA in HTML lists role=region as scoping. Chrome does not and gives a banner here.
+      // Pinned difference.
       ["region", "Updates"],
-      ["banner", ""],
+      ["sectionheader", ""],
       ["text", "Region header"],
       // The ARIA 1.3 role is accepted when written explicitly.
       ["article", ""],
@@ -153,6 +158,8 @@ describe("text runs end where the layout starts a new line", () => {
       ["text", "Right"],
       ["text", "Own"],
       ["text", "line"],
+      // The page shows a space between the two inline-block spans. Chrome's tree drops that
+      // whitespace text node, so the oracle reads "Sameline"; the engine keeps the space.
       ["text", "Same line"],
       ["text", "Inline divs"],
     ]);

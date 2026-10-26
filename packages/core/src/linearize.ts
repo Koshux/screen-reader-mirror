@@ -9,7 +9,6 @@ import {
   isNameProhibited,
   isWidget,
   hasAuthorName,
-  hasOnlyEmptyLabels,
   labelledControl,
   composedParent,
   type ParentOf,
@@ -179,9 +178,7 @@ function emitElement(el: Element, walk: Walk, textConsumed: boolean): void {
   // Leaf: nothing below is exposed.
   if (isLeaf(tag, role) || (isChildrenPresentational(role) && !consumesText)) return;
 
-  // Container: fresh text context, suppressed only if this node's own name came from content. A
-  // status, group, or table inside a button is not part of the button's name (accessibleName), so
-  // its text is read here once.
+  // Container: fresh text context, suppressed only if this node's own name came from content.
   walkChildren(el, walk, consumesText);
   flushText(walk);
 }
@@ -306,12 +303,12 @@ function inShadowTree(el: Element): boolean {
 
 function buildNode(el: Element, role: string, tag: string, walk: Walk, live?: LiveRegion): InterpretationNode {
   // ARIA prohibits naming some roles (caption, paragraph, ...): the node carries no name and its
-  // text reads as content instead. A table row is named by the author or not at all. A text
-  // field with no other name source takes its placeholder, as HTML-AAM and browsers do.
+  // text reads as content instead. A table row is named by the author or not at all. A form
+  // field with no other name source takes its title, then (a text field) its placeholder, as
+  // HTML-AAM 4.1 says; the name library stops at an associated label even when it is empty.
   let name = isNameProhibited(role) || (role === "row" && !hasAuthorName(el)) ? "" : accessibleName(el);
-  // A field whose labels are all empty has no name in Chrome: no title, no placeholder.
-  if (hasOnlyEmptyLabels(el)) name = "";
-  else if (name === "" && (tag === "input" || tag === "textarea")) {
+  if (name === "" && isFormField(el, tag)) name = collapseWhitespace(el.getAttribute("title") ?? "");
+  if (name === "" && (tag === "input" || tag === "textarea")) {
     name = collapseWhitespace(el.getAttribute("placeholder") ?? "");
   }
   // HTML-AAM still names a table from its obsolete summary attribute, and so does Chrome.
@@ -326,6 +323,14 @@ function buildNode(el: Element, role: string, tag: string, walk: Walk, live?: Li
   if (flags) node.flags = flags;
   if (live) node.live = live;
   return node;
+}
+
+/** An input that is not a button or hidden, a select, or a textarea. */
+function isFormField(el: Element, tag: string): boolean {
+  if (tag === "select" || tag === "textarea") return true;
+  if (tag !== "input") return false;
+  const type = (el.getAttribute("type") ?? "text").toLowerCase();
+  return !["hidden", "button", "submit", "reset", "image"].includes(type);
 }
 
 function headingLevel(el: Element, role: string): number | undefined {

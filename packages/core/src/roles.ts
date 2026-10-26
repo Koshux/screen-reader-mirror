@@ -1,6 +1,6 @@
 import { roles } from "aria-query";
 import { computeAccessibleName } from "dom-accessibility-api";
-import { firstSummaryOf, isHiddenFromAT, resolveStyle } from "./visibility";
+import { firstSummaryOf, resolveStyle } from "./visibility";
 
 /**
  * Role resolution for the interpretation (SPEC-001 §3).
@@ -379,15 +379,16 @@ function hasBorder(style: CSSStyleDeclaration): boolean {
   return /(^|\s)(0*[1-9]\d*(\.\d+)?|0?\.\d*[1-9]\d*)(px|em|rem|pt|thin|medium|thick)?(\s|$)/.test(style.border ?? "") && !/^\s*0(px)?\s/.test(style.border ?? "");
 }
 
-// HTML sectioning content and the roles Chrome scopes the same way. A sectioning root (blockquote,
-// details, dialog, fieldset, figure, td) does not scope, and neither does role="region": Chrome
-// keeps banner, contentinfo, and complementary inside them, as ARIA in HTML says.
+// The ancestors ARIA in HTML lists for header and footer: the sectioning content elements and the
+// roles article, complementary, navigation, and region (main is handled on its own). A sectioning
+// root (blockquote, details, dialog, fieldset, figure, td) is not in the list and does not scope.
+// Chrome agrees, except that it does not scope by role="region" (pinned in a test).
 const SECTIONING_CONTENT_TAGS = new Set(["article", "aside", "nav", "section"]);
-const SECTIONING_CONTENT_ROLES = new Set(["article", "complementary", "navigation"]);
+const SECTIONING_CONTENT_ROLES = new Set(["article", "complementary", "navigation", "region"]);
 
 /**
- * ARIA in HTML scoping for `<header>`/`<footer>`/`<aside>`, as Chrome applies it: the nearest
- * scoping ancestor is the body, `<main>` (or `role="main"`), or sectioning content. The walk goes
+ * ARIA in HTML scoping for `<header>`/`<footer>`/`<aside>`: the nearest scoping ancestor is the
+ * body, `<main>` (or `role="main"`), or sectioning content. The walk goes
  * up the composed tree, as Chrome's does: a header in a shadow root inside an `<article>` is
  * scoped to the article.
  */
@@ -415,123 +416,13 @@ function numericSize(el: Element): number {
  * Accessible name per AccName 1.2 via `dom-accessibility-api` (never hand-rolled),
  * whitespace-collapsed. Read defensively: a name-computation hiccup must never drop a node or
  * promote/demote a role by accident, so it yields "" instead of throwing.
- *
- * One Chrome rule is applied through the library's own style hook. When a name is built from
- * content, Chrome leaves out the content of a descendant whose role does not contribute to an
- * ancestor's name (a status, a group, a table, a landmark; see `contributesToAncestorName`) and
- * keeps only that descendant's author name. AccName 1.2 step 2H keeps the content. A descendant
- * like that with no author name is reported to the library as hidden, so its text is skipped, and
- * the linearizer reads it as content instead. Inside an aria-labelledby traversal Chrome keeps
- * all content, so the rule is not applied to an element that has one.
  */
 export function accessibleName(el: Element): string {
   try {
-    const options = el.hasAttribute("aria-labelledby")
-      ? {}
-      : { getComputedStyle: nameStyle(el), computedStyleSupportsPseudoElements: false };
-    return computeAccessibleName(el, options).replace(/\s+/g, " ").trim();
+    return computeAccessibleName(el).replace(/\s+/g, " ").trim();
   } catch {
     return "";
   }
-}
-
-const HIDDEN_STYLE = { getPropertyValue: (p: string) => (p === "display" ? "none" : "") } as CSSStyleDeclaration;
-const EMPTY_STYLE = { getPropertyValue: () => "" } as unknown as CSSStyleDeclaration;
-
-// Roles the library handles itself inside a name: an image's alt, an embedded control's value.
-const NAMED_BY_LIBRARY = new Set([
-  "img", "textbox", "searchbox", "combobox", "listbox", "slider", "spinbutton", "progressbar", "meter", "scrollbar",
-]);
-
-/** The style source for one name computation: real style, except descendants Chrome leaves out. */
-function nameStyle(root: Element): (node: Element, pseudo?: string | null) => CSSStyleDeclaration {
-  return (node, pseudo) => {
-    if (node !== root && !hasAuthorLabel(node)) {
-      const role = resolveRole(node);
-      if (!contributesToAncestorName(node, role) && !(role && NAMED_BY_LIBRARY.has(role))) return HIDDEN_STYLE;
-    }
-    const view = node.ownerDocument?.defaultView;
-    return view ? view.getComputedStyle(node, pseudo) : EMPTY_STYLE;
-  };
-}
-
-/** True when the author named the element with a non-empty aria-label or an aria-labelledby. */
-function hasAuthorLabel(el: Element): boolean {
-  return (el.getAttribute("aria-label") ?? "").trim() !== "" || el.hasAttribute("aria-labelledby");
-}
-
-// Roles whose content counts toward an ancestor's name in Chrome besides the name-from-content
-// roles (Chromium AXObject::SupportsNameFromContents with recursive=true).
-const CONTRIBUTING_ROLES = new Set([
-  "generic", "none", "presentation", "paragraph", "region", "list", "listitem", "definition", "term",
-  "math", "caption", "emphasis", "strong", "code", "deletion", "insertion", "subscript",
-  "superscript", "time",
-]);
-
-/**
- * True when the element's content counts toward the name of an ancestor that is named from its
- * content, as Chrome computes it: no role, a name-from-content role, or one of the roles above.
- * A group counts only as `<details>` or `<address>`. A status, alert, log, note, timer, marquee,
- * article, figure, blockquote, table, landmark, or composite widget does not: its text is read
- * on its own, and only its author name, if any, joins the ancestor's name.
- */
-function contributesToAncestorName(el: Element, role: string | null): boolean {
-  if (role === null || CONTRIBUTING_ROLES.has(role) || takesNameFromContent(role)) return true;
-  if (role === "group") {
-    const tag = el.tagName.toLowerCase();
-    return tag === "details" || tag === "address";
-  }
-  return false;
-}
-
-
-/**
- * Chrome names a form field from its associated `<label>` elements alone when it has any, even
- * when their text is empty, and then uses neither its title nor its placeholder. HTML-AAM falls
- * back to both. The mirror follows Chrome, which is what a screen reader on Chrome is given, so
- * an empty label shows as a field with no name. True when the field has labels, none with text,
- * and no aria-label or resolving aria-labelledby.
- */
-export function hasOnlyEmptyLabels(el: Element): boolean {
-  if (!isLabelledField(el)) return false;
-  if ((el.getAttribute("aria-label") ?? "").trim() !== "" || labelledbyResolves(el)) return false;
-  const labels = Array.from((el as HTMLInputElement).labels ?? []);
-  return labels.length > 0 && labels.every((label) => !labelHasText(label, el));
-}
-
-function isLabelledField(el: Element): boolean {
-  const tag = el.tagName.toLowerCase();
-  if (tag === "select" || tag === "textarea") return true;
-  if (tag !== "input") return false;
-  const type = (el.getAttribute("type") ?? "text").toLowerCase();
-  return !["hidden", "button", "submit", "reset", "image"].includes(type);
-}
-
-function labelledbyResolves(el: Element): boolean {
-  const root = el.getRootNode() as Partial<Pick<Document, "getElementById">>;
-  if (typeof root.getElementById !== "function") return false;
-  const ids = (el.getAttribute("aria-labelledby") ?? "").trim().split(/\s+/).filter(Boolean);
-  return ids.some((id) => root.getElementById!(id) !== null);
-}
-
-/**
- * True when a label holds something a name can come from: visible text outside the control, or
- * an element with an alt, aria-label, aria-labelledby, or title. Deliberately generous: when in
- * doubt the label counts, and the library computes the name as usual.
- */
-function labelHasText(label: Element, control: Element): boolean {
-  for (const child of Array.from(label.childNodes)) {
-    if (child.nodeType === 3) {
-      if ((child.textContent ?? "").trim() !== "") return true;
-      continue;
-    }
-    if (child.nodeType !== 1 || child === control) continue;
-    const el = child as Element;
-    if (isHiddenFromAT(el)) continue;
-    if (["alt", "aria-label", "title"].some((a) => (el.getAttribute(a) ?? "").trim() !== "")) return true;
-    if (el.hasAttribute("aria-labelledby") || labelHasText(el, control)) return true;
-  }
-  return false;
 }
 
 function hasAccessibleName(el: Element): boolean {
