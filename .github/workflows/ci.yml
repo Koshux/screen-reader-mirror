@@ -39,8 +39,8 @@ jobs:
       - name: Lint
         run: pnpm lint
 
-      - name: Test
-        run: pnpm test
-
       - name: Build
         run: pnpm build
+
+      - name: Test # includes the dist smoke test, which needs the build
+        run: pnpm test
