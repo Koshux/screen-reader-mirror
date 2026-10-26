@@ -71,7 +71,7 @@ Show HN's own rule: it must be something people can **try**, without signup. An 
 
 > Show HN: See what a screen reader interprets from your UI (no install, client-side)
 
-Alternative if the name should carry: `Show HN: Screen-reader-mirror – the reading order a screen reader gets from your page`.
+Alternative if the name should carry: `Show HN: Screen-reader-mirror, the reading order a screen reader gets from your page`.
 
 **URL**: the demo page, with the bookmarklet and the repository link on it. Not the README.
 
