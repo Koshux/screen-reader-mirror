@@ -1,5 +1,5 @@
 import type { InterpretationNode, LiveRegion, NodeFlags } from "./types";
-import { isHiddenFromAT, firstSummaryOf, type VisibilityOptions } from "./visibility";
+import { isHiddenFromAT, firstSummaryOf, resolveStyle, type VisibilityOptions } from "./visibility";
 import { liveRegionOf } from "./live";
 import {
   resolveRole,
@@ -9,9 +9,11 @@ import {
   isNameProhibited,
   isWidget,
   hasAuthorName,
+  hasOnlyEmptyLabels,
   labelledControl,
   composedParent,
   type ParentOf,
+  type StyleOf,
 } from "./roles";
 
 export interface LinearizeOptions extends VisibilityOptions {
@@ -38,7 +40,8 @@ const TRANSPARENT_ROLES = new Set(["paragraph", "presentation", "none", "generic
 // Elements that start a new line for a screen reader. Bare text inside one of them is a single
 // run; text on either side of one is separate runs. Inline formatting (<em>, <span>, <code>, an
 // <a> without href, ...) does not break a run, so "Loose <em>text</em> here" reads as one line,
-// the way a browser lays it out.
+// the way a browser lays it out. The computed display decides when it is known (see endsLine);
+// the tags are the fallback when it is not.
 const BLOCK_TAGS = new Set([
   "address", "article", "aside", "blockquote", "body", "caption", "dd", "details", "dialog",
   "div", "dl", "dt", "fieldset", "figcaption", "figure", "footer", "form", "h1", "h2", "h3",
@@ -46,6 +49,16 @@ const BLOCK_TAGS = new Set([
   "p", "pre", "section", "select", "summary", "table", "tbody", "td", "textarea", "tfoot", "th",
   "thead", "tr", "ul",
 ]);
+
+// Computed display values that put an element on its own line, as the innerText algorithm and
+// screen readers in browse mode treat them. Inline-level values (inline, inline-block,
+// inline-flex, contents, ...) do not.
+const BLOCK_DISPLAYS = new Set([
+  "block", "flow-root", "list-item", "flex", "grid", "table", "table-caption", "table-row",
+  "table-cell", "table-row-group", "table-header-group", "table-footer-group",
+]);
+// A child of one of these is a flex or grid item, which CSS lays out as a block.
+const BLOCKIFYING_DISPLAYS = new Set(["flex", "inline-flex", "grid", "inline-grid"]);
 
 // SVG <title>/<desc>/<metadata> are name/description metadata (SVG-AAM), never rendered text.
 const SVG_NS = "http://www.w3.org/2000/svg";
@@ -64,6 +77,7 @@ interface Walk {
   frame: number | undefined;
   parents: WeakMap<Element, Element>;
   parentOf: ParentOf;
+  styleOf: StyleOf;
 }
 
 /**
@@ -98,7 +112,8 @@ interface Walk {
 export function linearize(root: Element, options: LinearizeOptions = {}): InterpretationNode[] {
   const parents = new WeakMap<Element, Element>();
   const parentOf: ParentOf = (el) => parents.get(el) ?? composedParent(el);
-  const walk: Walk = { out: [], options, pending: "", frames: 0, frame: undefined, parents, parentOf };
+  const styleOf: StyleOf = (el) => resolveStyle(el, options);
+  const walk: Walk = { out: [], options, pending: "", frames: 0, frame: undefined, parents, parentOf, styleOf };
   emitElement(root, walk, false);
   flushText(walk);
   return walk.out;
@@ -119,7 +134,7 @@ function emitElement(el: Element, walk: Walk, textConsumed: boolean): void {
     return;
   }
 
-  const role = resolveRole(el, walk.parentOf);
+  const role = resolveRole(el, walk.parentOf, walk.styleOf);
   const live = liveRegionOf(el, role);
 
   if (tag === "iframe" && role !== null) {
@@ -147,7 +162,7 @@ function emitElement(el: Element, walk: Walk, textConsumed: boolean): void {
   // Transparent: surface descendant content, no node of our own. A block-level element still
   // separates text runs.
   if (transparent) {
-    const block = BLOCK_TAGS.has(tag);
+    const block = endsLine(el, tag, walk);
     if (block) flushText(walk);
     // The text of a label for a checkbox or radio is read only as the control name (Chrome drops
     // it from the tree); the text of a label for a text field is read on its own as well.
@@ -164,9 +179,33 @@ function emitElement(el: Element, walk: Walk, textConsumed: boolean): void {
   // Leaf: nothing below is exposed.
   if (isLeaf(tag, role) || (isChildrenPresentational(role) && !consumesText)) return;
 
-  // Container: fresh text context, suppressed only if this node's own name came from content.
+  // Container: fresh text context, suppressed only if this node's own name came from content. A
+  // status, group, or table inside a button is not part of the button's name (accessibleName), so
+  // its text is read here once.
   walkChildren(el, walk, consumesText);
   flushText(walk);
+}
+
+/**
+ * True when a transparent element starts a new line: its computed display is block-level, or it
+ * is a flex or grid item. When the display cannot be read (or a test DOM leaves it empty), the
+ * tag decides, as before.
+ */
+function endsLine(el: Element, tag: string, walk: Walk): boolean {
+  const display = walk.styleOf(el)?.display ?? "";
+  if (display === "contents") return false;
+  if (BLOCK_DISPLAYS.has(display)) return true;
+  if (BLOCKIFYING_DISPLAYS.has(layoutParentDisplay(el, walk))) return true;
+  return display ? false : BLOCK_TAGS.has(tag);
+}
+
+/** The display of the element's layout parent: the composed parent, skipping `display: contents`. */
+function layoutParentDisplay(el: Element, walk: Walk): string {
+  for (let p = walk.parentOf(el); p; p = walk.parentOf(p)) {
+    const display = walk.styleOf(p)?.display ?? "";
+    if (display !== "contents") return display;
+  }
+  return "";
 }
 
 /**
@@ -270,7 +309,9 @@ function buildNode(el: Element, role: string, tag: string, walk: Walk, live?: Li
   // text reads as content instead. A table row is named by the author or not at all. A text
   // field with no other name source takes its placeholder, as HTML-AAM and browsers do.
   let name = isNameProhibited(role) || (role === "row" && !hasAuthorName(el)) ? "" : accessibleName(el);
-  if (name === "" && (tag === "input" || tag === "textarea")) {
+  // A field whose labels are all empty has no name in Chrome: no title, no placeholder.
+  if (hasOnlyEmptyLabels(el)) name = "";
+  else if (name === "" && (tag === "input" || tag === "textarea")) {
     name = collapseWhitespace(el.getAttribute("placeholder") ?? "");
   }
   // HTML-AAM still names a table from its obsolete summary attribute, and so does Chrome.

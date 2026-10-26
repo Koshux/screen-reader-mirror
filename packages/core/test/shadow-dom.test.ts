@@ -50,6 +50,7 @@ describe("shadow DOM and slots (SPEC-003)", () => {
 
   // Upstream limit: dom-accessibility-api walks a slot's assigned nodes but not a host's shadow
   // root, so a host named from content gets its light text only. Chrome says "Mute audio".
+  // Reported upstream as eps1lon/dom-accessibility-api#768 (open).
   it.fails("names a host with a role from its shadow content, as Chrome does (upstream limit)", () => {
     expect(pairs("host-name")).toEqual([["button", "Mute audio"]]);
   });

@@ -118,6 +118,18 @@ export async function openPage(absolutePath) {
           for (const s of n.shadowRoots ?? []) walk(s);
         };
         walk(root);
+        // The computed display of every rendered element, frames and shadow trees included, so the
+        // comparison can end a text run where the engine does.
+        const displays = new Map();
+        const snapshot = await cdp.send("DOMSnapshot.captureSnapshot", { computedStyles: ["display"] }, sessionId);
+        for (const doc of snapshot.documents ?? []) {
+          const { nodeIndex = [], styles = [] } = doc.layout ?? {};
+          nodeIndex.forEach((index, i) => {
+            const id = doc.nodes.backendNodeId?.[index];
+            const value = styles[i]?.[0];
+            if (id !== undefined && value !== undefined) displays.set(id, snapshot.strings[value]);
+          });
+        }
         const frames = new Map(); // iframe backendNodeId -> that frame's AX nodes, or null
         for (const [owner, frameId] of frameOwners) {
           if (!frameId) {
@@ -131,7 +143,7 @@ export async function openPage(absolutePath) {
             frames.set(owner, null);
           }
         }
-        return flatten(nodes, tags, frames);
+        return flatten(nodes, tags, frames, displays);
       },
       async close() {
         cdp.close();
@@ -148,7 +160,7 @@ export async function openPage(absolutePath) {
   }
 }
 
-function flatten(nodes, tags = new Map(), frames = new Map()) {
+function flatten(nodes, tags = new Map(), frames = new Map(), displays = new Map()) {
   const out = [];
   // Node ids are per frame, so each frame's tree is visited with its own lookup.
   const visitTree = (treeNodes, depth) => {
@@ -173,6 +185,8 @@ function flatten(nodes, tags = new Map(), frames = new Map()) {
       entry.backendDOMNodeId = n.backendDOMNodeId;
       const tag = tags.get(n.backendDOMNodeId);
       if (tag) entry.tag = tag;
+      const display = displays.get(n.backendDOMNodeId);
+      if (display) entry.display = display;
     }
     out.push(entry);
     for (const id of n.childIds ?? []) {
