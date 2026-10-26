@@ -1,5 +1,11 @@
 # screen-reader-mirror
 
+## 0.1.1
+
+### Patch Changes
+
+- 3e756ce: Discoverability: richer npm keywords (screen reader, accessibility testing, reading order, accessible name, NVDA / JAWS / VoiceOver, …) and a clearer package description. No code change.
+
 ## 0.1.0
 
 ### Minor Changes
