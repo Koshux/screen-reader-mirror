@@ -1,6 +1,6 @@
 {
   "name": "screen-reader-mirror",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "See what a screen reader interprets from your UI — a zero-install, client-side accessibility-tree linearization engine. No data leaves the machine.",
   "license": "MIT",
   "author": "James Lanzon",
