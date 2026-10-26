@@ -9,12 +9,21 @@ import {
   isWidget,
   hasAuthorName,
   labelledControl,
+  composedParent,
+  type ParentOf,
 } from "./roles";
 
-export type LinearizeOptions = VisibilityOptions;
+export interface LinearizeOptions extends VisibilityOptions {
+  /**
+   * Supply a shadow root the DOM hides (a closed root), for hosts that can reach one. Defaults to
+   * `el.shadowRoot`, which is null for a closed root, so closed content is not seen. SPEC-003 AC-9.
+   */
+  getShadowRoot?: (host: Element) => ShadowRoot | null | undefined;
+}
 
 const ELEMENT_NODE = 1;
 const TEXT_NODE = 3;
+const DOCUMENT_FRAGMENT_NODE = 11;
 
 // Host-language leaves: form controls and images have no exposed DOM children (an <input> has none;
 // a <textarea>'s text is its *value*), so they emit one node. A collapsed <select> is a leaf too
@@ -41,11 +50,19 @@ const BLOCK_TAGS = new Set([
 const SVG_NS = "http://www.w3.org/2000/svg";
 const SVG_METADATA_TAGS = new Set(["title", "desc", "metadata"]);
 
-/** State threaded through one traversal: the output, the options, and the text run in progress. */
+/**
+ * State threaded through one traversal: the output, the options, the text run in progress, the
+ * number of frames met so far, the index of the frame being walked (undefined at the top), and
+ * the composed parent of each element met, which role rules read through `parentOf`.
+ */
 interface Walk {
   out: InterpretationNode[];
   options: LinearizeOptions;
   pending: string;
+  frames: number;
+  frame: number | undefined;
+  parents: WeakMap<Element, Element>;
+  parentOf: ParentOf;
 }
 
 /**
@@ -70,9 +87,16 @@ interface Walk {
  * Bare text is emitted as **runs**: adjacent text and inline formatting merge into one `text`
  * node, and block-level elements, `<br>`, and emitted nodes end a run. Elements hidden from
  * assistive tech are skipped along with their subtree.
+ *
+ * The walk follows the **composed tree** (SPEC-003): a shadow host reads its shadow content, a
+ * `<slot>` reads what is assigned to it, and unslotted light children are not read. An
+ * `<iframe>` is a `document` node followed by its document's content when the page can read it,
+ * or a `document` node flagged `unreachable` when it cannot.
  */
 export function linearize(root: Element, options: LinearizeOptions = {}): InterpretationNode[] {
-  const walk: Walk = { out: [], options, pending: "" };
+  const parents = new WeakMap<Element, Element>();
+  const parentOf: ParentOf = (el) => parents.get(el) ?? composedParent(el);
+  const walk: Walk = { out: [], options, pending: "", frames: 0, frame: undefined, parents, parentOf };
   emitElement(root, walk, false);
   flushText(walk);
   return walk.out;
@@ -87,8 +111,18 @@ function emitElement(el: Element, walk: Walk, textConsumed: boolean): void {
     flushText(walk); // a line break ends the current text run
     return;
   }
+  if (tag === "slot") {
+    // A slot is `display: contents`: it emits nothing and does not end a text run.
+    walkChildren(el, walk, textConsumed);
+    return;
+  }
 
-  const role = resolveRole(el);
+  const role = resolveRole(el, walk.parentOf);
+
+  if (tag === "iframe" && role !== null) {
+    emitFrame(el, role, walk);
+    return;
+  }
 
   // Decorative image (alt=""): excluded from the reading order entirely.
   if (role === "presentation" && tag === "img") return;
@@ -106,7 +140,7 @@ function emitElement(el: Element, walk: Walk, textConsumed: boolean): void {
   }
 
   flushText(walk);
-  walk.out.push(buildNode(el, role, tag));
+  walk.out.push(buildNode(el, role, tag, walk));
 
   const consumesText = takesNameFromContent(role);
 
@@ -116,6 +150,34 @@ function emitElement(el: Element, walk: Walk, textConsumed: boolean): void {
   // Container: fresh text context, suppressed only if this node's own name came from content.
   walkChildren(el, walk, consumesText);
   flushText(walk);
+}
+
+/**
+ * A frame is a `document` node named from the iframe, then the frame document's content. The
+ * node and everything inside carry the frame's index; a frame the page cannot read (cross-origin)
+ * is flagged `unreachable` and has nothing inside. A frame that has not loaded yet has an empty
+ * document and reads as an empty frame. The frame's URL is never recorded.
+ */
+function emitFrame(iframe: Element, role: string, walk: Walk): void {
+  flushText(walk);
+  const outer = walk.frame;
+  walk.frame = ++walk.frames;
+  const node = buildNode(iframe, role, "iframe", walk);
+  const doc = frameDocument(iframe);
+  if (!doc) node.flags = { ...node.flags, unreachable: true };
+  walk.out.push(node);
+  if (doc?.body) emitElement(doc.body, walk, false);
+  flushText(walk);
+  walk.frame = outer;
+}
+
+/** The frame's document, or null when the page cannot read it: cross-origin reads as null or throws. */
+function frameDocument(iframe: Element): Document | null {
+  try {
+    return (iframe as Element & { contentDocument?: Document | null }).contentDocument ?? null;
+  } catch {
+    return null;
+  }
 }
 
 function labelsToggle(label: Element): boolean {
@@ -136,23 +198,57 @@ function walkChildren(el: Element, walk: Walk, textConsumed: boolean): void {
     if (summary) emitElement(summary, walk, textConsumed);
     return;
   }
-  el.childNodes.forEach((child) => {
+  // A slot is not a parent in the accessibility tree: what it shows hangs off the slot's parent.
+  const parent = el.tagName.toLowerCase() === "slot" ? walk.parentOf(el) : el;
+  for (const child of composedChildren(el, walk.options)) {
     if (child.nodeType === TEXT_NODE) {
       if (!textConsumed) walk.pending += child.textContent ?? "";
-      return;
+      continue;
     }
-    if (child.nodeType === ELEMENT_NODE) emitElement(child as Element, walk, textConsumed);
-  });
+    if (child.nodeType !== ELEMENT_NODE) continue;
+    if (parent) walk.parents.set(child as Element, parent);
+    emitElement(child as Element, walk, textConsumed);
+  }
 }
 
-/** End the current text run: emit it as one `text` node if it has any visible characters. */
+/**
+ * The children a screen reader sees under an element, in the composed tree (SPEC-003 §3). A
+ * shadow host shows its shadow root's children and never its light children directly; a slot
+ * shows the nodes assigned to it, or its fallback content when nothing is assigned. Nested slots
+ * are not flattened here: an assigned slot is walked as an element in its turn, so visibility is
+ * checked at every level.
+ */
+function composedChildren(el: Element, options: LinearizeOptions): Node[] {
+  const shadow = options.getShadowRoot?.(el) ?? el.shadowRoot;
+  if (shadow) return Array.from(shadow.childNodes);
+  if (el.tagName.toLowerCase() === "slot") {
+    const slot = el as Element & { assignedNodes?: () => Node[] };
+    const assigned = typeof slot.assignedNodes === "function" ? slot.assignedNodes() : [];
+    if (assigned.length > 0) return assigned;
+  }
+  return Array.from(el.childNodes);
+}
+
+/**
+ * End the current text run: emit it as one `text` node if it has any visible characters. Inside a
+ * frame the run carries the frame's index, so a renderer can tell where the frame ends.
+ */
 function flushText(walk: Walk): void {
   const text = collapseWhitespace(walk.pending);
   walk.pending = "";
-  if (text) walk.out.push({ role: "text", name: text });
+  if (!text) return;
+  const node: InterpretationNode = { role: "text", name: text };
+  if (walk.frame !== undefined) node.ref = { tag: "#text", frame: walk.frame };
+  walk.out.push(node);
 }
 
-function buildNode(el: Element, role: string, tag: string): InterpretationNode {
+/** True when the element's root is a shadow root rather than a document. */
+function inShadowTree(el: Element): boolean {
+  const root = el.getRootNode();
+  return root.nodeType === DOCUMENT_FRAGMENT_NODE && "host" in root;
+}
+
+function buildNode(el: Element, role: string, tag: string, walk: Walk): InterpretationNode {
   // ARIA prohibits naming some roles (caption, paragraph, ...): the node carries no name and its
   // text reads as content instead. A table row is named by the author or not at all. A text
   // field with no other name source takes its placeholder, as HTML-AAM and browsers do.
@@ -162,7 +258,10 @@ function buildNode(el: Element, role: string, tag: string): InterpretationNode {
   }
   // HTML-AAM still names a table from its obsolete summary attribute, and so does Chrome.
   if (name === "" && tag === "table") name = collapseWhitespace(el.getAttribute("summary") ?? "");
-  const node: InterpretationNode = { role, name, ref: { tag } };
+  const ref: NonNullable<InterpretationNode["ref"]> = { tag };
+  if (inShadowTree(el)) ref.shadow = true;
+  if (walk.frame !== undefined) ref.frame = walk.frame;
+  const node: InterpretationNode = { role, name, ref };
   const level = headingLevel(el, role);
   if (level !== undefined) node.level = level;
   const flags = computeFlags(el, role, tag, name);

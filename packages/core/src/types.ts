@@ -15,6 +15,11 @@ export interface NodeFlags {
   unnamed?: boolean;
   /** An `<img>` with no `alt` attribute at all — distinct from an intentional `alt=""`. SPEC-001 AC-6. */
   missingAlt?: boolean;
+  /**
+   * A frame whose document cannot be read from here (cross-origin), so its content is not in the
+   * reading order. SPEC-003 AC-7.
+   */
+  unreachable?: boolean;
 }
 
 /**
@@ -41,6 +46,19 @@ export interface InterpretationNode {
   level?: number;
   /** Notable conditions; omitted entirely when there are none. */
   flags?: NodeFlags;
-  /** Minimal, serialisable pointer back to the source element — a tag name only, never a live node. */
-  ref?: { tag: string };
+  /**
+   * Minimal, serialisable pointer back to the source element: a tag name and where the element
+   * lives, never a live node. Text runs carry no `ref`, except inside a frame, where they carry
+   * `{ tag: "#text", frame }` so the frame's extent is unambiguous.
+   */
+  ref?: {
+    tag: string;
+    /** The element lives inside a shadow tree, at any depth. SPEC-003 AC-5. */
+    shadow?: true;
+    /**
+     * The node is inside the n-th frame met in reading order (1-based), the innermost one when
+     * frames nest. A frame's own `document` node carries its index too. SPEC-003 AC-6.
+     */
+    frame?: number;
+  };
 }

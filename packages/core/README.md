@@ -76,6 +76,25 @@ Reading it:
 - Content hidden from assistive tech (`aria-hidden="true"`, `hidden`, `display:none`,
   `visibility:hidden`) is excluded along with its subtree.
 
+## Web components and frames
+
+The engine reads the tree the browser composes, not the page source:
+
+- **Open shadow roots** are read at the host's position. A `<slot>` reads what is assigned to it,
+  or its fallback content when nothing is. Light children that are not assigned to a slot are not
+  read, because the browser does not render them. Nodes from a shadow tree carry
+  `ref.shadow: true`.
+- **Closed shadow roots** cannot be seen from page script. By default the host's light children
+  are read as written, which may differ from what a screen reader hears. A host that can reach
+  closed roots passes them in with `options.getShadowRoot`.
+- **Same-origin frames** are a `document` node named from the iframe (`aria-label`, then
+  `title`), followed by the frame's content. The node and everything inside carry `ref.frame`,
+  the frame's 1-based index in reading order, so you can tell where a frame starts and ends. Text
+  runs inside a frame carry `ref: { tag: "#text", frame }` for the same reason. A frame that has
+  not loaded yet reads as an empty document; run again after it loads.
+- **Cross-origin frames** cannot be read from the page. They appear as a `document` node with
+  `flags.unreachable: true` and nothing inside. The frame's URL is never recorded.
+
 ## API
 
 ```ts
@@ -85,19 +104,25 @@ interface InterpretationNode {
   role: string;                 // computed ARIA role, or "text"
   name: string;                 // accessible name (may be "")
   level?: number;               // headings only
-  flags?: { unnamed?: boolean; missingAlt?: boolean };
-  ref?: { tag: string };        // serialisable pointer — never a live node
+  flags?: { unnamed?: boolean; missingAlt?: boolean; unreachable?: boolean };
+  ref?: {                       // serialisable pointer, never a live node
+    tag: string;
+    shadow?: true;              // the element is in a shadow tree
+    frame?: number;             // inside the n-th frame met in reading order
+  };
 }
 
 interface LinearizeOptions {
   /** Override the computed-style source (for jsdom/happy-dom or non-browser hosts). */
   getComputedStyle?: (el: Element) => CSSStyleDeclaration | null | undefined;
+  /** Supply a closed shadow root the DOM hides. Defaults to `el.shadowRoot`. */
+  getShadowRoot?: (host: Element) => ShadowRoot | null | undefined;
 }
 ```
 
-Reading order follows **DOM order**, as screen readers do — CSS reordering (`flex`/`grid` `order`,
-positioning) is intentionally not reflected. Shadow DOM, iframes, live regions and per-screen-reader
-phrasing (NVDA / JAWS / VoiceOver verbosity) are tracked follow-ups on the
+Reading order follows **DOM order** in the composed tree, as screen readers do. CSS reordering
+(`flex`/`grid` `order`, positioning) is intentionally not reflected. Live regions and per-screen-reader phrasing
+(NVDA, JAWS, and VoiceOver verbosity) are tracked follow-ups on the
 [roadmap](https://github.com/Koshux/screen-reader-mirror/blob/main/docs/project/board.md).
 
 ## Guarantees
@@ -113,8 +138,9 @@ phrasing (NVDA / JAWS / VoiceOver verbosity) are tracked follow-ups on the
 ## Status
 
 `0.1.x` implements [SPEC-001](https://github.com/Koshux/screen-reader-mirror/blob/main/docs/specs/SPEC-001-core-linearize-foundation.md)
-(reading order, roles, names, levels, flags, hidden-content exclusion) with a golden HTML fixture
-per behaviour. The pure-JS role/name computation is the portable path; hosts that can reach a real
+(reading order, roles, names, levels, flags, hidden-content exclusion) and
+[SPEC-003](https://github.com/Koshux/screen-reader-mirror/blob/main/docs/specs/SPEC-003-composed-tree-shadow-dom-frames.md)
+(shadow DOM, slots, and frames), with a golden HTML fixture per behaviour. The pure-JS role/name computation is the portable path; hosts that can reach a real
 browser accessibility tree (the upcoming extension) will use it as the higher-fidelity oracle.
 
 ## License
