@@ -3,6 +3,11 @@
 > Owner: James (operator). Status: draft, 2026-10-26. Companion to [board.md](./board.md).
 > Purpose: get real screen-reader users and accessibility developers to try `screen-reader-mirror`,
 > report divergences, and turn those into golden fixtures. Not a growth-hacking plan.
+>
+> **Scope decision, 2026-10-26:** the launch release is 1.0.0 and it ships only when every
+> capability in [v1-scope.md](./v1-scope.md) is done. The three-week timeline in section 3 is
+> superseded by the phases there; sections 1, 2, 4 to 8 still apply on launch day. User-facing
+> surfaces pass the design gate in [../design/README.md](../design/README.md) first.
 
 ## 0. Where we are
 
@@ -66,7 +71,7 @@ Show HN's own rule: it must be something people can **try**, without signup. An 
 
 > Show HN: See what a screen reader interprets from your UI (no install, client-side)
 
-Alternative if the name should carry: `Show HN: Screen-reader-mirror – the reading order a screen reader gets from your page`.
+Alternative if the name should carry: `Show HN: Screen-reader-mirror, the reading order a screen reader gets from your page`.
 
 **URL**: the demo page, with the bookmarklet and the repository link on it. Not the README.
 
