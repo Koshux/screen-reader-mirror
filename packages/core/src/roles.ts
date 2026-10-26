@@ -1,5 +1,6 @@
 import { roles } from "aria-query";
 import { computeAccessibleName } from "dom-accessibility-api";
+import { firstSummaryOf } from "./visibility";
 
 /**
  * Role resolution for the interpretation (SPEC-001 §3).
@@ -87,6 +88,22 @@ function implicitRole(el: Element): string | null {
     case "ol":
     case "menu":
       return "list";
+    case "details":
+      return "group"; // HTML-AAM
+    case "summary": {
+      // HTML-AAM: only the first <summary> of a <details> is the disclosure control; platforms expose
+      // it as a button (with an expanded state), which is what screen readers announce. Any other
+      // <summary> is generic.
+      const parent = el.parentElement;
+      if (!parent || parent.tagName.toLowerCase() !== "details") return null;
+      return firstSummaryOf(parent) === el ? "button" : null;
+    }
+    case "caption":
+      return "caption"; // HTML-AAM; ARIA 1.2 prohibits naming it, its text reads as content
+    case "option":
+      return "option"; // reached only inside a list box (a collapsed <select> is a leaf)
+    case "optgroup":
+      return "group"; // HTML-AAM; named by its label attribute
     case "li":
       // HTML-AAM / ARIA in HTML: `listitem` only as the child of an element exposed as a list
       // (`<ul>`/`<ol>`/`<menu>` or `role="list"`); an orphan `<li>` is generic. Going through
@@ -99,9 +116,10 @@ function implicitRole(el: Element): string | null {
       // alt="" = decorative (presentation) — unless focusable / global ARIA re-exposes it.
       return el.getAttribute("alt") === "" && !presentationIsOverridden(el) ? "presentation" : "img";
     case "svg":
-      // SVG-AAM: the root is an image-like object named by its <title> / aria-label. Without a
-      // name it is treated as decorative here (its <title>/<desc> are never read as text).
-      return hasAccessibleName(el) ? "img" : null;
+      // SVG-AAM: the root is an image-like object named by its <title> / aria-label. Unnamed, it
+      // is decorative (its <title>/<desc> are never read as text) unless it is focusable or carries
+      // a global ARIA attribute, which keeps it in the tree with an empty name.
+      return hasAccessibleName(el) || presentationIsOverridden(el) ? "img" : null;
     case "input":
       return inputRole(el);
     case "textarea":
@@ -121,13 +139,8 @@ function implicitRole(el: Element): string | null {
       if (table && PRESENTATIONAL.has(table)) return null;
       return table === "grid" || table === "treegrid" ? "gridcell" : "cell"; // HTML-AAM
     }
-    case "th": {
-      if (tableIsPresentational(el)) return null;
-      // HTML-AAM: scope="row"/"rowgroup" → rowheader; otherwise columnheader (the HTML-AAM
-      // "in a thead / first cell" heuristics for scope-less <th> are a simplification here).
-      const scope = el.getAttribute("scope")?.toLowerCase();
-      return scope === "row" || scope === "rowgroup" ? "rowheader" : "columnheader";
-    }
+    case "th":
+      return tableIsPresentational(el) ? null : headerCellRole(el);
     case "article":
       return "article";
     case "section":
@@ -223,6 +236,22 @@ function isFocusable(el: Element): boolean {
   return tag === "summary" || tag === "iframe";
 }
 
+/**
+ * HTML-AAM for <th>: scope="row"/"rowgroup" is a rowheader, scope="col"/"colgroup" a
+ * columnheader. Without a scope, browsers apply the HTML table-model heuristic: a header cell that
+ * starts a row containing data cells is a row header; every other header cell is a column header.
+ */
+function headerCellRole(el: Element): string {
+  const scope = el.getAttribute("scope")?.toLowerCase();
+  if (scope === "row" || scope === "rowgroup") return "rowheader";
+  if (scope === "col" || scope === "colgroup") return "columnheader";
+  const row = el.parentElement;
+  if (!row || row.tagName.toLowerCase() !== "tr") return "columnheader";
+  const cells = Array.from(row.children).filter((c) => /^(td|th)$/i.test(c.tagName));
+  const hasDataCells = cells.some((c) => c.tagName.toLowerCase() === "td");
+  return hasDataCells && cells[0] === el ? "rowheader" : "columnheader";
+}
+
 /** Resolved role of the closest ancestor `<table>`, or null when there is none. */
 function ancestorTableRole(el: Element): string | null {
   const table = el.parentElement?.closest("table");
@@ -284,6 +313,12 @@ export function accessibleName(el: Element): string {
 
 function hasAccessibleName(el: Element): boolean {
   return accessibleName(el) !== "";
+}
+
+/** True if ARIA prohibits naming the role (caption, paragraph, …): the node gets an empty name. */
+export function isNameProhibited(role: string | null): boolean {
+  if (!role) return false;
+  return roleMap.get(role)?.nameFrom?.includes("prohibited") ?? false;
 }
 
 /** True if the role takes its accessible name from its descendant content (AccName step 2F). */

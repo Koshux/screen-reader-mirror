@@ -34,6 +34,11 @@ export function isHiddenFromAT(el: Element, options: VisibilityOptions = {}): bo
   const hidden = el.getAttribute("hidden");
   if (hidden !== null && hidden.toLowerCase() !== "until-found") return true;
 
+  // 2b. The content of a closed <details> is not rendered: everything except its first <summary>
+  //     is out of the tree. (The browser hides it inside the element's own shadow slot, so no
+  //     computed-style check can see it.)
+  if (isInsideClosedDetails(el)) return true;
+
   // 3 & 4. CSS-based hiding, read defensively.
   const style = resolveStyle(el, options);
   if (style) {
@@ -51,4 +56,19 @@ function resolveStyle(el: Element, options: VisibilityOptions): CSSStyleDeclarat
   } catch {
     return null; // fail-open: can't compute → treat as visible
   }
+}
+
+/** True for any child of a closed `<details>` other than its first `<summary>`. */
+export function isInsideClosedDetails(el: Element): boolean {
+  const parent = el.parentElement;
+  if (!parent || parent.tagName.toLowerCase() !== "details" || parent.hasAttribute("open")) return false;
+  return el !== firstSummaryOf(parent);
+}
+
+/** The `<summary>` a `<details>` exposes: its first summary child, or null. */
+export function firstSummaryOf(details: Element): Element | null {
+  for (const child of Array.from(details.children)) {
+    if (child.tagName.toLowerCase() === "summary") return child;
+  }
+  return null;
 }
