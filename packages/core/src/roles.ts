@@ -193,6 +193,8 @@ function implicitRole(el: Element, parentOf: ParentOf): string | null {
       return "progressbar"; // HTML-AAM; a leaf, named by the author
     case "meter":
       return "meter";
+    case "output":
+      return "status"; // HTML-AAM; Chrome exposes it as a polite, atomic live region (SPEC-004)
     case "iframe":
       return "document"; // the embedded document; Chrome exposes it as an Iframe node (SPEC-003)
     default:

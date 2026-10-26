@@ -1,5 +1,6 @@
-import type { InterpretationNode, NodeFlags } from "./types";
+import type { InterpretationNode, LiveRegion, NodeFlags } from "./types";
 import { isHiddenFromAT, firstSummaryOf, type VisibilityOptions } from "./visibility";
+import { liveRegionOf } from "./live";
 import {
   resolveRole,
   accessibleName,
@@ -70,7 +71,8 @@ interface Walk {
  *
  * Each element is one of three kinds:
  *  - **transparent** (no role, or a silent structural role): emits nothing, recurses so its text
- *    and descendants surface.
+ *    and descendants surface. A live region with such a role is emitted as a node instead
+ *    (SPEC-004), and every live region carries a `live` field.
  *  - **leaf**: a form control / image, or a role whose children are presentational *and* whose
  *    name cannot come from content (img, slider, separator, progressbar, ...): emits one node and
  *    does **not** recurse, because nothing below it is exposed.
@@ -127,9 +129,24 @@ function emitElement(el: Element, walk: Walk, textConsumed: boolean): void {
   // Decorative image (alt=""): excluded from the reading order entirely.
   if (role === "presentation" && tag === "img") return;
 
+  const live = liveRegionOf(el, role);
+  const transparent = role === null || TRANSPARENT_ROLES.has(role);
+
+  // A live region with a transparent role is still a node, empty or not, so the developer sees it
+  // before its message arrives (SPEC-004). Its own role never takes a name from content, so it
+  // keeps the text context it was given: inside a heading, link, or button its text is already
+  // in that name and is not read again (AC-12).
+  if (transparent && live) {
+    flushText(walk);
+    walk.out.push(buildNode(el, role ?? "generic", tag, walk, live));
+    walkChildren(el, walk, textConsumed);
+    flushText(walk);
+    return;
+  }
+
   // Transparent: surface descendant content, no node of our own. A block-level element still
   // separates text runs.
-  if (role === null || TRANSPARENT_ROLES.has(role)) {
+  if (transparent) {
     const block = BLOCK_TAGS.has(tag);
     if (block) flushText(walk);
     // The text of a label for a checkbox or radio is read only as the control name (Chrome drops
@@ -140,7 +157,7 @@ function emitElement(el: Element, walk: Walk, textConsumed: boolean): void {
   }
 
   flushText(walk);
-  walk.out.push(buildNode(el, role, tag, walk));
+  walk.out.push(buildNode(el, role, tag, walk, live));
 
   const consumesText = takesNameFromContent(role);
 
@@ -248,7 +265,7 @@ function inShadowTree(el: Element): boolean {
   return root.nodeType === DOCUMENT_FRAGMENT_NODE && "host" in root;
 }
 
-function buildNode(el: Element, role: string, tag: string, walk: Walk): InterpretationNode {
+function buildNode(el: Element, role: string, tag: string, walk: Walk, live?: LiveRegion): InterpretationNode {
   // ARIA prohibits naming some roles (caption, paragraph, ...): the node carries no name and its
   // text reads as content instead. A table row is named by the author or not at all. A text
   // field with no other name source takes its placeholder, as HTML-AAM and browsers do.
@@ -266,6 +283,7 @@ function buildNode(el: Element, role: string, tag: string, walk: Walk): Interpre
   if (level !== undefined) node.level = level;
   const flags = computeFlags(el, role, tag, name);
   if (flags) node.flags = flags;
+  if (live) node.live = live;
   return node;
 }
 

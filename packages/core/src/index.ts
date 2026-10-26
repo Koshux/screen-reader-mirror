@@ -8,4 +8,4 @@
  * Hard rule: nothing in this package makes a network call (ADR-0001).
  */
 export { linearize, type LinearizeOptions } from "./linearize";
-export type { InterpretationNode, NodeFlags } from "./types";
+export type { InterpretationNode, NodeFlags, LiveRegion } from "./types";

@@ -85,6 +85,14 @@
     "name": "",
     "ref": {
       "tag": "div"
+    },
+    "live": {
+      "politeness": "assertive",
+      "atomic": true,
+      "relevant": [
+        "additions",
+        "text"
+      ]
     }
   },
   {

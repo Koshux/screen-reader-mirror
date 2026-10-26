@@ -23,6 +23,23 @@ export interface NodeFlags {
 }
 
 /**
+ * How a live region is set up (SPEC-004), from `aria-live`, `aria-atomic`, `aria-relevant`, and
+ * `aria-busy`, or the role's implicit values (`alert`, `status`, `log`). The engine reads the page
+ * at one moment, so this says what a screen reader is told to announce, not when it speaks: a
+ * region inserted together with its message, for example, is often not announced at all.
+ */
+export interface LiveRegion {
+  /** How urgently a change is announced: `aria-live`, or the role's implicit value. */
+  politeness: "polite" | "assertive";
+  /** True when the whole region is read on a change, false when only the changed part is. */
+  atomic: boolean;
+  /** The changes that are announced, from `aria-relevant`, with `all` expanded. */
+  relevant: Array<"additions" | "removals" | "text">;
+  /** `aria-busy="true"`: the region is being updated and announcements are held. */
+  busy?: true;
+}
+
+/**
  * One entry in the linearized, screen-reader reading order.
  *
  * A node is either an **element** (with its computed `role` and accessible `name`) or a **bare run
@@ -46,6 +63,11 @@ export interface InterpretationNode {
   level?: number;
   /** Notable conditions; omitted entirely when there are none. */
   flags?: NodeFlags;
+  /**
+   * Present only when the node is a live region: how it is set up to be announced when it
+   * changes. It describes the set-up, not when or whether a screen reader will speak. SPEC-004.
+   */
+  live?: LiveRegion;
   /**
    * Minimal, serialisable pointer back to the source element: a tag name and where the element
    * lives, never a live node. Text runs carry no `ref`, except inside a frame, where they carry

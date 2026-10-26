@@ -8,7 +8,7 @@
  * Env:    CHROME_PATH to point at a specific Chrome, Chromium, or Edge binary.
  *
  * Output: a depth-first list of the exposed (non-ignored) nodes, each with Chrome's role, the
- * accessible name, the heading level when present, and the depth. Ignored nodes are skipped but
+ * accessible name, the heading level and live region properties when present, and the depth. Ignored nodes are skipped but
  * their children are still visited, which is how a screen reader sees the tree.
  */
 import { spawn } from "node:child_process";
@@ -165,6 +165,10 @@ function flatten(nodes, tags = new Map(), frames = new Map()) {
     const entry = { role, name: n.name?.value ?? "", depth };
     if (n.ignored) entry.ignored = true;
     if (role === "heading" && props.level !== undefined) entry.level = props.level;
+    // Live region properties (SPEC-004), kept as Chrome reports them; the comparison normalises.
+    for (const key of ["live", "atomic", "relevant", "busy"]) {
+      if (props[key] !== undefined) entry[key] = props[key];
+    }
     if (n.backendDOMNodeId !== undefined) {
       entry.backendDOMNodeId = n.backendDOMNodeId;
       const tag = tags.get(n.backendDOMNodeId);
