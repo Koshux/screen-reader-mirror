@@ -1,0 +1,90 @@
+<!--
+  SPEC-004 live region cases. One source for two checks:
+  - Chrome: `pnpm ax:compare packages/core/test/fixtures/probes/live-regions.html`.
+  - Unit tests: test/live-regions.test.ts loads one case at a time by its data-case.
+  Not under fixtures/pages, where the golden-page test would read it without its shadow root.
+-->
+<div data-case="explicit">
+  <div aria-live="polite">Saved</div>
+  <div aria-live="assertive">Card declined</div>
+  <p aria-live="polite">Basket total 12 euro</p>
+</div>
+
+<div data-case="implicit">
+  <div role="alert">Payment failed</div>
+  <div role="status">Address saved</div>
+  <div role="log">Line one</div>
+  <output>42</output>
+  <div role="timer">10:00</div>
+  <div role="marquee">Headlines</div>
+</div>
+
+<div data-case="override">
+  <div role="status" aria-live="off">Quiet status</div>
+  <div role="alert" aria-live="polite">Polite alert</div>
+  <div aria-live="off">Off region</div>
+  <div aria-live="bogus">Bogus region</div>
+  <div role="status" aria-live="bogus">Bogus status</div>
+  <div aria-live=" ASSERTIVE ">Spaced token</div>
+</div>
+
+<div data-case="atomic">
+  <div aria-live="polite" aria-atomic="true">Atomic true</div>
+  <div aria-live="polite" aria-atomic="false">Atomic false</div>
+  <div aria-live="polite">Atomic absent</div>
+  <div role="alert" aria-atomic="false">Alert not atomic</div>
+</div>
+
+<div data-case="relevant">
+  <div aria-live="polite">Relevant absent</div>
+  <div aria-live="polite" aria-relevant="all">Relevant all</div>
+  <div aria-live="polite" aria-relevant="removals">Relevant removals</div>
+  <div aria-live="polite" aria-relevant="text additions">Relevant text additions</div>
+  <div aria-live="polite" aria-relevant="bogus nonsense">Relevant invalid</div>
+</div>
+
+<div data-case="busy">
+  <div aria-live="polite" aria-busy="true">Loading results</div>
+  <div aria-live="polite" aria-busy="false">Results ready</div>
+</div>
+
+<div data-case="empty">
+  <div aria-live="polite"></div>
+</div>
+
+<div data-case="hidden">
+  <div aria-live="polite" aria-hidden="true">Aria hidden region</div>
+  <div role="alert" style="display:none">Display none alert</div>
+  <div role="status" style="visibility:hidden">Visibility hidden status</div>
+  <div hidden><div aria-live="assertive">Inside hidden ancestor</div></div>
+  <p>Visible text</p>
+</div>
+
+<div data-case="nested">
+  <div aria-live="polite">Outer message <div aria-live="assertive">Inner message</div></div>
+</div>
+
+<div data-case="shadow-frame">
+  <x-toast><template shadowrootmode="open"><div role="status">Shadow status</div></template></x-toast>
+  <iframe title="Checkout" srcdoc="<div role='status'>Frame status</div>"></iframe>
+</div>
+
+<div data-case="plain">
+  <p>Plain paragraph</p>
+  <div><span>Plain span</span></div>
+  <section aria-label="Updates" aria-live="polite">Named live section</section>
+  <button aria-live="polite">Live button</button>
+  <div role="presentation" aria-live="polite">Presentation region</div>
+  <label aria-live="polite"><input type="checkbox"> Accept terms</label>
+  <iframe title="Live frame" aria-live="polite" srcdoc="<p>Frame text</p>"></iframe>
+</div>
+
+<div data-case="inside-name">
+  <button>Items <span aria-live="polite">3</span></button>
+  <h2>Results <span aria-live="polite">5</span></h2>
+  <a href="#basket">Basket <span aria-live="polite">2</span></a>
+</div>
+
+<div data-case="inline">
+  <p>Total: <span aria-live="polite">12</span> items</p>
+</div>

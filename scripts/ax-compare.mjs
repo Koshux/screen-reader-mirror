@@ -9,8 +9,8 @@
  * The fixture is a body fragment. It is wrapped in a document, loaded in Chrome, and then:
  *  1. Chrome's accessibility tree is read through the DevTools protocol;
  *  2. the engine is injected into the page and run on document.body.
- * Both sides are normalised to (role, name, level) in the same vocabulary and shown as a line
- * diff. The diff is information for a human, not a pass/fail: every differing line is an engine
+ * Both sides are normalised to (role, name, level, live values) in the same vocabulary and shown
+ * as a line diff. The diff is information for a human, not a pass/fail: every differing line is an engine
  * bug, a pinned divergence with a reason, or a known gap in the normalisation below.
  *
  * --write-expected saves the engine's full output next to the fixture as <name>.expected.json,
@@ -43,7 +43,8 @@ const TRANSPARENT = new Set([
 // Chrome nodes that are never announced as content.
 const DROP = new Set(["ListMarker", "InlineTextBox"]);
 // Chrome vocabulary to the engine's.
-const ROLE_MAP = { image: "img", DisclosureTriangle: "button", StaticText: "text", Iframe: "document" };
+// LabelText is transparent unless it is a live region; ARIA has no label role, so it is generic.
+const ROLE_MAP = { image: "img", DisclosureTriangle: "button", StaticText: "text", Iframe: "document", LabelText: "generic" };
 // Roles whose name comes from content: Chrome still lists their text children, the engine does not.
 const NAME_FROM_CONTENT = new Set([
   "heading", "link", "button", "cell", "gridcell", "columnheader", "rowheader", "option", "tab",
@@ -90,7 +91,7 @@ if (writeExpected) {
 }
 
 const chrome = normaliseChrome(chromeRaw);
-const engine = ours.map((n) => ({ role: n.role, name: n.name, level: n.level }));
+const engine = ours.map((n) => ({ role: n.role, name: n.name, level: n.level, live: n.live }));
 
 const dir = mkdtempSync(join(tmpdir(), "srm-cmp-"));
 const a = join(dir, `${name}.chrome.txt`);
@@ -105,7 +106,30 @@ if (body) console.log(body);
 rmSync(dir, { recursive: true, force: true });
 
 function line(n) {
-  return `${n.role}${n.level ? " " + n.level : ""} | ${n.name}`;
+  return `${n.role}${n.level ? " " + n.level : ""} | ${n.name}${n.live ? " | " + liveLine(n.live) : ""}`;
+}
+
+/** The live values in one comparable string: politeness, atomic, busy, relevant. */
+function liveLine(live) {
+  return `live ${live.politeness}${live.atomic ? " atomic" : ""}${live.busy ? " busy" : ""} relevant ${live.relevant.join(" ")}`;
+}
+
+/**
+ * Chrome's live properties in the engine's shape, or undefined when the node is not a live
+ * region (Chrome omits `live` for `off`). The politeness is kept as Chrome reports it, so an
+ * invalid token, which Chrome passes through and the engine ignores, shows as a difference.
+ * `relevant` is expanded the way the engine does it: valid tokens in a fixed order, `all` as all
+ * three, the default when none is valid.
+ */
+function chromeLive(n) {
+  if (n.live === undefined || n.live === "off") return undefined;
+  const order = ["additions", "removals", "text"];
+  const tokens = new Set(String(n.relevant ?? "").trim().toLowerCase().split(/\s+/));
+  let relevant = order.filter((t) => tokens.has("all") || tokens.has(t));
+  if (relevant.length === 0) relevant = ["additions", "text"];
+  const live = { politeness: n.live, atomic: n.atomic === true, relevant };
+  if (n.busy) live.busy = true;
+  return live;
 }
 
 function buildBundle() {
@@ -143,7 +167,9 @@ function normaliseChrome(nodes) {
       continue;
     }
     if (DROP.has(n.role)) continue;
-    if (n.ignored || TRANSPARENT.has(n.role)) {
+    const live = chromeLive(n);
+    // A live region is a node even when its role is transparent, as in the engine (SPEC-004).
+    if (n.ignored || (TRANSPARENT.has(n.role) && !live)) {
       if (BLOCK_TAGS.has(n.tag)) {
         endRun();
         blockDepths.push(n.depth);
@@ -161,7 +187,9 @@ function normaliseChrome(nodes) {
       continue;
     }
     endRun();
-    out.push({ role, name: n.name.replace(/\s+/g, " ").trim(), level: n.level });
+    out.push({ role, name: n.name.replace(/\s+/g, " ").trim(), level: n.level, live });
+    // Leaving an emitted node ends the text run, as the engine flushes at a container's edge.
+    blockDepths.push(n.depth);
     // Keep the outermost name-from-content depth: a link inside a heading must not reopen text.
     if (NAME_FROM_CONTENT.has(role)) textSkipDepth = Math.min(textSkipDepth, n.depth);
     if (LEAF_ROLES.has(role)) skipDepth = Math.min(skipDepth, n.depth);

@@ -412,6 +412,14 @@
     "name": "",
     "ref": {
       "tag": "div"
+    },
+    "live": {
+      "politeness": "polite",
+      "atomic": true,
+      "relevant": [
+        "additions",
+        "text"
+      ]
     }
   },
   {

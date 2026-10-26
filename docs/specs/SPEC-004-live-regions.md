@@ -1,7 +1,7 @@
 ---
 id: SPEC-004
 title: Live regions in the interpretation
-status: spec-reviewed
+status: implemented # feat/SPEC-004-live-regions
 journeys: [JNY-004]
 target: core
 created: 2026-10-26
@@ -31,6 +31,23 @@ created: 2026-10-26
 > 5. Reuse confirmed: `aria-query` has the implicit values and the token lists, and `aria-live`,
 >    `aria-atomic`, `aria-busy`, and `aria-relevant` are already in the global-attribute list
 >    that overrides `presentation` in `roles.ts`. `alertdialog` has no implicit live value.
+
+> **Implementation notes (backfilled 2026-10-26).** What building it clarified:
+> 1. Chrome puts the live properties on the region's root only, never on its descendants, and
+>    omits them for `off`. It reports `busy` as `1`, and passes `" ASSERTIVE "` through as
+>    written, like any invalid token. The engine trims and lower-cases the token (§3), so that
+>    case is pinned as a difference along with `bogus`.
+> 2. An `<iframe aria-live>` is a live region in Chrome. The frame path builds its own node, so
+>    it now takes `live` too. Found in the Stage 5.5 review.
+> 3. A live `<label>` around a checkbox is a node in Chrome, and Chrome keeps the label's text
+>    as well as the checkbox name, so the text is read on its own. The engine does the same; a
+>    label that is not live is unchanged.
+> 4. The oracle now ends a text run when it leaves any emitted node, as the engine does. The
+>    inline case needed it; no other page or probe changed.
+> 5. Not in scope, found while probing: Chrome leaves the content of a `status`, `note`, `log`,
+>    or `group` out of an enclosing button's name, with or without a live region. The engine,
+>    through `dom-accessibility-api`, includes it and then reads it again inside the role.
+>    That gap was already there before this spec and needs its own decision.
 
 ## 1. Summary
 
@@ -231,14 +248,14 @@ observed over time and nothing is stored. `core` stays client-side and offline.
 
 Branch from `main` after PR #54 has merged.
 
-- [ ] `types.ts`, `index.ts`: `LiveRegion` and the `live` field.
-- [ ] `live.ts`: `liveRegionOf()` using `aria-query` for valid tokens and implicit values.
-- [ ] `linearize.ts`: live container rule and `live` in `buildNode`; `roles.ts`: `output`.
-- [ ] Probe page and `live-regions.test.ts`, one fixture per AC.
-- [ ] Oracle: live properties in `ax-tree.mjs` and the comparison in `ax-compare.mjs`; run every
+- [x] `types.ts`, `index.ts`: `LiveRegion` and the `live` field.
+- [x] `live.ts`: `liveRegionOf()` using `aria-query` for valid tokens and implicit values.
+- [x] `linearize.ts`: live container rule and `live` in `buildNode`; `roles.ts`: `output`.
+- [x] Probe page and `live-regions.test.ts`, one fixture per AC.
+- [x] Oracle: live properties in `ax-tree.mjs` and the comparison in `ax-compare.mjs`; run every
       case through `pnpm ax:compare`. Regenerate the component-demo and service-form goldens with
       `--write-expected` and check that the diff is only the `live` field (AC-11).
-- [ ] README; `minor` changeset; `pnpm verify` green; log.
+- [x] README; `minor` changeset; `pnpm verify` green; log.
 
 ## 8. Test plan
 

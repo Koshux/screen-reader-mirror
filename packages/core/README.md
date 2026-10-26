@@ -95,6 +95,24 @@ The engine reads the tree the browser composes, not the page source:
 - **Cross-origin frames** cannot be read from the page. They appear as a `document` node with
   `flags.unreachable: true` and nothing inside. The frame's URL is never recorded.
 
+## Live regions
+
+A live region tells a screen reader to announce changes to part of the page. Every node that is
+one carries a `live` field: how urgently a change is announced (`politeness`), whether the whole
+region or only the changed part is read (`atomic`), which changes count (`relevant`), and
+whether updates are held (`busy`). The values come from `aria-live`, `aria-atomic`,
+`aria-relevant`, and `aria-busy`, or from the role: `alert` is assertive, `status` (and
+`<output>`) and `log` are polite.
+
+A live region with no role of its own, such as `<div aria-live="polite">`, appears as a
+`generic` node, even when it is empty, so you can check that it exists before its message
+arrives. An element with no `live` field is not set up to be announced.
+
+The engine reads the page at one moment. `live` shows how a region is set up, not when or
+whether a screen reader will speak: that depends on the screen reader and on how the page
+changes. A common failure is inserting the region together with its message, which is often
+not announced at all.
+
 ## API
 
 ```ts
@@ -105,6 +123,12 @@ interface InterpretationNode {
   name: string;                 // accessible name (may be "")
   level?: number;               // headings only
   flags?: { unnamed?: boolean; missingAlt?: boolean; unreachable?: boolean };
+  live?: {                      // live regions only
+    politeness: "polite" | "assertive";
+    atomic: boolean;
+    relevant: Array<"additions" | "removals" | "text">;
+    busy?: true;
+  };
   ref?: {                       // serialisable pointer, never a live node
     tag: string;
     shadow?: true;              // the element is in a shadow tree
@@ -121,8 +145,8 @@ interface LinearizeOptions {
 ```
 
 Reading order follows **DOM order** in the composed tree, as screen readers do. CSS reordering
-(`flex`/`grid` `order`, positioning) is intentionally not reflected. Live regions and per-screen-reader phrasing
-(NVDA, JAWS, and VoiceOver verbosity) are tracked follow-ups on the
+(`flex`/`grid` `order`, positioning) is intentionally not reflected. Per-screen-reader phrasing
+(NVDA, JAWS, and VoiceOver verbosity) is a tracked follow-up on the
 [roadmap](https://github.com/Koshux/screen-reader-mirror/blob/main/docs/project/board.md).
 
 ## Guarantees
@@ -137,10 +161,12 @@ Reading order follows **DOM order** in the composed tree, as screen readers do. 
 
 ## Status
 
-`0.1.x` implements [SPEC-001](https://github.com/Koshux/screen-reader-mirror/blob/main/docs/specs/SPEC-001-core-linearize-foundation.md)
-(reading order, roles, names, levels, flags, hidden-content exclusion) and
+`0.x` implements [SPEC-001](https://github.com/Koshux/screen-reader-mirror/blob/main/docs/specs/SPEC-001-core-linearize-foundation.md)
+(reading order, roles, names, levels, flags, hidden-content exclusion),
 [SPEC-003](https://github.com/Koshux/screen-reader-mirror/blob/main/docs/specs/SPEC-003-composed-tree-shadow-dom-frames.md)
-(shadow DOM, slots, and frames), with a golden HTML fixture per behaviour. The pure-JS role/name computation is the portable path; hosts that can reach a real
+(shadow DOM, slots, and frames), and
+[SPEC-004](https://github.com/Koshux/screen-reader-mirror/blob/main/docs/specs/SPEC-004-live-regions.md)
+(live regions), with a golden HTML fixture per behaviour. The pure-JS role/name computation is the portable path; hosts that can reach a real
 browser accessibility tree (the upcoming extension) will use it as the higher-fidelity oracle.
 
 ## License
