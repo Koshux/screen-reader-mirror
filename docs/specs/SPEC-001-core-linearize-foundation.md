@@ -100,6 +100,18 @@ reason to stop descending (that mistake dropped every table body and every neste
 emitted container starts a fresh text context: text is suppressed only directly under a node whose
 own name came from content, so a list inside a table cell keeps its item text.
 
+*Fidelity notes (backfilled 2026-10-26, Phase A of the 1.0 scope):* bare text is emitted as
+**runs**: adjacent text and inline formatting merge into one `text` node, and block-level
+elements, `<br>`, and emitted nodes end a run, so "Loose `<em>`text`</em>` here" is one line as
+in a browser. `<details>` is a `group` whose first `<summary>` is a `button`; the content of a
+closed `<details>` is out of the tree. A list-box `<select>` (`multiple`, or `size` above 1)
+exposes its `option`s and `optgroup`s (`group`, named by `label`); a collapsed `<select>` stays a
+leaf. A scope-less `<th>` is a `rowheader` only when it starts a row that contains data cells.
+`<caption>` is a `caption` node; ARIA prohibits naming it, so its name is empty and its text reads
+as content, while the table takes the caption as its name. An unnamed inline `<svg>` is decorative
+unless it is focusable or carries a global ARIA attribute. Element states (expanded, selected,
+checked) are not modelled yet; they are specified with the verbosity profiles (#10).
+
 ### Public API / data shapes
 
 ```ts
@@ -198,6 +210,13 @@ is enforced by ESLint (`no-restricted-globals`) and the `block-no-telemetry` hoo
 | AC-5 | unnamed link/textbox/checkbox/select/textarea/slider flagged; empty `<th>`/`<tr>`/tablist **not** flagged | fixture | `…/linearize.test.ts` |
 | AC-6 | missing-alt `<img>` inside a `<button>` still flagged; `role=button` card keeps its nested link | fixture | `…/linearize.test.ts` |
 | AC-2 | pinned upstream divergences (`it.fails`): multi-token role name, focusable-presentation name, `<figure>` name from `<figcaption>` | fixture | `…/linearize.test.ts` |
+| AC-2 | `<details>` group + first `<summary>` button; closed content hidden; other summaries generic | fixture | `…/linearize.test.ts` |
+| AC-2 | list-box `<select>` exposes options and optgroups; collapsed `<select>` is a leaf | fixture | `…/linearize.test.ts` |
+| AC-2 | scope-less `<th>`: rowheader only when it starts a row with data cells | fixture | `…/linearize.test.ts` |
+| AC-2 | `<caption>` node, empty name (prohibited), table named by caption | fixture | `…/linearize.test.ts` |
+| AC-2 | unnamed inline `<svg>` decorative unless focusable | fixture | `…/linearize.test.ts` |
+| AC-1 | text runs: inline formatting merges, block boundaries and `<br>` split, link inside a run | fixture | `…/linearize.test.ts` |
+| AC-2 | `<li>` under `<ul role=navigation>` is generic (pinned decision, revisit in #6) | fixture | `…/linearize.test.ts` |
 
 ## 9. Risks & rollback
 

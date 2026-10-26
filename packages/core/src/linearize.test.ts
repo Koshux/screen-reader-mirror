@@ -437,6 +437,7 @@ describe("more conditional implicit roles (SPEC-001 §3)", () => {
       ["searchbox", "S"],
       ["combobox", "City"],
       ["listbox", "M"],
+      ["option", "a"],
       ["link", "Area"],
     ]);
   });
@@ -462,5 +463,104 @@ describe("more conditional implicit roles (SPEC-001 §3)", () => {
     expect(
       linearize(root('<figure><img src="x.png" alt="Chart"><figcaption>Fig 1</figcaption></figure>'))[0],
     ).toEqual({ role: "figure", name: "Fig 1", ref: { tag: "figure" } });
+  });
+});
+
+describe("fidelity gaps closed on 2026-10-26 (SPEC-001 §3)", () => {
+  it("<details> is a group whose first <summary> is a button; closed content is out of the tree", () => {
+    expect(linearize(root("<details><summary>More</summary><p>Secret</p></details>"))).toEqual([
+      { role: "group", name: "", ref: { tag: "details" } },
+      { role: "button", name: "More", ref: { tag: "summary" } },
+    ]);
+    expect(linearize(root("<details open><summary>More</summary><p>Shown</p></details>"))).toEqual([
+      { role: "group", name: "", ref: { tag: "details" } },
+      { role: "button", name: "More", ref: { tag: "summary" } },
+      { role: "text", name: "Shown" },
+    ]);
+    // A second <summary>, or one outside <details>, is generic.
+    expect(
+      linearize(root("<details open><summary>A</summary><summary>B</summary></details><summary>C</summary>")).map(
+        (n) => [n.role, n.name],
+      ),
+    ).toEqual([
+      ["group", ""],
+      ["button", "A"],
+      ["text", "B"],
+      ["text", "C"],
+    ]);
+  });
+
+  it("a list-box <select> exposes its options and optgroups; a collapsed <select> stays a leaf", () => {
+    const listbox =
+      '<select multiple aria-label="Pick"><option>One</option><option selected>Two</option>' +
+      '<optgroup label="G"><option>Three</option></optgroup></select>';
+    expect(linearize(root(listbox)).map((n) => [n.role, n.name])).toEqual([
+      ["listbox", "Pick"],
+      ["option", "One"],
+      ["option", "Two"],
+      ["group", "G"],
+      ["option", "Three"],
+    ]);
+    expect(linearize(root('<select size="3" aria-label="Pick"><option>A</option></select>')).map((n) => n.role)).toEqual([
+      "listbox",
+      "option",
+    ]);
+    expect(linearize(root('<select aria-label="Pick"><option>A</option><option>B</option></select>'))).toEqual([
+      { role: "combobox", name: "Pick", ref: { tag: "select" } },
+    ]);
+  });
+
+  it("a scope-less <th> is a rowheader only when it starts a row that has data cells", () => {
+    const roles = (html: string) => linearize(root(html)).filter((n) => /header$/.test(n.role)).map((n) => n.role);
+    expect(roles("<table><thead><tr><th>Name</th><th>Qty</th></tr></thead><tbody><tr><td>Ann</td><td>2</td></tr></tbody></table>")).toEqual([
+      "columnheader",
+      "columnheader",
+    ]);
+    expect(roles("<table><tr><th>Name</th><td>Ann</td></tr><tr><th>Age</th><td>9</td></tr></table>")).toEqual([
+      "rowheader",
+      "rowheader",
+    ]);
+    expect(roles("<table><tr><th>A</th><th>B</th></tr></table>")).toEqual(["columnheader", "columnheader"]);
+    expect(roles("<table><tr><td>x</td><th>Mid</th><td>y</td></tr></table>")).toEqual(["columnheader"]);
+  });
+
+  it("<caption> is a caption node with no name (ARIA prohibits one); the table takes the name", () => {
+    expect(linearize(root("<table><caption>Sales</caption><tr><td>1</td></tr></table>")).map((n) => [n.role, n.name])).toEqual([
+      ["table", "Sales"],
+      ["caption", ""],
+      ["text", "Sales"],
+      ["rowgroup", ""],
+      ["row", "1"],
+      ["cell", "1"],
+    ]);
+  });
+
+  it("an unnamed inline <svg> is decorative unless it is focusable", () => {
+    expect(linearize(root('<p>Before</p><svg><path d="M0 0"/></svg><p>After</p>')).map((n) => n.name)).toEqual(["Before", "After"]);
+    expect(linearize(root('<svg tabindex="0"><path d="M0 0"/></svg>'))).toEqual([{ role: "img", name: "", ref: { tag: "svg" } }]);
+  });
+
+  it("bare text is emitted as runs: inline formatting merges, block boundaries and <br> split", () => {
+    expect(linearize(root("<p>Loose <em>text</em> here and <strong>bold</strong>.</p>"))).toEqual([
+      { role: "text", name: "Loose text here and bold." },
+    ]);
+    expect(linearize(root("<div>One <span>two</span> three</div>")).map((n) => n.name)).toEqual(["One two three"]);
+    expect(linearize(root("<p>A</p><p>B</p>")).map((n) => n.name)).toEqual(["A", "B"]);
+    expect(linearize(root("<p>line<br>break</p>")).map((n) => n.name)).toEqual(["line", "break"]);
+    expect(linearize(root('<p>See <a href="/d">docs</a> now</p>')).map((n) => [n.role, n.name])).toEqual([
+      ["text", "See"],
+      ["link", "docs"],
+      ["text", "now"],
+    ]);
+  });
+
+  // Pinned decision: HTML-AAM makes <li> a listitem only when it is an accessibility child of an
+  // element exposed as a list. A <ul role="navigation"> is not exposed as a list, so its items are
+  // generic. Browsers differ here; revisit against the real tree in #6.
+  it("<li> under <ul role=navigation> is generic", () => {
+    expect(linearize(root('<ul role="navigation"><li><a href="/x">X</a></li></ul>')).map((n) => n.role)).toEqual([
+      "navigation",
+      "link",
+    ]);
   });
 });
