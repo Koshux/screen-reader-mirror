@@ -8,7 +8,8 @@
  * Env:    CHROME_PATH to point at a specific Chrome, Chromium, or Edge binary.
  *
  * Output: a depth-first list of the exposed (non-ignored) nodes, each with Chrome's role, the
- * accessible name, the heading level and live region properties when present, and the depth. Ignored nodes are skipped but
+ * accessible name, the heading level and live region properties when present, the computed
+ * display of its element, and the depth. Ignored nodes are skipped but
  * their children are still visited, which is how a screen reader sees the tree.
  */
 import { spawn } from "node:child_process";
