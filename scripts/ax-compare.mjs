@@ -43,7 +43,7 @@ const TRANSPARENT = new Set([
 // Chrome nodes that are never announced as content.
 const DROP = new Set(["ListMarker", "InlineTextBox"]);
 // Chrome vocabulary to the engine's.
-const ROLE_MAP = { image: "img", DisclosureTriangle: "button", StaticText: "text" };
+const ROLE_MAP = { image: "img", DisclosureTriangle: "button", StaticText: "text", Iframe: "document" };
 // Roles whose name comes from content: Chrome still lists their text children, the engine does not.
 const NAME_FROM_CONTENT = new Set([
   "heading", "link", "button", "cell", "gridcell", "columnheader", "rowheader", "option", "tab",

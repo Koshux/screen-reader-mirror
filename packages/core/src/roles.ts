@@ -35,6 +35,22 @@ const NAME_FROM_CONTENT_OVERRIDES: Readonly<Record<string, boolean>> = { rowgrou
 const PRESENTATIONAL = new Set(["presentation", "none"]);
 
 /**
+ * How role rules find an element's parent. The linearizer passes the parent it met in the
+ * composed tree, so a slotted `<li>` sees the shadow `<ul>` around its slot (SPEC-003).
+ */
+export type ParentOf = (el: Element) => Element | null;
+
+/**
+ * The parent in the composed tree when nothing better is known: the parent element, or the host
+ * for a node at the top of a shadow root. A slotted element's slot is not known here.
+ */
+export function composedParent(el: Element): Element | null {
+  if (el.parentElement) return el.parentElement;
+  const root = el.getRootNode() as Node & { host?: Element };
+  return root !== el && root.host ? root.host : null;
+}
+
+/**
  * Resolve an element's role: explicit `role` wins; else the conditional implicit role; else null
  * (generic / no role).
  *
@@ -42,7 +58,7 @@ const PRESENTATIONAL = new Set(["presentation", "none"]);
  * and the user agent uses the **first token that names a non-abstract role** — so `role="foo
  * button"` is a button, and an abstract role like `role="widget"` is ignored.
  */
-export function resolveRole(el: Element): string | null {
+export function resolveRole(el: Element, parentOf: ParentOf = composedParent): string | null {
   const explicit = el.getAttribute("role");
   if (explicit) {
     for (const token of explicit.trim().toLowerCase().split(/\s+/)) {
@@ -50,14 +66,14 @@ export function resolveRole(el: Element): string | null {
       if (!def || def.abstract) continue;
       // ARIA 1.2 presentation-role conflict resolution: a focusable element, or one carrying a
       // global ARIA attribute, ignores `presentation`/`none` and keeps its implicit role.
-      if (PRESENTATIONAL.has(token) && presentationIsOverridden(el)) return implicitRole(el);
+      if (PRESENTATIONAL.has(token) && presentationIsOverridden(el)) return implicitRole(el, parentOf);
       return token;
     }
   }
-  return implicitRole(el);
+  return implicitRole(el, parentOf);
 }
 
-function implicitRole(el: Element): string | null {
+function implicitRole(el: Element, parentOf: ParentOf): string | null {
   const tag = el.tagName.toLowerCase();
   switch (tag) {
     case "a":
@@ -79,13 +95,13 @@ function implicitRole(el: Element): string | null {
     case "header":
       // ARIA in HTML: banner only when scoped to the body — not inside main, sectioning content
       // (article/aside/nav/section or those roles) or a sectioning root (dialog, figure, td, …).
-      return scopeOf(el) === "body" ? "banner" : null;
+      return scopeOf(el, parentOf) === "body" ? "banner" : null;
     case "footer":
-      return scopeOf(el) === "body" ? "contentinfo" : null;
+      return scopeOf(el, parentOf) === "body" ? "contentinfo" : null;
     case "aside":
       // ARIA in HTML: complementary when scoped to body or main; inside sectioning content or a
       // sectioning root only when it has an accessible name, else generic.
-      return scopeOf(el) !== "sectioning" || hasAccessibleName(el) ? "complementary" : null;
+      return scopeOf(el, parentOf) !== "sectioning" || hasAccessibleName(el) ? "complementary" : null;
     case "ul":
     case "ol":
     case "menu":
@@ -106,12 +122,15 @@ function implicitRole(el: Element): string | null {
       return "option"; // reached only inside a list box (a collapsed <select> is a leaf)
     case "optgroup":
       return "group"; // HTML-AAM; named by its label attribute
-    case "li":
+    case "li": {
       // HTML-AAM / ARIA in HTML: `listitem` only as the child of an element exposed as a list
       // (`<ul>`/`<ol>`/`<menu>` or `role="list"`); an orphan `<li>` is generic. Going through
       // `resolveRole` on the parent also honours `<ul role="presentation">` (ARIA presentation
-      // inheritance for required owned elements).
-      return el.parentElement && resolveRole(el.parentElement) === "list" ? "listitem" : null;
+      // inheritance for required owned elements). The parent is the composed one: an `<li>`
+      // slotted into a shadow `<ul>` is a listitem, as Chrome reports.
+      const parent = parentOf(el);
+      return parent && resolveRole(parent, parentOf) === "list" ? "listitem" : null;
+    }
     case "p":
       return "paragraph";
     case "img":
@@ -174,6 +193,8 @@ function implicitRole(el: Element): string | null {
       return "progressbar"; // HTML-AAM; a leaf, named by the author
     case "meter":
       return "meter";
+    case "iframe":
+      return "document"; // the embedded document; Chrome exposes it as an Iframe node (SPEC-003)
     default:
       return null; // generic / no implicit role
   }
@@ -357,16 +378,18 @@ const SECTIONING_ROOT_TAGS = new Set(["blockquote", "details", "dialog", "fields
 
 /**
  * ARIA in HTML scoping for `<header>`/`<footer>`/`<aside>`: the nearest scoping ancestor is the
- * body, `<main>` (or `role="main"`), or sectioning content / a sectioning root.
+ * body, `<main>` (or `role="main"`), or sectioning content / a sectioning root. The walk goes
+ * up the composed tree, as Chrome's does: a header in a shadow root inside an `<article>` is
+ * scoped to the article.
  */
-function scopeOf(el: Element): "body" | "main" | "sectioning" {
-  for (let p = el.parentElement; p; p = p.parentElement) {
+function scopeOf(el: Element, parentOf: ParentOf): "body" | "main" | "sectioning" {
+  for (let p = parentOf(el); p; p = parentOf(p)) {
     const tag = p.tagName.toLowerCase();
     if (tag === "body") return "body";
     if (SECTIONING_CONTENT_TAGS.has(tag) || SECTIONING_ROOT_TAGS.has(tag)) return "sectioning";
     if (tag === "main") return "main";
     if (p.hasAttribute("role")) {
-      const role = resolveRole(p);
+      const role = resolveRole(p, parentOf);
       if (role === "main") return "main";
       if (role && SECTIONING_CONTENT_ROLES.has(role)) return "sectioning";
     }
@@ -404,11 +427,15 @@ export function hasAuthorName(el: Element): boolean {
 /**
  * The control a <label> labels: its `for` target, else its first labelable descendant. Used to
  * decide whether the label text is read on its own (text fields) or only as the control name
- * (checkboxes and radios), which is how Chrome exposes it.
+ * (checkboxes and radios), which is how Chrome exposes it. IDs are scoped to a tree, so `for`
+ * resolves within the label's own root: its shadow root, or its document.
  */
 export function labelledControl(label: Element): Element | null {
   const forId = label.getAttribute("for");
-  if (forId) return label.ownerDocument.getElementById(forId);
+  if (forId) {
+    const root = label.getRootNode() as Partial<Pick<Document, "getElementById">>;
+    return typeof root.getElementById === "function" ? root.getElementById(forId) : null;
+  }
   return label.querySelector("input:not([type=hidden]), select, textarea, button, meter, output, progress");
 }
 

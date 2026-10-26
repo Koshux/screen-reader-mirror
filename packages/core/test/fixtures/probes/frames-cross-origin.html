@@ -1,0 +1,9 @@
+<!--
+  SPEC-003 AC-7 in a real browser: a data: URL frame has an opaque origin, so page script cannot
+  read it and the engine reports it as unreachable. Chrome's own tree still shows the content,
+  which is the gap the extension's debugger path (#20) closes. Chrome only:
+  `pnpm ax:compare packages/core/test/fixtures/probes/frames-cross-origin.html`.
+-->
+<p>Before</p>
+<iframe title="Elsewhere" src="data:text/html,<p>Other origin content</p>"></iframe>
+<p>After</p>
