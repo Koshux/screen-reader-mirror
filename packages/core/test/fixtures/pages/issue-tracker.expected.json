@@ -193,6 +193,10 @@
     }
   },
   {
+    "role": "text",
+    "name": "Tokens defined for both themes"
+  },
+  {
     "role": "listitem",
     "name": "",
     "ref": {
@@ -207,6 +211,10 @@
     }
   },
   {
+    "role": "text",
+    "name": "Contrast checked at AA"
+  },
+  {
     "role": "listitem",
     "name": "",
     "ref": {
@@ -219,6 +227,10 @@
     "ref": {
       "tag": "input"
     }
+  },
+  {
+    "role": "text",
+    "name": "Screenshot added to the docs"
   },
   {
     "role": "table",
@@ -247,7 +259,7 @@
   },
   {
     "role": "row",
-    "name": "",
+    "name": "Token Light Dark",
     "ref": {
       "tag": "tr"
     }
@@ -274,8 +286,15 @@
     }
   },
   {
-    "role": "row",
+    "role": "rowgroup",
     "name": "",
+    "ref": {
+      "tag": "tbody"
+    }
+  },
+  {
+    "role": "row",
+    "name": "text 12.1 13.4",
     "ref": {
       "tag": "tr"
     }
@@ -303,7 +322,7 @@
   },
   {
     "role": "row",
-    "name": "",
+    "name": "muted 4.6 3.9",
     "ref": {
       "tag": "tr"
     }

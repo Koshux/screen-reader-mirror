@@ -3,18 +3,22 @@
  * Compare the engine's reading order with Chrome's accessibility tree, on the same DOM, in the
  * same headless Chrome. The fidelity oracle for #6.
  *
- * Usage:  node scripts/ax-compare.mjs packages/core/test/fixtures/pages/<name>.html [--write-expected]
+ * Usage:  node scripts/ax-compare.mjs packages/core/test/fixtures/pages/<name>.html [--w3c] [--write-expected]
  * Needs:  a local Chrome, Chromium, or Edge (or CHROME_PATH). Builds the engine bundle itself.
  *
  * The fixture is a body fragment. It is wrapped in a document, loaded in Chrome, and then:
  *  1. Chrome's accessibility tree is read through the DevTools protocol;
- *  2. the engine is injected into the page and run on document.body.
+ *  2. the engine is injected into the page and run on document.body, in Chrome mode
+ *     (`browser: "chrome"`, SPEC-006) unless --w3c asks for the default reading, which follows
+ *     the W3C specifications and so differs from Chrome on the SPEC-006 inventory rows.
  * Both sides are normalised to (role, name, level, live values) in the same vocabulary and shown
  * as a line diff. The diff is information for a human, not a pass/fail: every differing line is an engine
  * bug, a pinned divergence with a reason, or a known gap in the normalisation below.
  *
- * --write-expected saves the engine's full output next to the fixture as <name>.expected.json,
- * the golden file the vitest suite checks against.
+ * --write-expected saves the engine's full output in both modes next to the fixture:
+ * <name>.expected.json (default) and <name>.chrome.json (Chrome mode), the golden files the
+ * vitest suite checks against. Only the Chrome golden is vouched for by this comparison; the
+ * default one needs a person's review of its diff.
  */
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -25,8 +29,9 @@ import { openPage } from "./ax-tree.mjs";
 const args = process.argv.slice(2);
 const file = args.find((a) => !a.startsWith("--"));
 const writeExpected = args.includes("--write-expected");
+const w3c = args.includes("--w3c");
 if (!file) {
-  console.error("usage: node scripts/ax-compare.mjs <fragment.html> [--write-expected]");
+  console.error("usage: node scripts/ax-compare.mjs <fragment.html> [--w3c] [--write-expected]");
   process.exit(2);
 }
 const fragmentPath = resolve(file);
@@ -44,7 +49,12 @@ const TRANSPARENT = new Set([
 const DROP = new Set(["ListMarker", "InlineTextBox"]);
 // Chrome vocabulary to the engine's.
 // LabelText is transparent unless it is a live region; ARIA has no label role, so it is generic.
-const ROLE_MAP = { image: "img", DisclosureTriangle: "button", StaticText: "text", Iframe: "document", LabelText: "generic" };
+// SvgRoot is Chrome's svg root with readable content; SVG-AAM maps every svg root to
+// graphics-document, and the engine uses that name in both modes.
+const ROLE_MAP = {
+  image: "img", DisclosureTriangle: "button", StaticText: "text", Iframe: "document", LabelText: "generic",
+  SvgRoot: "graphics-document",
+};
 // Roles whose name comes from content: Chrome still lists their text children, the engine does not.
 const NAME_FROM_CONTENT = new Set([
   "heading", "link", "button", "cell", "gridcell", "columnheader", "rowheader", "option", "tab",
@@ -59,7 +69,10 @@ const LEAF_ROLES = new Set(["textbox", "searchbox", "combobox", "spinbutton", "s
 const CONTRIBUTES = new Set([
   "generic", "none", "paragraph", "region", "list", "listitem", "definition", "term", "math",
   "caption", "emphasis", "strong", "code", "deletion", "insertion", "subscript", "superscript", "time",
+  "graphics-document",
 ]);
+// SVG elements whose group role still counts toward an ancestor's name in Chrome.
+const SVG_GROUP_TAGS = new Set(["g", "tspan", "textpath", "foreignobject", "svg"]);
 // Same rule as the engine for ending a text run: Chrome's computed display (which already
 // blockifies flex and grid items), or the tag when the node has no layout.
 const BLOCK_DISPLAYS = new Set([
@@ -85,21 +98,26 @@ writeFileSync(
 );
 
 let chromeRaw;
-let ours;
+let inW3c;
+let inChrome;
 const page = await openPage(pagePath);
 try {
   chromeRaw = await page.axTree();
   await page.evaluate(engineSource);
-  ours = JSON.parse(await page.evaluate("JSON.stringify(srm.linearize(document.body))"));
+  inW3c = JSON.parse(await page.evaluate("JSON.stringify(srm.linearize(document.body))"));
+  inChrome = JSON.parse(await page.evaluate('JSON.stringify(srm.linearize(document.body, { browser: "chrome" }))'));
 } finally {
   await page.close();
   rmSync(pageDir, { recursive: true, force: true });
 }
+const ours = w3c ? inW3c : inChrome;
 
 if (writeExpected) {
-  const target = join(dirname(fragmentPath), `${name}.expected.json`);
-  writeFileSync(target, JSON.stringify(ours, null, 2) + "\n");
-  console.log(`wrote ${target} (${ours.length} nodes)`);
+  for (const [suffix, output] of [["expected", inW3c], ["chrome", inChrome]]) {
+    const target = join(dirname(fragmentPath), `${name}.${suffix}.json`);
+    writeFileSync(target, JSON.stringify(output, null, 2) + "\n");
+    console.log(`wrote ${target} (${output.length} nodes)`);
+  }
 }
 
 const chrome = normaliseChrome(chromeRaw);
@@ -113,14 +131,15 @@ writeFileSync(b, engine.map(line).join("\n") + "\n");
 const diff = spawnSync("git", ["diff", "--no-index", "--no-color", "-U1", a, b], { encoding: "utf8" });
 const body = (diff.stdout ?? "").split("\n").slice(4).join("\n").trim();
 const changed = body.split("\n").filter((l) => /^[+-]/.test(l)).length;
-console.log(`${name}: chrome ${chrome.length} nodes, engine ${engine.length} nodes, ${changed} differing lines`);
+const mode = w3c ? "default (W3C)" : "Chrome mode";
+console.log(`${name}: chrome ${chrome.length} nodes, engine in ${mode} ${engine.length} nodes, ${changed} differing lines`);
 if (body) console.log(body);
 rmSync(dir, { recursive: true, force: true });
 
 /** True when Chrome counts this emitted node's content toward its ancestor's name. */
 function contributes(n, role) {
   if (n.name && n.name.trim()) return false; // an author name stands in for the content
-  if (role === "group") return n.tag === "details" || n.tag === "address";
+  if (role === "group") return n.tag === "details" || n.tag === "address" || SVG_GROUP_TAGS.has(n.tag);
   return CONTRIBUTES.has(role);
 }
 

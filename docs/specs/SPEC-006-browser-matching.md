@@ -1,7 +1,7 @@
 ---
 id: SPEC-006
 title: The W3C specifications by default, and a browser option to match Chrome
-status: spec-reviewed
+status: implemented # feat/SPEC-006-browser-matching
 journeys: [JNY-006]
 target: core
 created: 2026-10-26
@@ -28,6 +28,29 @@ created: 2026-10-26
 > 4. Reuse confirmed: `isLayoutTable`, the `rowgroup` and `row` overrides in `roles.ts`, the
 >    `styleOf` parameter from PR #60, and the Chrome name and label rules in commit e6aebab. No
 >    library offers browser modes; `dom-accessibility-api` follows AccName in both.
+
+> **Backfill (2026-10-27, from the implementation).** Facts that changed once the probes ran:
+> 1. Row 9 was wrong in both columns. SVG-AAM 1.0 (5.2.55) maps every `svg` element to
+>    `graphics-document`, with no inclusion condition, so an unnamed `svg` does not stay out of
+>    the default tree: it is an empty `graphics-document`. Chrome is not "an image, children not
+>    read": an `svg` root with any element child is `SvgRoot` with its content read, and only one
+>    with nothing readable inside becomes `image`; an unnamed one with no element children is left
+>    out (Chromium `ax_object.cc`, `ax_node_object.cc`). The engine names Chrome's `SvgRoot`
+>    `graphics-document` in both modes. For the maintainer: following the text means an icon
+>    `svg` that is not `aria-hidden` adds an empty node in the default reading.
+> 2. Row 10 added. HTML's table model (a column header when no data cell shares its rows, a row
+>    header when none shares its columns, otherwise HTML-AAM's `cell`) differs from Chromium's
+>    `DecideRoleFromSiblings`, and the engine's earlier rule matched neither. An empty corner
+>    `<td>` makes every scope-less header in that table a `cell` under HTML's rule.
+> 3. Row 11 added. Chrome reads text inside SVG `defs` and `symbol`; SVG-AAM 4.1.1 says nothing
+>    there is exposed.
+> 4. Same in both modes, not rows: SVG shapes, `g`, `use`, and `image` with a name are nodes
+>    (SVG-AAM 4.1.2, Chrome agrees); SVG `<text>` is its own line; an SVG element is named from its
+>    `title` child, which `dom-accessibility-api` does only for `svg`; a `<br>` separates words in
+>    a name (the library joined them, because Chrome reports `<br>` as inline; this showed once
+>    row 1 made the component demo's layout table a table).
+> 5. Row 3's Chrome column: Chrome names a row from content inside a grid or treegrid, which the
+>    Chrome mode applies.
 
 ## 1. Summary
 
@@ -80,14 +103,17 @@ where named, in Chromium's source (`third_party/blink/renderer/modules/accessibi
 | 6 | `header` or `footer` inside `role="region"` | `sectionheader`, `sectionfooter`: ARIA in HTML lists region | `banner`, `contentinfo` | W3C (PR #60) |
 | 7 | A `term` (`<dt>`) | no name: WAI-ARIA 1.2 `term` is name from author | named from content: Chromium special-cases `term` | W3C |
 | 8 | The text of a `<label>` for a checkbox or radio | read as text after the control: no W3C text removes it from the tree | not in the tree; read only as the control's name | Chrome |
-| 9 | An `svg` root | `graphics-document`, a container whose content is read (SVG-AAM 1.0) | `image` (the engine's `img`), children not read | Chrome |
+| 9 | An `svg` root | `graphics-document`, a container whose content is read (SVG-AAM 1.0 5.2.55), named or not | `graphics-document` (Chrome's `SvgRoot`) when something inside is readable; `img` when nothing is; left out when unnamed with no element children (backfill 1) | neither |
+| 10 | A `<th>` without `scope` | HTML's table model: column header, row header, or `cell` (HTML-AAM 3.5.134) | Chromium `DecideRoleFromSiblings` | neither (backfill 2) |
+| 11 | Text inside SVG `defs` or `symbol` | not read: SVG-AAM 4.1.1 | read as text | W3C (backfill 3) |
 
 Rows 8 and 9 were added by the Stage 2.5 review. Row 8 brings back a double read in the default
 (the checkbox name, then the same words as text); that is what the specifications give, and the
 maintainer confirms it at review. Row 9 changes more than a role: as `graphics-document` the `svg`
 is walked, so SVG `<text>` content is read and named shapes become nodes under SVG-AAM's
 inclusion rules. The implementation probes it before writing the rule; an unnamed, unfocusable
-`svg` stays out of the tree in both modes, as today.
+`svg` stays out of the tree in both modes, as today. (Superseded by backfill 1: neither SVG-AAM
+nor Chrome leaves it out.)
 
 Not differences, the same in both modes: `sectionheader` and `sectionfooter` inside main or
 sectioning content, sectioning roots not scoping (HTML-AAM, ARIA in HTML, and Chrome agree since
@@ -101,7 +127,8 @@ textbox, textbox, button, document) in both modes and the README says so (ADR-00
 To check during implementation, not yet a row: a `<th>` with no `scope` is a row header when it
 starts a row that holds data cells, otherwise a column header. That matches Chromium's
 `DecideRoleFromSiblings`; HTML's table model decides it with the auto-scope algorithm instead. The
-implementation compares the two on the existing fixtures and adds a row if they differ.
+implementation compares the two on the existing fixtures and adds a row if they differ. (Done:
+they differ, and the engine's rule matched neither; row 10, backfill 2.)
 
 Known Chrome behaviour this spec does not model, recorded so it is not mistaken for a gap:
 Chrome passes an invalid `aria-live` token through as written (SPEC-004 keeps WAI-ARIA in both
@@ -213,15 +240,15 @@ Chrome does not change the default.
 
 Branch `feat/SPEC-006-browser-matching` from `main` after PR #60 has merged.
 
-- [ ] `browser.ts`, the option type, the `RangeError`.
-- [ ] `RoleContext` in `roles.ts` and `linearize.ts`; rows 1, 2, 3, 6, 7, 8.
-- [ ] Rows 4 and 5 behind the rules (from commit e6aebab).
-- [ ] Row 9: probe SVG roots, `<text>`, and named shapes in Chrome, then the rule.
-- [ ] Compare the scope-less `<th>` rule with HTML's auto-scope algorithm; add a row if needed.
-- [ ] Probe page and `browser-modes.test.ts`; existing table tests state their mode.
-- [ ] Oracle: Chrome mode, `--w3c`, both goldens; regenerate and review the diffs (rows 1 to 3 in
+- [x] `browser.ts`, the option type, the `RangeError`.
+- [x] `RoleContext` in `roles.ts` and `linearize.ts`; rows 1, 2, 3, 6, 7, 8.
+- [x] Rows 4 and 5 behind the rules (from commit e6aebab).
+- [x] Row 9: probe SVG roots, `<text>`, and named shapes in Chrome, then the rule.
+- [x] Compare the scope-less `<th>` rule with HTML's auto-scope algorithm; add a row if needed.
+- [x] Probe page and `browser-modes.test.ts`; existing table tests state their mode.
+- [x] Oracle: Chrome mode, `--w3c`, both goldens; regenerate and review the diffs (rows 1 to 3 in
       the default goldens only, plus rows 8 and 9).
-- [ ] README, v1-scope, `minor` changeset, `pnpm verify`, log.
+- [x] README, v1-scope, `minor` changeset, `pnpm verify`, log.
 
 ## 8. Test plan
 

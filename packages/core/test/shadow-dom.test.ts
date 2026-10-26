@@ -111,7 +111,13 @@ describe("shadow DOM and slots (SPEC-003)", () => {
   });
 
   it("resolves a label's for within its own shadow root", () => {
-    // The checkbox label reads only as the control's name, so the for lookup found the control.
-    expect(pairs("labels")).toEqual([["checkbox", "I agree"]]);
+    // In Chrome mode the checkbox label reads only as the control's name (SPEC-006 row 8), so
+    // the for lookup found the control. The default reads the label text as well.
+    const { root } = loadCase(PAGE, "labels");
+    expect(linearize(root, { browser: "chrome" }).map((n) => [n.role, n.name])).toEqual([["checkbox", "I agree"]]);
+    expect(pairs("labels")).toEqual([
+      ["text", "I agree"],
+      ["checkbox", "I agree"],
+    ]);
   });
 });

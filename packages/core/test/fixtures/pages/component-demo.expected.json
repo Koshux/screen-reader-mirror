@@ -63,6 +63,10 @@
     }
   },
   {
+    "role": "text",
+    "name": "Autosave"
+  },
+  {
     "role": "navigation",
     "name": "Breadcrumb",
     "ref": {
@@ -303,24 +307,53 @@
     "level": 2
   },
   {
-    "role": "text",
-    "name": "Owner"
+    "role": "table",
+    "name": "",
+    "ref": {
+      "tag": "table"
+    }
   },
   {
-    "role": "text",
-    "name": "priya"
+    "role": "rowgroup",
+    "name": "",
+    "ref": {
+      "tag": "tbody"
+    }
   },
   {
-    "role": "text",
-    "name": "Due"
+    "role": "row",
+    "name": "Owner priya Due 18 Dec",
+    "ref": {
+      "tag": "tr"
+    }
   },
   {
-    "role": "text",
-    "name": "18 Dec"
+    "role": "cell",
+    "name": "Owner priya",
+    "ref": {
+      "tag": "td"
+    }
   },
   {
-    "role": "text",
-    "name": "Progress"
+    "role": "cell",
+    "name": "Due 18 Dec",
+    "ref": {
+      "tag": "td"
+    }
+  },
+  {
+    "role": "row",
+    "name": "Progress 40 Priority Priority",
+    "ref": {
+      "tag": "tr"
+    }
+  },
+  {
+    "role": "cell",
+    "name": "Progress 40",
+    "ref": {
+      "tag": "td"
+    }
   },
   {
     "role": "progressbar",
@@ -330,8 +363,11 @@
     }
   },
   {
-    "role": "text",
-    "name": "Priority"
+    "role": "cell",
+    "name": "Priority Priority",
+    "ref": {
+      "tag": "td"
+    }
   },
   {
     "role": "meter",
@@ -348,8 +384,15 @@
     }
   },
   {
-    "role": "row",
+    "role": "rowgroup",
     "name": "",
+    "ref": {
+      "tag": "tbody"
+    }
+  },
+  {
+    "role": "row",
+    "name": "Tokens 38 done",
     "ref": {
       "tag": "tr"
     }
@@ -377,7 +420,7 @@
   },
   {
     "role": "row",
-    "name": "",
+    "name": "Components 12 in review",
     "ref": {
       "tag": "tr"
     }

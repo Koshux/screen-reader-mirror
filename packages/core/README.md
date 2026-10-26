@@ -113,6 +113,39 @@ whether a screen reader will speak: that depends on the screen reader and on how
 changes. A common failure is inserting the region together with its message, which is often
 not announced at all.
 
+## W3C specifications by default, Chrome as an option
+
+By default the reading follows the W3C specifications: AccName 1.2, HTML-AAM, WAI-ARIA 1.2,
+ARIA in HTML, and SVG-AAM 1.0. Where HTML-AAM and ARIA in HTML differ, HTML-AAM wins, since it
+is written for browsers. Browsers do not always follow these texts, so the default reading can
+differ from what a screen reader on a given browser is given.
+
+`linearize(root, { browser: "chrome" })` reads the page as Chrome does where the two are known
+to differ. Each difference was read from Chromium's source and checked against Chrome's tree on
+2026-10-26:
+
+| Markup | Default (W3C) | `browser: "chrome"` |
+|---|---|---|
+| A table with no header cells, caption, or sections that Chrome takes for layout | `table`, `row`, `cell` | no table roles, content only |
+| `<tbody>` | `rowgroup` | not exposed |
+| A table row | named from its content | named by its author only, except in a grid |
+| A name from content over a status, alert, note, group, table, landmark, and similar | includes their text | leaves their text out |
+| A field whose associated label is empty | its title, then its placeholder | no name |
+| `<header>` or `<footer>` inside `role="region"` | `sectionheader`, `sectionfooter` | `banner`, `contentinfo` |
+| `<dt>` (`term`) | no name | named from its content |
+| The text of a label for a checkbox or radio | read as text, and as the control's name | read only as the control's name |
+| An `<svg>` with nothing readable inside | `graphics-document` | `img`; left out when it is unnamed and empty |
+| A `<th>` without `scope` | HTML's table model; can be a plain `cell` | decided from the cells beside it |
+| Text inside an SVG `<defs>` or `<symbol>` | not read | read |
+
+Only `"chrome"` is accepted today; any other value throws a `RangeError`. The engine never
+detects the browser it runs in: running in Chrome does not change the default. Markup outside
+this table reads the same in both modes. Where the specifications give no ARIA role (`<input
+type=file>`, `password`, the date and time types, the first `<summary>`, `<iframe>`), both modes
+use the role every platform exposes: button, textbox, textbox, button, and document.
+
+A tool that shows this output should say which mode it shows.
+
 ## API
 
 ```ts
@@ -141,6 +174,8 @@ interface LinearizeOptions {
   getComputedStyle?: (el: Element) => CSSStyleDeclaration | null | undefined;
   /** Supply a closed shadow root the DOM hides. Defaults to `el.shadowRoot`. */
   getShadowRoot?: (host: Element) => ShadowRoot | null | undefined;
+  /** Read the page as Chrome does where it differs from the W3C specifications. */
+  browser?: "chrome";
 }
 ```
 
@@ -164,9 +199,11 @@ Reading order follows **DOM order** in the composed tree, as screen readers do. 
 `0.x` implements [SPEC-001](https://github.com/Koshux/screen-reader-mirror/blob/main/docs/specs/SPEC-001-core-linearize-foundation.md)
 (reading order, roles, names, levels, flags, hidden-content exclusion),
 [SPEC-003](https://github.com/Koshux/screen-reader-mirror/blob/main/docs/specs/SPEC-003-composed-tree-shadow-dom-frames.md)
-(shadow DOM, slots, and frames), and
+(shadow DOM, slots, and frames),
 [SPEC-004](https://github.com/Koshux/screen-reader-mirror/blob/main/docs/specs/SPEC-004-live-regions.md)
-(live regions), with a golden HTML fixture per behaviour. The pure-JS role/name computation is the portable path; hosts that can reach a real
+(live regions), and
+[SPEC-006](https://github.com/Koshux/screen-reader-mirror/blob/main/docs/specs/SPEC-006-browser-matching.md)
+(the W3C default and the Chrome mode), with a golden HTML fixture per behaviour. The pure-JS role/name computation is the portable path; hosts that can reach a real
 browser accessibility tree (the upcoming extension) will use it as the higher-fidelity oracle.
 
 ## License

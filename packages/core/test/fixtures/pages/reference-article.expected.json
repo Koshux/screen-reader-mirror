@@ -327,7 +327,7 @@
   },
   {
     "role": "row",
-    "name": "",
+    "name": "Unit Relative to Example",
     "ref": {
       "tag": "tr"
     }
@@ -354,8 +354,15 @@
     }
   },
   {
-    "role": "row",
+    "role": "rowgroup",
     "name": "",
+    "ref": {
+      "tag": "tbody"
+    }
+  },
+  {
+    "role": "row",
+    "name": "px nothing gap: 8px",
     "ref": {
       "tag": "tr"
     }
@@ -383,7 +390,7 @@
   },
   {
     "role": "row",
-    "name": "",
+    "name": "rem the root font size gap: 0.5rem",
     "ref": {
       "tag": "tr"
     }
@@ -411,7 +418,7 @@
   },
   {
     "role": "row",
-    "name": "",
+    "name": "% the container gap: 5%",
     "ref": {
       "tag": "tr"
     }
@@ -491,28 +498,81 @@
     "level": 2
   },
   {
-    "role": "text",
-    "name": "Chrome"
+    "role": "table",
+    "name": "",
+    "ref": {
+      "tag": "table"
+    }
   },
   {
-    "role": "text",
-    "name": "84"
+    "role": "rowgroup",
+    "name": "",
+    "ref": {
+      "tag": "tbody"
+    }
   },
   {
-    "role": "text",
-    "name": "Firefox"
+    "role": "row",
+    "name": "Chrome 84",
+    "ref": {
+      "tag": "tr"
+    }
   },
   {
-    "role": "text",
-    "name": "63"
+    "role": "cell",
+    "name": "Chrome",
+    "ref": {
+      "tag": "td"
+    }
   },
   {
-    "role": "text",
-    "name": "Safari"
+    "role": "cell",
+    "name": "84",
+    "ref": {
+      "tag": "td"
+    }
   },
   {
-    "role": "text",
-    "name": "14.1"
+    "role": "row",
+    "name": "Firefox 63",
+    "ref": {
+      "tag": "tr"
+    }
+  },
+  {
+    "role": "cell",
+    "name": "Firefox",
+    "ref": {
+      "tag": "td"
+    }
+  },
+  {
+    "role": "cell",
+    "name": "63",
+    "ref": {
+      "tag": "td"
+    }
+  },
+  {
+    "role": "row",
+    "name": "Safari 14.1",
+    "ref": {
+      "tag": "tr"
+    }
+  },
+  {
+    "role": "cell",
+    "name": "Safari",
+    "ref": {
+      "tag": "td"
+    }
+  },
+  {
+    "role": "cell",
+    "name": "14.1",
+    "ref": {
+      "tag": "td"
+    }
   },
   {
     "role": "text",

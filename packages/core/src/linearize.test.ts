@@ -91,10 +91,14 @@ describe("linearize (SPEC-001)", () => {
   });
 
   it("flags an interactive control with no accessible name (AC-5)", () => {
-    const out = linearize(root("<button><svg></svg></button>"));
-    expect(out).toEqual([
-      { role: "button", name: "", ref: { tag: "button" }, flags: { unnamed: true } },
+    const button = { role: "button", name: "", ref: { tag: "button" }, flags: { unnamed: true } };
+    // SVG-AAM maps every svg root to graphics-document, so the default reading has the empty svg
+    // too; Chrome leaves out an unnamed svg with no element children (SPEC-006 row 9).
+    expect(linearize(root("<button><svg></svg></button>"))).toEqual([
+      button,
+      { role: "graphics-document", name: "", ref: { tag: "svg" } },
     ]);
+    expect(linearize(root("<button><svg></svg></button>"), { browser: "chrome" })).toEqual([button]);
   });
 
   it('flags a missing alt; omits a decorative alt="" (AC-6)', () => {
@@ -181,14 +185,24 @@ describe("conditional role resolution (SPEC-001 §3)", () => {
 });
 
 describe("containers, leaves and the no-double-read rule (SPEC-001 §3)", () => {
-  it("a table keeps its body: the head row group, unnamed rows, header cells, cells and the links inside them", () => {
-    const out = linearize(
-      root(
-        "<table><thead><tr><th>Col</th></tr></thead>" +
-          '<tbody><tr><td>A</td><td><a href="/e">Edit</a></td></tr></tbody></table>',
-      ),
-    );
-    expect(out.map((n) => [n.role, n.name, n.ref?.tag])).toEqual([
+  it("a table keeps its body: row groups, rows, header cells, cells and the links inside them", () => {
+    const html =
+      "<table><thead><tr><th>Col</th></tr></thead>" +
+      '<tbody><tr><td>A</td><td><a href="/e">Edit</a></td></tr></tbody></table>';
+    // HTML-AAM: tbody is a rowgroup; WAI-ARIA 1.2: a row is named from its content.
+    expect(linearize(root(html)).map((n) => [n.role, n.name, n.ref?.tag])).toEqual([
+      ["table", "", "table"],
+      ["rowgroup", "", "thead"],
+      ["row", "Col", "tr"],
+      ["columnheader", "Col", "th"],
+      ["rowgroup", "", "tbody"],
+      ["row", "A Edit", "tr"],
+      ["cell", "A", "td"],
+      ["cell", "Edit", "td"],
+      ["link", "Edit", "a"],
+    ]);
+    // Chrome (SPEC-006 rows 2 and 3): no tbody, rows named by the author only.
+    expect(linearize(root(html), { browser: "chrome" }).map((n) => [n.role, n.name, n.ref?.tag])).toEqual([
       ["table", "", "table"],
       ["rowgroup", "", "thead"],
       ["row", "", "tr"],
@@ -230,9 +244,16 @@ describe("containers, leaves and the no-double-read rule (SPEC-001 §3)", () => 
     ]);
   });
 
-  it("<th scope=row> is a rowheader; other <th> are columnheaders", () => {
-    const out = linearize(root('<table><tr><th scope="row">Name</th><td>Ann</td></tr></table>'));
-    expect(out.map((n) => [n.role, n.name])).toEqual([
+  it("<th scope=row> is a rowheader", () => {
+    const html = '<table><tr><th scope="row">Name</th><td>Ann</td></tr></table>';
+    expect(linearize(root(html)).map((n) => [n.role, n.name])).toEqual([
+      ["table", ""],
+      ["rowgroup", ""],
+      ["row", "Name Ann"],
+      ["rowheader", "Name"],
+      ["cell", "Ann"],
+    ]);
+    expect(linearize(root(html), { browser: "chrome" }).map((n) => [n.role, n.name])).toEqual([
       ["table", ""],
       ["row", ""],
       ["rowheader", "Name"],
@@ -306,7 +327,8 @@ describe("flags on real-world markup (AC-5 / AC-6)", () => {
     expect(out.some((n) => n.flags?.unnamed)).toBe(false);
     expect(out.map((n) => [n.role, n.name])).toEqual([
       ["table", ""],
-      ["row", ""],
+      ["rowgroup", ""],
+      ["row", "Q1"],
       ["columnheader", ""],
       ["columnheader", "Q1"],
       ["row", ""],
@@ -329,11 +351,12 @@ describe("flags on real-world markup (AC-5 / AC-6)", () => {
 
 describe("text context resets per container (SPEC-001 §3)", () => {
   it("a list inside a table cell keeps its item text; a rowgroup does not consume text", () => {
-    // The header cell keeps this a data table under the layout-table heuristic.
+    // The header cell keeps this a data table under Chrome's layout-table rules too.
     const out = linearize(root("<table><tr><th>K</th><td><ul><li>A</li><li>B</li></ul></td></tr></table>"));
     expect(out.map((n) => [n.role, n.name])).toEqual([
       ["table", ""],
-      ["row", ""],
+      ["rowgroup", ""],
+      ["row", "K A B"],
       ["rowheader", "K"],
       ["cell", "A B"],
       ["list", ""],
@@ -349,18 +372,27 @@ describe("text context resets per container (SPEC-001 §3)", () => {
       ["table", ""],
       ["rowgroup", ""],
       ["text", "Note"],
-      ["row", ""],
+      ["row", "A"],
       ["cell", "A"],
     ]);
   });
 
-  it("an inline <svg> is an image named by its <title>; unnamed it is decorative and never read as text", () => {
-    expect(linearize(root('<svg><title>Logo</title><path d="M0 0"/></svg>'))).toEqual([
-      { role: "img", name: "Logo", ref: { tag: "svg" } },
+  it("an inline <svg> is named by its <title>, which is never read as text", () => {
+    // SVG-AAM: every svg root is a graphics-document. Chrome (SPEC-006 row 9) makes one with
+    // nothing readable inside an image.
+    const html = '<svg><title>Logo</title><path d="M0 0"/></svg>';
+    expect(linearize(root(html))).toEqual([{ role: "graphics-document", name: "Logo", ref: { tag: "svg" } }]);
+    expect(linearize(root(html), { browser: "chrome" })).toEqual([{ role: "img", name: "Logo", ref: { tag: "svg" } }]);
+    const unnamed = '<p>Before</p><svg><path d="M0 0"/></svg><p>After</p>';
+    expect(linearize(root(unnamed)).map((n) => [n.role, n.name])).toEqual([
+      ["text", "Before"],
+      ["graphics-document", ""],
+      ["text", "After"],
     ]);
-    expect(linearize(root('<p>Before</p><svg><path d="M0 0"/></svg><p>After</p>')).map((n) => n.name)).toEqual([
-      "Before",
-      "After",
+    expect(linearize(root(unnamed), { browser: "chrome" }).map((n) => [n.role, n.name])).toEqual([
+      ["text", "Before"],
+      ["img", ""],
+      ["text", "After"],
     ]);
   });
 });
@@ -448,10 +480,18 @@ describe("more conditional implicit roles (SPEC-001 §3)", () => {
   });
 
   it("<td> in a role=grid table is a gridcell", () => {
-    expect(linearize(root('<table role="grid"><tr><td>x</td></tr></table>')).map((n) => n.role)).toEqual([
-      "grid",
-      "row",
-      "gridcell",
+    const html = '<table role="grid"><tr><td>x</td></tr></table>';
+    expect(linearize(root(html)).map((n) => [n.role, n.name])).toEqual([
+      ["grid", ""],
+      ["rowgroup", ""],
+      ["row", "x"],
+      ["gridcell", "x"],
+    ]);
+    // Chrome names a row from its content inside a grid (Chromium SupportsNameFromContents).
+    expect(linearize(root(html), { browser: "chrome" }).map((n) => [n.role, n.name])).toEqual([
+      ["grid", ""],
+      ["row", "x"],
+      ["gridcell", "x"],
     ]);
   });
 
@@ -514,18 +554,24 @@ describe("fidelity gaps closed on 2026-10-26 (SPEC-001 §3)", () => {
     ]);
   });
 
-  it("a scope-less <th> is a rowheader only when it starts a row that has data cells", () => {
-    const roles = (html: string) => linearize(root(html)).filter((n) => /header$/.test(n.role)).map((n) => n.role);
-    expect(roles("<table><thead><tr><th>Name</th><th>Qty</th></tr></thead><tbody><tr><td>Ann</td><td>2</td></tr></tbody></table>")).toEqual([
-      "columnheader",
-      "columnheader",
-    ]);
-    expect(roles("<table><tr><th>Name</th><td>Ann</td></tr><tr><th>Age</th><td>9</td></tr></table>")).toEqual([
-      "rowheader",
-      "rowheader",
-    ]);
-    expect(roles("<table><tr><th>A</th><th>B</th></tr></table>")).toEqual(["columnheader", "columnheader"]);
-    expect(roles("<table><tr><td>x</td><th>Mid</th><td>y</td></tr></table>")).toEqual(["columnheader"]);
+  it("a scope-less <th> follows HTML's table model; both modes agree on the usual layouts", () => {
+    // The cases where HTML's table model and Chrome's sibling rule differ are SPEC-006 row 10.
+    const roles = (html: string, browser?: "chrome") =>
+      linearize(root(html), browser ? { browser } : {}).filter((n) => /header$/.test(n.role)).map((n) => n.role);
+    for (const browser of [undefined, "chrome"] as const) {
+      expect(roles("<table><thead><tr><th>Name</th><th>Qty</th></tr></thead><tbody><tr><td>Ann</td><td>2</td></tr></tbody></table>", browser)).toEqual([
+        "columnheader",
+        "columnheader",
+      ]);
+      expect(roles("<table><tr><th>Name</th><td>Ann</td></tr><tr><th>Age</th><td>9</td></tr></table>", browser)).toEqual([
+        "rowheader",
+        "rowheader",
+      ]);
+      expect(roles("<table><tr><th>A</th><th>B</th></tr></table>", browser)).toEqual(["columnheader", "columnheader"]);
+      // A header between data cells in a one-row table: no data cell shares its column (HTML), and
+      // it has a non-empty data cell beside it (Chrome).
+      expect(roles("<table><tr><td>x</td><th>Mid</th><td>y</td></tr></table>", browser)).toEqual(["rowheader"]);
+    }
   });
 
   it("<caption> is a caption node with no name (ARIA prohibits one); the table takes the name", () => {
@@ -533,14 +579,16 @@ describe("fidelity gaps closed on 2026-10-26 (SPEC-001 §3)", () => {
       ["table", "Sales"],
       ["caption", ""],
       ["text", "Sales"],
-      ["row", ""],
+      ["rowgroup", ""],
+      ["row", "1"],
       ["cell", "1"],
     ]);
   });
 
-  it("an unnamed inline <svg> is decorative unless it is focusable", () => {
-    expect(linearize(root('<p>Before</p><svg><path d="M0 0"/></svg><p>After</p>')).map((n) => n.name)).toEqual(["Before", "After"]);
-    expect(linearize(root('<svg tabindex="0"><path d="M0 0"/></svg>'))).toEqual([{ role: "img", name: "", ref: { tag: "svg" } }]);
+  it("an unnamed inline <svg> stays in the tree when it is focusable", () => {
+    const html = '<svg tabindex="0"><path d="M0 0"/></svg>';
+    expect(linearize(root(html))).toEqual([{ role: "graphics-document", name: "", ref: { tag: "svg" } }]);
+    expect(linearize(root(html), { browser: "chrome" })).toEqual([{ role: "img", name: "", ref: { tag: "svg" } }]);
   });
 
   it("bare text is emitted as runs: inline formatting merges, block boundaries and <br> split", () => {
@@ -569,12 +617,15 @@ describe("fidelity gaps closed on 2026-10-26 (SPEC-001 §3)", () => {
 });
 
 describe("behaviour checked against Chrome's accessibility tree (#6)", () => {
-  it("exposes thead and tfoot as row groups, never tbody; rows are named by the author or not at all", () => {
+  it("in Chrome mode exposes thead and tfoot as row groups, never tbody; rows are named by the author or not at all", () => {
+    // The default reading of the same markup is in the table tests above and SPEC-006 rows 2, 3.
+    const chrome = { browser: "chrome" } as const;
     const out = linearize(
       root(
         "<table><thead><tr><th>H</th></tr></thead><tbody><tr><td>1</td></tr></tbody>" +
           "<tfoot><tr><td>F</td></tr></tfoot></table>",
       ),
+      chrome,
     );
     expect(out.map((n) => [n.role, n.name, n.ref?.tag])).toEqual([
       ["table", "", "table"],
@@ -587,7 +638,7 @@ describe("behaviour checked against Chrome's accessibility tree (#6)", () => {
       ["row", "", "tr"],
       ["cell", "F", "td"],
     ]);
-    expect(linearize(root('<table><tr aria-label="Totals"><th>k</th><td>v</td></tr></table>')).map((n) => [n.role, n.name])).toEqual([
+    expect(linearize(root('<table><tr aria-label="Totals"><th>k</th><td>v</td></tr></table>'), chrome).map((n) => [n.role, n.name])).toEqual([
       ["table", ""],
       ["row", "Totals"],
       ["rowheader", "k"],
@@ -595,33 +646,43 @@ describe("behaviour checked against Chrome's accessibility tree (#6)", () => {
     ]);
   });
 
-  it("applies the layout-table heuristic: no headers, caption, or sections plus one row or column, or no borders, is not a table", () => {
-    expect(linearize(root("<table><tr><td>a</td><td>b</td></tr></table>")).map((n) => [n.role, n.name])).toEqual([
+  it("in Chrome mode applies the layout-table rules: no headers, caption, or sections plus one row or column, or no borders, is not a table", () => {
+    const chrome = { browser: "chrome" } as const;
+    const read = (html: string) => linearize(root(html), chrome);
+    expect(read("<table><tr><td>a</td><td>b</td></tr></table>").map((n) => [n.role, n.name])).toEqual([
       ["text", "a"],
       ["text", "b"],
     ]);
-    expect(
-      linearize(root("<table><tr><td>a</td><td>b</td></tr><tr><td>c</td><td>d</td></tr></table>")).map((n) => n.role),
-    ).toEqual(["text", "text", "text", "text"]);
+    expect(read("<table><tr><td>a</td><td>b</td></tr><tr><td>c</td><td>d</td></tr></table>").map((n) => n.role)).toEqual([
+      "text", "text", "text", "text",
+    ]);
     const cell = (t: string) => `<td style="border:1px solid #000">${t}</td>`;
-    expect(
-      linearize(root(`<table><tr>${cell("a")}${cell("b")}</tr><tr>${cell("c")}${cell("d")}</tr></table>`)).map((n) => n.role),
-    ).toEqual(["table", "row", "cell", "cell", "row", "cell", "cell"]);
-    expect(linearize(root("<table><tr><th>k</th><td>v</td></tr></table>")).map((n) => n.role)).toEqual([
+    expect(read(`<table><tr>${cell("a")}${cell("b")}</tr><tr>${cell("c")}${cell("d")}</tr></table>`).map((n) => n.role)).toEqual([
+      "table", "row", "cell", "cell", "row", "cell", "cell",
+    ]);
+    expect(read("<table><tr><th>k</th><td>v</td></tr></table>").map((n) => n.role)).toEqual([
       "table",
       "row",
       "rowheader",
       "cell",
     ]);
     // The border attribute is a presentation signal: it counts only once the size rule is silent.
-    expect(linearize(root('<table border="1"><tr><td>1</td></tr></table>')).map((n) => [n.role, n.name])).toEqual([["text", "1"]]);
-    expect(
-      linearize(root('<table border="1"><tr><td>a</td><td>b</td></tr><tr><td>c</td><td>d</td></tr></table>')).map((n) => n.role),
-    ).toEqual(["table", "row", "cell", "cell", "row", "cell", "cell"]);
-    expect(linearize(root('<table summary="Totals"><tr><td>1</td></tr></table>')).map((n) => [n.role, n.name])).toEqual([
+    expect(read('<table border="1"><tr><td>1</td></tr></table>').map((n) => [n.role, n.name])).toEqual([["text", "1"]]);
+    expect(read('<table border="1"><tr><td>a</td><td>b</td></tr><tr><td>c</td><td>d</td></tr></table>').map((n) => n.role)).toEqual([
+      "table", "row", "cell", "cell", "row", "cell", "cell",
+    ]);
+    expect(read('<table summary="Totals"><tr><td>1</td></tr></table>').map((n) => [n.role, n.name])).toEqual([
       ["table", "Totals"],
       ["row", ""],
       ["cell", "1"],
+    ]);
+    // HTML-AAM has no layout tables: by default every one of these is a table (SPEC-006 row 1).
+    expect(linearize(root("<table><tr><td>a</td><td>b</td></tr></table>")).map((n) => [n.role, n.name])).toEqual([
+      ["table", ""],
+      ["rowgroup", ""],
+      ["row", "a b"],
+      ["cell", "a"],
+      ["cell", "b"],
     ]);
   });
 
@@ -638,6 +699,12 @@ describe("behaviour checked against Chrome's accessibility tree (#6)", () => {
     ]);
   });
 
+  it("separates the words on either side of a <br> in a name from content, in both modes", () => {
+    for (const options of [{}, { browser: "chrome" } as const]) {
+      expect(linearize(root("<button><strong>Owner</strong><br>priya</button>"), options)[0]?.name).toBe("Owner priya");
+    }
+  });
+
   it("names a text field from its placeholder when nothing else names it", () => {
     expect(linearize(root('<input type="text" placeholder="Vehicle registration">'))).toEqual([
       { role: "textbox", name: "Vehicle registration", ref: { tag: "input" } },
@@ -647,12 +714,17 @@ describe("behaviour checked against Chrome's accessibility tree (#6)", () => {
     ]);
   });
 
-  it("reads a label's text only as the name of a checkbox or radio, but also as text for a text field", () => {
-    expect(
-      linearize(root('<label><input type="checkbox"> Weekdays</label><label for="r">Yes</label><input id="r" type="radio">')).map(
-        (n) => [n.role, n.name],
-      ),
-    ).toEqual([
+  it("reads a label's text as text and as the control's name; Chrome reads a checkbox or radio label only as the name", () => {
+    const toggles =
+      '<div><label><input type="checkbox"> Weekdays</label></div><div><label for="r">Yes</label><input id="r" type="radio"></div>';
+    // No W3C text removes a label's text from the tree, so the default reads it twice (row 8).
+    expect(linearize(root(toggles)).map((n) => [n.role, n.name])).toEqual([
+      ["checkbox", "Weekdays"],
+      ["text", "Weekdays"],
+      ["text", "Yes"],
+      ["radio", "Yes"],
+    ]);
+    expect(linearize(root(toggles), { browser: "chrome" }).map((n) => [n.role, n.name])).toEqual([
       ["checkbox", "Weekdays"],
       ["radio", "Yes"],
     ]);
