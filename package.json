@@ -29,7 +29,9 @@
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "pnpm build && changeset publish",
-    "verify": "pnpm typecheck && pnpm lint && pnpm build && pnpm test"
+    "verify": "pnpm typecheck && pnpm lint && pnpm build && pnpm test",
+    "ax:compare": "node scripts/ax-compare.mjs",
+    "ax:tree": "node scripts/ax-tree.mjs"
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.3",

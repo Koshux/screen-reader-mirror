@@ -1,0 +1,102 @@
+<header>
+  <nav aria-label="Site">
+    <a href="/"><img src="/wordmark.svg" alt="Docs home"></a>
+    <ul>
+      <li><a href="/guides">Guides</a></li>
+      <li><a href="/reference" aria-current="page">Reference</a></li>
+    </ul>
+  </nav>
+</header>
+
+<nav aria-label="On this page">
+  <h2>In this article</h2>
+  <ol>
+    <li><a href="#syntax">Syntax</a></li>
+    <li><a href="#values">Values</a>
+      <ol>
+        <li><a href="#keywords">Keywords</a></li>
+        <li><a href="#lengths">Lengths</a></li>
+      </ol>
+    </li>
+    <li><a href="#examples">Examples</a></li>
+  </ol>
+</nav>
+
+<main>
+  <article>
+    <h1>gap</h1>
+    <p>The <code>gap</code> property sets the space between rows and columns in grid, flex, and
+      multi-column layouts. It is a shorthand for <code>row-gap</code> and <code>column-gap</code>.</p>
+
+    <figure>
+      <img src="/gap-diagram.png" alt="Three boxes in a row with equal space between them">
+      <figcaption>Gaps apply between items, never on the outer edges.</figcaption>
+    </figure>
+
+    <h2 id="syntax">Syntax</h2>
+    <pre><code>gap: 1rem;
+gap: 1rem 2rem;
+gap: calc(1rem + 2px);</code></pre>
+
+    <h2 id="values">Values</h2>
+    <dl>
+      <dt><code>&lt;length&gt;</code></dt>
+      <dd>A fixed size, such as <code>16px</code> or <code>1rem</code>. Negative values are invalid.</dd>
+      <dt><code>&lt;percentage&gt;</code></dt>
+      <dd>Relative to the size of the container along the relevant axis.</dd>
+      <dt><code>normal</code></dt>
+      <dd>The browser default: <code>1em</code> for multi-column layout, <code>0</code> elsewhere.</dd>
+    </dl>
+
+    <h3 id="keywords">Keywords</h3>
+    <p>Only <code>normal</code> is a keyword. Earlier drafts also allowed <s>auto</s>, which was removed.</p>
+
+    <h3 id="lengths">Lengths</h3>
+    <table style="border-collapse: collapse">
+      <thead>
+        <tr><th scope="col">Unit</th><th scope="col">Relative to</th><th scope="col">Example</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>px</td><td>nothing</td><td><code>gap: 8px</code></td></tr>
+        <tr><td>rem</td><td>the root font size</td><td><code>gap: 0.5rem</code></td></tr>
+        <tr><td>%</td><td>the container</td><td><code>gap: 5%</code></td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="examples">Examples</h2>
+    <p>A two-column grid with a <mark>1rem</mark> gap:</p>
+    <pre><code>.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }</code></pre>
+    <blockquote>
+      <p>Use <code>gap</code> instead of margins on grid items; it does not add space at the edges.</p>
+      <footer>From the <cite>Layout Cookbook</cite></footer>
+    </blockquote>
+
+    <aside aria-label="Browser support">
+      <h2>Browser support</h2>
+      <table>
+        <tr><td>Chrome</td><td>84</td></tr>
+        <tr><td>Firefox</td><td>63</td></tr>
+        <tr><td>Safari</td><td>14.1</td></tr>
+      </table>
+      <p><small>Data from the compatibility tables, updated <time datetime="2026-09-30">30 Sep 2026</time>.</small></p>
+    </aside>
+
+    <h2>See also</h2>
+    <ul>
+      <li><a href="/reference/row-gap">row-gap</a></li>
+      <li><a href="/reference/column-gap">column-gap</a></li>
+      <li><a href="https://example.org/spec" rel="external">The specification <abbr title="external link">(ext)</abbr></a></li>
+    </ul>
+  </article>
+
+  <section aria-labelledby="feedback">
+    <h2 id="feedback">Was this page helpful?</h2>
+    <button type="button">Yes</button>
+    <button type="button">No</button>
+    <a href="/edit/gap" class="button">Edit this page</a>
+  </section>
+</main>
+
+<footer>
+  <p>Content is available under the <a href="/license">CC-BY-SA</a> license.</p>
+</footer>

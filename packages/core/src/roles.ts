@@ -28,7 +28,9 @@ const roleMap = roles as unknown as { get(key: string): RoleDef | undefined };
  * "Name From: author" in ARIA 1.2; with the 1.1 value, bare text directly inside a
  * `role="rowgroup"` container would be wrongly suppressed as "already in the name".
  */
-const NAME_FROM_CONTENT_OVERRIDES: Readonly<Record<string, boolean>> = { rowgroup: false };
+// `row` is name-from-content in ARIA, but browsers do not name rows from their cells and screen
+// readers never announce such a name; a row is named by the author or not at all.
+const NAME_FROM_CONTENT_OVERRIDES: Readonly<Record<string, boolean>> = { rowgroup: false, row: false };
 
 const PRESENTATIONAL = new Set(["presentation", "none"]);
 
@@ -127,16 +129,20 @@ function implicitRole(el: Element): string | null {
     case "select":
       return el.hasAttribute("multiple") || numericSize(el) > 1 ? "listbox" : "combobox";
     case "table":
-      return "table";
+      // Chrome's layout-table heuristic: a table with no header cells, caption, summary, or
+      // head/foot sections and only one row or one column is presentational. Anything else is a
+      // data table. (Chrome also inspects borders and backgrounds for larger tables; see #11.)
+      return isLayoutTable(el) ? null : "table";
     case "thead":
-    case "tbody":
     case "tfoot":
-      return tableIsPresentational(el) ? null : "rowgroup";
+      return tableIsPresentational(el) ? null : "rowgroup"; // exposed by Chrome
+    case "tbody":
+      return null; // not exposed by Chrome; its rows hang directly off the table
     case "tr":
       return tableIsPresentational(el) ? null : "row";
     case "td": {
       const table = ancestorTableRole(el);
-      if (table && PRESENTATIONAL.has(table)) return null;
+      if (table === null || PRESENTATIONAL.has(table)) return null; // layout or presentational table
       return table === "grid" || table === "treegrid" ? "gridcell" : "cell"; // HTML-AAM
     }
     case "th":
@@ -147,16 +153,27 @@ function implicitRole(el: Element): string | null {
       // ARIA in HTML: `region` only with an accessible name, otherwise generic.
       return hasAccessibleName(el) ? "region" : null;
     case "form":
-      // HTML-AAM: an unnamed `<form>` is not exposed as a landmark.
-      return hasAccessibleName(el) ? "form" : null;
+      // Chrome exposes every <form> with role form. Screen readers list it as a landmark only when
+      // it has a name; the mirror follows the tree and leaves landmark policy to the profiles.
+      return "form";
     case "fieldset":
       return "group";
+    case "blockquote":
+      return "blockquote"; // ARIA 1.2 role; Chrome exposes it
+    case "dt":
+      return "term"; // HTML-AAM and Chrome; the <dl> itself has no ARIA role
+    case "dd":
+      return "definition";
     case "figure":
       return "figure";
     case "dialog":
       return "dialog";
     case "hr":
       return "separator";
+    case "progress":
+      return "progressbar"; // HTML-AAM; a leaf, named by the author
+    case "meter":
+      return "meter";
     default:
       return null; // generic / no implicit role
   }
@@ -259,13 +276,77 @@ function ancestorTableRole(el: Element): string | null {
 }
 
 /**
- * ARIA 1.2 presentation inheritance: when a `table` is presentational, its required owned
- * structure (`thead`/`tbody`/`tfoot`/`tr`/`td`/`th`) without an explicit role is presentational
- * too — the classic layout table. (`<li>` under a presentational list is handled by the `li` case.)
+ * ARIA 1.2 presentation inheritance: when a `table` is presentational (explicitly, or by Chrome's
+ * layout-table heuristic), its required owned structure (`thead`/`tfoot`/`tr`/`td`/`th`) without
+ * an explicit role is presentational too. (`<li>` under a presentational list is handled by the
+ * `li` case.)
  */
 function tableIsPresentational(el: Element): boolean {
-  const role = ancestorTableRole(el);
-  return role !== null && PRESENTATIONAL.has(role);
+  const table = el.parentElement?.closest("table");
+  if (!table) return false;
+  const role = resolveRole(table);
+  return role === null || PRESENTATIONAL.has(role);
+}
+
+/**
+ * Chrome's layout-table rules, as observed against its accessibility tree; `true` means the
+ * table is not a data table. Markup that declares structure wins: a summary, caption, head or
+ * foot section, header cell, `border` attribute, or `headers`/`scope` on a cell makes it data.
+ * Then one row or one column means layout, twenty rows or more means data, and for the rest
+ * Chrome looks at presentation: cell borders on at least half the cells, or cell backgrounds
+ * that differ from the table's, make it data; otherwise it is layout.
+ */
+function isLayoutTable(table: Element): boolean {
+  const children = Array.from(table.children).map((c) => c.tagName.toLowerCase());
+  if (table.hasAttribute("summary") || children.some((t) => t === "caption" || t === "thead" || t === "tfoot")) {
+    return false;
+  }
+  const rows = Array.from(table.querySelectorAll("tr")).filter((tr) => tr.closest("table") === table);
+  const cells = rows.flatMap((tr) => Array.from(tr.children).filter((c) => /^t[dh]$/i.test(c.tagName)));
+  if (cells.some((c) => c.tagName.toLowerCase() === "th" || c.hasAttribute("headers") || c.hasAttribute("scope"))) {
+    return false;
+  }
+  const cols = Math.max(0, ...rows.map((tr) => tr.children.length));
+  if (rows.length <= 1 || cols <= 1) return true;
+  if (rows.length >= 20) return false;
+  // Presentation signals, consulted only once the markup and size rules are silent: Chrome lets
+  // a one-cell table stay layout even with a border attribute.
+  const border = table.getAttribute("border");
+  if (border !== null && border.trim() !== "" && border.trim() !== "0") return false;
+  const view = table.ownerDocument.defaultView;
+  if (!view || cells.length === 0) return true;
+  let bordered = 0;
+  let tinted = 0;
+  const tableBackground = safeStyle(view, table)?.backgroundColor ?? "";
+  for (const cell of cells) {
+    const style = safeStyle(view, cell);
+    if (!style) continue;
+    if (hasBorder(style)) bordered++;
+    const background = style.backgroundColor ?? "";
+    if (background && !/^(transparent|rgba\(0, 0, 0, 0\))$/.test(background) && background !== tableBackground) tinted++;
+  }
+  return bordered * 2 < cells.length && tinted === 0;
+}
+
+/** Any non-zero border width, read from the longhands or, in DOMs that keep shorthands, from them. */
+function hasBorder(style: CSSStyleDeclaration): boolean {
+  const widths = [
+    style.borderTopWidth,
+    style.borderRightWidth,
+    style.borderBottomWidth,
+    style.borderLeftWidth,
+    style.borderWidth,
+  ];
+  if (widths.some((w) => parseFloat(w || "0") > 0)) return true;
+  return /(^|\s)(0*[1-9]\d*(\.\d+)?|0?\.\d*[1-9]\d*)(px|em|rem|pt|thin|medium|thick)?(\s|$)/.test(style.border ?? "") && !/^\s*0(px)?\s/.test(style.border ?? "");
+}
+
+function safeStyle(view: Window & typeof globalThis, el: Element): CSSStyleDeclaration | null {
+  try {
+    return view.getComputedStyle(el);
+  } catch {
+    return null;
+  }
 }
 
 // HTML sectioning content, the landmark roles ARIA in HTML scopes the same way, and the sectioning
@@ -313,6 +394,22 @@ export function accessibleName(el: Element): string {
 
 function hasAccessibleName(el: Element): boolean {
   return accessibleName(el) !== "";
+}
+
+/** True if the author supplied a name source: aria-label, aria-labelledby, or title. */
+export function hasAuthorName(el: Element): boolean {
+  return el.hasAttribute("aria-label") || el.hasAttribute("aria-labelledby") || el.hasAttribute("title");
+}
+
+/**
+ * The control a <label> labels: its `for` target, else its first labelable descendant. Used to
+ * decide whether the label text is read on its own (text fields) or only as the control name
+ * (checkboxes and radios), which is how Chrome exposes it.
+ */
+export function labelledControl(label: Element): Element | null {
+  const forId = label.getAttribute("for");
+  if (forId) return label.ownerDocument.getElementById(forId);
+  return label.querySelector("input:not([type=hidden]), select, textarea, button, meter, output, progress");
 }
 
 /** True if ARIA prohibits naming the role (caption, paragraph, …): the node gets an empty name. */

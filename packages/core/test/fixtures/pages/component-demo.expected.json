@@ -1,0 +1,463 @@
+[
+  {
+    "role": "banner",
+    "name": "",
+    "ref": {
+      "tag": "header"
+    }
+  },
+  {
+    "role": "toolbar",
+    "name": "Editor",
+    "ref": {
+      "tag": "div"
+    }
+  },
+  {
+    "role": "button",
+    "name": "Bold",
+    "ref": {
+      "tag": "button"
+    }
+  },
+  {
+    "role": "button",
+    "name": "Italic",
+    "ref": {
+      "tag": "button"
+    }
+  },
+  {
+    "role": "button",
+    "name": "",
+    "ref": {
+      "tag": "button"
+    },
+    "flags": {
+      "unnamed": true
+    }
+  },
+  {
+    "role": "separator",
+    "name": "",
+    "ref": {
+      "tag": "div"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Font size"
+  },
+  {
+    "role": "combobox",
+    "name": "Font size",
+    "ref": {
+      "tag": "select"
+    }
+  },
+  {
+    "role": "switch",
+    "name": "Autosave",
+    "ref": {
+      "tag": "input"
+    }
+  },
+  {
+    "role": "navigation",
+    "name": "Breadcrumb",
+    "ref": {
+      "tag": "nav"
+    }
+  },
+  {
+    "role": "list",
+    "name": "",
+    "ref": {
+      "tag": "ol"
+    }
+  },
+  {
+    "role": "listitem",
+    "name": "",
+    "ref": {
+      "tag": "li"
+    }
+  },
+  {
+    "role": "link",
+    "name": "Workspace",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "listitem",
+    "name": "",
+    "ref": {
+      "tag": "li"
+    }
+  },
+  {
+    "role": "link",
+    "name": "Projects",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "listitem",
+    "name": "",
+    "ref": {
+      "tag": "li"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Dark mode"
+  },
+  {
+    "role": "main",
+    "name": "",
+    "ref": {
+      "tag": "main"
+    }
+  },
+  {
+    "role": "heading",
+    "name": "Dark mode",
+    "ref": {
+      "tag": "h1"
+    },
+    "level": 1
+  },
+  {
+    "role": "tablist",
+    "name": "Project sections",
+    "ref": {
+      "tag": "div"
+    }
+  },
+  {
+    "role": "tab",
+    "name": "Overview",
+    "ref": {
+      "tag": "button"
+    }
+  },
+  {
+    "role": "tab",
+    "name": "Tasks",
+    "ref": {
+      "tag": "button"
+    }
+  },
+  {
+    "role": "tab",
+    "name": "Files",
+    "ref": {
+      "tag": "button"
+    }
+  },
+  {
+    "role": "tabpanel",
+    "name": "Overview",
+    "ref": {
+      "tag": "div"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Ship a dark theme for the settings page by the end of the quarter."
+  },
+  {
+    "role": "region",
+    "name": "Tasks",
+    "ref": {
+      "tag": "section"
+    }
+  },
+  {
+    "role": "heading",
+    "name": "Tasks",
+    "ref": {
+      "tag": "h2"
+    },
+    "level": 2
+  },
+  {
+    "role": "text",
+    "name": "Define tokens"
+  },
+  {
+    "role": "text",
+    "name": "Light and dark palettes with contrast ratios."
+  },
+  {
+    "role": "text",
+    "name": "In progress"
+  },
+  {
+    "role": "article",
+    "name": "",
+    "ref": {
+      "tag": "article"
+    }
+  },
+  {
+    "role": "heading",
+    "name": "Audit components",
+    "ref": {
+      "tag": "h3"
+    },
+    "level": 3
+  },
+  {
+    "role": "link",
+    "name": "Audit components",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Check each component in both themes."
+  },
+  {
+    "role": "text",
+    "name": "Todo"
+  },
+  {
+    "role": "button",
+    "name": "Write the docs Screenshots and a migration note. Notes",
+    "ref": {
+      "tag": "div"
+    }
+  },
+  {
+    "role": "link",
+    "name": "Notes",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "region",
+    "name": "Questions",
+    "ref": {
+      "tag": "section"
+    }
+  },
+  {
+    "role": "heading",
+    "name": "Questions",
+    "ref": {
+      "tag": "h2"
+    },
+    "level": 2
+  },
+  {
+    "role": "group",
+    "name": "",
+    "ref": {
+      "tag": "details"
+    }
+  },
+  {
+    "role": "button",
+    "name": "Will the toggle follow the system setting?",
+    "ref": {
+      "tag": "summary"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Yes by default, with an override in settings."
+  },
+  {
+    "role": "group",
+    "name": "",
+    "ref": {
+      "tag": "details"
+    }
+  },
+  {
+    "role": "button",
+    "name": "What about high-contrast mode?",
+    "ref": {
+      "tag": "summary"
+    }
+  },
+  {
+    "role": "region",
+    "name": "Status",
+    "ref": {
+      "tag": "section"
+    }
+  },
+  {
+    "role": "heading",
+    "name": "Status",
+    "ref": {
+      "tag": "h2"
+    },
+    "level": 2
+  },
+  {
+    "role": "text",
+    "name": "Owner"
+  },
+  {
+    "role": "text",
+    "name": "priya"
+  },
+  {
+    "role": "text",
+    "name": "Due"
+  },
+  {
+    "role": "text",
+    "name": "18 Dec"
+  },
+  {
+    "role": "text",
+    "name": "Progress"
+  },
+  {
+    "role": "progressbar",
+    "name": "Progress",
+    "ref": {
+      "tag": "progress"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Priority"
+  },
+  {
+    "role": "meter",
+    "name": "Priority",
+    "ref": {
+      "tag": "meter"
+    }
+  },
+  {
+    "role": "table",
+    "name": "",
+    "ref": {
+      "tag": "table"
+    }
+  },
+  {
+    "role": "row",
+    "name": "",
+    "ref": {
+      "tag": "tr"
+    }
+  },
+  {
+    "role": "cell",
+    "name": "Tokens",
+    "ref": {
+      "tag": "td"
+    }
+  },
+  {
+    "role": "cell",
+    "name": "38",
+    "ref": {
+      "tag": "td"
+    }
+  },
+  {
+    "role": "cell",
+    "name": "done",
+    "ref": {
+      "tag": "td"
+    }
+  },
+  {
+    "role": "row",
+    "name": "",
+    "ref": {
+      "tag": "tr"
+    }
+  },
+  {
+    "role": "cell",
+    "name": "Components",
+    "ref": {
+      "tag": "td"
+    }
+  },
+  {
+    "role": "cell",
+    "name": "12",
+    "ref": {
+      "tag": "td"
+    }
+  },
+  {
+    "role": "cell",
+    "name": "in review",
+    "ref": {
+      "tag": "td"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Press Control plus K to search."
+  },
+  {
+    "role": "status",
+    "name": "",
+    "ref": {
+      "tag": "div"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Saved 2 minutes ago"
+  },
+  {
+    "role": "contentinfo",
+    "name": "",
+    "ref": {
+      "tag": "footer"
+    }
+  },
+  {
+    "role": "list",
+    "name": "",
+    "ref": {
+      "tag": "ul"
+    }
+  },
+  {
+    "role": "listitem",
+    "name": "",
+    "ref": {
+      "tag": "li"
+    }
+  },
+  {
+    "role": "link",
+    "name": "System status",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "listitem",
+    "name": "",
+    "ref": {
+      "tag": "li"
+    }
+  },
+  {
+    "role": "link",
+    "name": "Changelog",
+    "ref": {
+      "tag": "a"
+    }
+  }
+]

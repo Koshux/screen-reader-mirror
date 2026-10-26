@@ -35,3 +35,6 @@ playwright-report/
 
 # npm/pnpm pack output (manual bootstrap publishes)
 *.tgz
+
+# oracle script build output (scripts/ax-engine.tsup.config.ts)
+.cache/
