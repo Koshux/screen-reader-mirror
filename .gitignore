@@ -32,3 +32,6 @@ playwright-report/
 *.zip
 *.crx
 *.pem
+
+# npm/pnpm pack output (manual bootstrap publishes)
+*.tgz
