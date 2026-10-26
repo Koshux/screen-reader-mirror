@@ -263,6 +263,25 @@ describe("the inventory, each row in both modes (AC-2)", () => {
     ]);
   });
 
+  it("row 9: an icon svg inside a button or heading is a node of its own in both modes", () => {
+    expect(pairs(PAGE, "svg-icons")).toEqual([
+      ["button", "Save"],
+      ["graphics-document", ""],
+      ["button", "Close"],
+      ["graphics-document", ""],
+      ["heading", "Star Starred"],
+      ["graphics-document", "Star"],
+    ]);
+    expect(pairs(PAGE, "svg-icons", chrome)).toEqual([
+      ["button", "Save"],
+      ["img", ""],
+      ["button", "Close"],
+      ["img", ""],
+      ["heading", "Star Starred"],
+      ["img", "Star"],
+    ]);
+  });
+
   it("row 10: HTML's table model decides a scope-less th; Chrome decides from its neighbours", () => {
     const headers = (options: LinearizeOptions = {}) =>
       pairs(PAGE, "th-scope", options).filter(([role]) => /header$|^cell$/.test(role!));

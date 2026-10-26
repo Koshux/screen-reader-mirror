@@ -675,10 +675,10 @@ function contributesToAncestorName(el: Element, role: string | null, ctx: RoleCo
  * HTML-AAM 4.1 falls back to both. True when the field has labels, none with text, and no
  * aria-label or resolving aria-labelledby.
  */
-export function hasOnlyEmptyLabels(el: Element): boolean {
+export function hasOnlyEmptyLabels(el: Element, ctx: RoleContext = defaultContext): boolean {
   if ((el.getAttribute("aria-label") ?? "").trim() !== "" || labelledbyResolves(el)) return false;
   const labels = Array.from((el as HTMLInputElement).labels ?? []);
-  return labels.length > 0 && labels.every((label) => !labelHasText(label, el));
+  return labels.length > 0 && labels.every((label) => !labelHasText(label, el, ctx));
 }
 
 function labelledbyResolves(el: Element): boolean {
@@ -693,7 +693,7 @@ function labelledbyResolves(el: Element): boolean {
  * an element with an alt, aria-label, aria-labelledby, or title. Deliberately generous: when in
  * doubt the label counts, and the library computes the name as usual.
  */
-function labelHasText(label: Element, control: Element): boolean {
+function labelHasText(label: Element, control: Element, ctx: RoleContext): boolean {
   for (const child of Array.from(label.childNodes)) {
     if (child.nodeType === 3) {
       if ((child.textContent ?? "").trim() !== "") return true;
@@ -701,9 +701,9 @@ function labelHasText(label: Element, control: Element): boolean {
     }
     if (child.nodeType !== 1 || child === control) continue;
     const el = child as Element;
-    if (isHiddenFromAT(el)) continue;
+    if (isHiddenFromAT(el, { getComputedStyle: ctx.styleOf })) continue;
     if (["alt", "aria-label", "title"].some((a) => (el.getAttribute(a) ?? "").trim() !== "")) return true;
-    if (el.hasAttribute("aria-labelledby") || labelHasText(el, control)) return true;
+    if (el.hasAttribute("aria-labelledby") || labelHasText(el, control, ctx)) return true;
   }
   return false;
 }

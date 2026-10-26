@@ -213,7 +213,8 @@ function emitElement(el: Element, walk: Walk, textConsumed: boolean): void {
   // Chrome (row 9): an svg root with nothing readable inside is an image.
   if (rules.svgImageWhenNoContent && isImplicitSvgRoot(el, role) && walk.out.length === start) node.role = "img";
   // Chrome (row 7) names a term from its content and still reads that content. The name is the
-  // text read inside it, which is what Chrome's name from content gives for the usual `<dt>`.
+  // text read inside it, which is what Chrome's name from content gives for the usual `<dt>`. A
+  // term inside an ancestor named from content reads no text of its own, so it stays unnamed.
   if (rules.termNamedFromContent && role === "term" && node.name === "") {
     node.name = collapseWhitespace(walk.out.slice(start).map((n) => n.name).join(" "));
   }
@@ -350,7 +351,7 @@ function buildNode(el: Element, role: string, tag: string, walk: Walk, live?: Li
   const authorOnlyRow = role === "row" && ctx.rules.rowNamedByAuthorOnly && !hasAuthorName(el) && !rowInGrid(el, ctx);
   let name = isNameProhibited(role) || authorOnlyRow ? "" : accessibleName(el, ctx);
   const field = isFormField(el, tag);
-  if (field && ctx.rules.emptyLabelHasNoName && hasOnlyEmptyLabels(el)) {
+  if (field && ctx.rules.emptyLabelHasNoName && hasOnlyEmptyLabels(el, ctx)) {
     name = "";
   } else {
     if (name === "" && field) name = collapseWhitespace(el.getAttribute("title") ?? "");
