@@ -329,10 +329,12 @@ describe("flags on real-world markup (AC-5 / AC-6)", () => {
 
 describe("text context resets per container (SPEC-001 §3)", () => {
   it("a list inside a table cell keeps its item text; a rowgroup does not consume text", () => {
-    const out = linearize(root("<table><tr><td><ul><li>A</li><li>B</li></ul></td></tr></table>"));
+    // The header cell keeps this a data table under the layout-table heuristic.
+    const out = linearize(root("<table><tr><th>K</th><td><ul><li>A</li><li>B</li></ul></td></tr></table>"));
     expect(out.map((n) => [n.role, n.name])).toEqual([
       ["table", ""],
       ["row", ""],
+      ["rowheader", "K"],
       ["cell", "A B"],
       ["list", ""],
       ["listitem", ""],
