@@ -26,7 +26,8 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 20
-      - run: pnpm install
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
       - name: Guard — web target must exist
         run: |
           if [ ! -f packages/web/package.json ]; then
