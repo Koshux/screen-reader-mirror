@@ -120,16 +120,16 @@ function emitElement(el: Element, walk: Walk, textConsumed: boolean): void {
   }
 
   const role = resolveRole(el, walk.parentOf);
+  const live = liveRegionOf(el, role);
 
   if (tag === "iframe" && role !== null) {
-    emitFrame(el, role, walk);
+    emitFrame(el, role, walk, live);
     return;
   }
 
   // Decorative image (alt=""): excluded from the reading order entirely.
   if (role === "presentation" && tag === "img") return;
 
-  const live = liveRegionOf(el, role);
   const transparent = role === null || TRANSPARENT_ROLES.has(role);
 
   // A live region with a transparent role is still a node, empty or not, so the developer sees it
@@ -175,11 +175,11 @@ function emitElement(el: Element, walk: Walk, textConsumed: boolean): void {
  * is flagged `unreachable` and has nothing inside. A frame that has not loaded yet has an empty
  * document and reads as an empty frame. The frame's URL is never recorded.
  */
-function emitFrame(iframe: Element, role: string, walk: Walk): void {
+function emitFrame(iframe: Element, role: string, walk: Walk, live: LiveRegion | undefined): void {
   flushText(walk);
   const outer = walk.frame;
   walk.frame = ++walk.frames;
-  const node = buildNode(iframe, role, "iframe", walk);
+  const node = buildNode(iframe, role, "iframe", walk, live);
   const doc = frameDocument(iframe);
   if (!doc) node.flags = { ...node.flags, unreachable: true };
   walk.out.push(node);

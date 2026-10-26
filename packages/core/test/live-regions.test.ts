@@ -130,6 +130,13 @@ describe("live regions (SPEC-004)", () => {
       // implicit role: none, so it is a generic live region, as in Chrome.
       ["generic", "", polite],
       ["text", "Presentation region", undefined],
+      // A live label is a node, and Chrome keeps its text as well as the checkbox name, so the
+      // text is read on its own here, unlike a label that is not live.
+      ["generic", "", polite],
+      ["checkbox", "Accept terms", undefined],
+      ["text", "Accept terms", undefined],
+      ["document", "Live frame", polite],
+      ["text", "Frame text", undefined],
     ]);
     expect(read("plain").slice(0, 2).every((n) => !("live" in n))).toBe(true);
   });
