@@ -1,0 +1,87 @@
+<!--
+  SPEC-003 shadow DOM and slot cases. One source for two checks:
+  - Chrome: `pnpm ax:compare packages/core/test/fixtures/probes/web-components.html`. Chrome
+    parses the declarative shadow roots below.
+  - Unit tests: test/shadow-dom.test.ts loads one case at a time by its data-case and attaches
+    the roots in code, because the test DOM does not parse declarative shadow DOM.
+  Not under fixtures/pages, where the golden-page test would read it without its roots.
+-->
+<div data-case="open-root">
+  <x-card>
+    <template shadowrootmode="open"><h3>Shadow title</h3><p>Shadow body</p><button>Shadow action</button></template>
+    <p>Light paragraph, not slotted</p>
+  </x-card>
+</div>
+
+<div data-case="slots">
+  <x-panel>
+    <template shadowrootmode="open"><h2><slot name="title">Untitled</slot></h2><slot></slot><div><slot name="foot">No footer</slot></div></template>
+    <span slot="title">Billing</span>
+    <p>Default slot text</p>
+    <a href="#pay">Default slot link</a>
+    <span slot="missing">Assigned to no slot</span>
+  </x-panel>
+</div>
+
+<div data-case="host-role">
+  <x-list role="list">
+    <template shadowrootmode="open"><slot></slot></template>
+    <div role="listitem">One</div>
+    <div role="listitem">Two</div>
+  </x-list>
+</div>
+
+<div data-case="host-name">
+  <x-toggle role="button" tabindex="0"><template shadowrootmode="open"><span>Mute</span> <slot></slot></template>audio</x-toggle>
+</div>
+
+<div data-case="nested">
+  <x-app>
+    <template shadowrootmode="open">
+      <nav aria-label="App">
+        <x-menu>
+          <template shadowrootmode="open"><ul><slot></slot></ul></template>
+          <li><a href="#a">Alpha</a></li>
+          <li><a href="#b">Beta</a></li>
+        </x-menu>
+      </nav>
+      <main><slot></slot></main>
+    </template>
+    <h1>Page title</h1>
+    <p>Page text</p>
+  </x-app>
+</div>
+
+<div data-case="visibility">
+  <x-vis>
+    <template shadowrootmode="open">
+      <p aria-hidden="true">Hidden shadow text</p>
+      <slot name="a"></slot>
+      <slot name="b" style="display:none"></slot>
+      <slot name="c" aria-hidden="true"></slot>
+      <p>Visible shadow text</p>
+    </template>
+    <span slot="a" hidden>Hidden slotted</span>
+    <span slot="a">Shown slotted</span>
+    <span slot="b">In a hidden slot</span>
+    <span slot="c">In an aria-hidden slot</span>
+  </x-vis>
+</div>
+
+<div data-case="closed-root">
+  <x-secret><template shadowrootmode="closed"><p>Closed content</p></template><span>Light children</span></x-secret>
+</div>
+
+<div data-case="name-across-slot">
+  <x-order><template shadowrootmode="open"><h2>Order <slot></slot></h2></template><span>#42</span></x-order>
+</div>
+
+<div data-case="run-across-slot">
+  <p>Total: <x-price><template shadowrootmode="open"><b><slot></slot></b> EUR</template>12</x-price> due today</p>
+</div>
+
+<div data-case="labels">
+  <x-field>
+    <template shadowrootmode="open"><label for="agree">I agree</label><input id="agree" type="checkbox"></template>
+  </x-field>
+</div>

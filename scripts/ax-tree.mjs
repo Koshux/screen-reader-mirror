@@ -93,21 +93,37 @@ export async function openPage(absolutePath) {
         }
         return r.result?.value;
       },
-      /** Chrome's full accessibility tree, flattened unless `raw`. Each node carries its DOM tag. */
+      /**
+       * Chrome's full accessibility tree, flattened unless `raw` (the top frame's raw nodes). Each
+       * node carries its DOM tag. `getFullAXTree` reads one frame, so each child frame's tree is
+       * read with its own call and spliced under its iframe's node; a frame Chrome cannot read
+       * from this session (out of process) leaves the iframe node marked `unreachable`.
+       */
       async axTree({ raw = false } = {}) {
         await cdp.send("Accessibility.enable", {}, sessionId);
         const { nodes } = await cdp.send("Accessibility.getFullAXTree", {}, sessionId);
         if (raw) return nodes;
         const { root } = await cdp.send("DOM.getDocument", { depth: -1, pierce: true }, sessionId);
         const tags = new Map();
+        const frameOwners = new Map(); // iframe backendNodeId -> the child frame's id
         const walk = (n) => {
           tags.set(n.backendNodeId, (n.nodeName ?? "").toLowerCase());
+          if (n.frameId && n.contentDocument) frameOwners.set(n.backendNodeId, n.frameId);
           for (const c of n.children ?? []) walk(c);
           if (n.contentDocument) walk(n.contentDocument);
           for (const s of n.shadowRoots ?? []) walk(s);
         };
         walk(root);
-        return flatten(nodes, tags);
+        const frames = new Map(); // iframe backendNodeId -> that frame's AX nodes, or null
+        for (const [owner, frameId] of frameOwners) {
+          try {
+            const r = await cdp.send("Accessibility.getFullAXTree", { frameId }, sessionId);
+            frames.set(owner, r.nodes);
+          } catch {
+            frames.set(owner, null);
+          }
+        }
+        return flatten(nodes, tags, frames);
       },
       async close() {
         cdp.close();
@@ -124,11 +140,15 @@ export async function openPage(absolutePath) {
   }
 }
 
-function flatten(nodes, tags = new Map()) {
-  const byId = new Map(nodes.map((n) => [n.nodeId, n]));
-  const root = nodes.find((n) => !n.parentId) ?? nodes[0];
+function flatten(nodes, tags = new Map(), frames = new Map()) {
   const out = [];
-  const visit = (n, depth) => {
+  // Node ids are per frame, so each frame's tree is visited with its own lookup.
+  const visitTree = (treeNodes, depth) => {
+    const byId = new Map(treeNodes.map((n) => [n.nodeId, n]));
+    const root = treeNodes.find((n) => !n.parentId) ?? treeNodes[0];
+    if (root) visit(root, depth, byId);
+  };
+  const visit = (n, depth, byId) => {
     const role = n.role?.value ?? "";
     if (role === "InlineTextBox") return; // layout fragments of a StaticText, never announced
     // Ignored nodes are kept, marked, so consumers can still see the tree's structure: a
@@ -145,10 +165,15 @@ function flatten(nodes, tags = new Map()) {
     out.push(entry);
     for (const id of n.childIds ?? []) {
       const child = byId.get(id);
-      if (child) visit(child, depth + 1);
+      if (child) visit(child, depth + 1, byId);
+    }
+    if (n.backendDOMNodeId !== undefined && frames.has(n.backendDOMNodeId)) {
+      const frameNodes = frames.get(n.backendDOMNodeId);
+      if (frameNodes) visitTree(frameNodes, depth + 1);
+      else entry.unreachable = true;
     }
   };
-  visit(root, 0);
+  visitTree(nodes, 0);
   return out;
 }
 

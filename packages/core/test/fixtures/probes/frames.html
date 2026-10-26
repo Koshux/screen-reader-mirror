@@ -1,0 +1,31 @@
+<!--
+  SPEC-003 frame cases. One source for two checks:
+  - Chrome: `pnpm ax:compare packages/core/test/fixtures/probes/frames.html`.
+  - Unit tests: test/frames.test.ts loads one case at a time by its data-case.
+  Cross-origin frames are not here: the unit tests simulate them, and a real one is a separate
+  probe, frames-cross-origin.html, which only Chrome loads.
+-->
+<div data-case="basic">
+  <p>Before</p>
+  <iframe title="Payment form" srcdoc="<h1>Pay</h1><p>Card details</p><button>Pay now</button>"></iframe>
+  <p>After</p>
+</div>
+
+<div data-case="aria-label">
+  <iframe aria-label="Map" title="Map title" srcdoc="<p>Map content</p>"></iframe>
+</div>
+
+<div data-case="nested">
+  <iframe title="Outer" srcdoc="<p>Outer text</p><iframe title='Inner' srcdoc='<p>Inner text</p>'></iframe><p>Outer again</p>"></iframe>
+  <iframe title="Second" srcdoc="<p>Second text</p>"></iframe>
+</div>
+
+<div data-case="visibility">
+  <iframe title="Display none" style="display:none" srcdoc="<p>Hidden frame</p>"></iframe>
+  <iframe title="Aria hidden" aria-hidden="true" srcdoc="<p>Aria hidden frame</p>"></iframe>
+  <iframe title="Hidden inside" srcdoc="<p hidden>Hidden in frame</p><p>Shown in frame</p>"></iframe>
+</div>
+
+<div data-case="empty">
+  <iframe title="Empty" srcdoc=""></iframe>
+</div>
