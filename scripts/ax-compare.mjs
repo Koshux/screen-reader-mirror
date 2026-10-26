@@ -1,0 +1,172 @@
+#!/usr/bin/env node
+/**
+ * Compare the engine's reading order with Chrome's accessibility tree, on the same DOM, in the
+ * same headless Chrome. The fidelity oracle for #6.
+ *
+ * Usage:  node scripts/ax-compare.mjs packages/core/test/fixtures/pages/<name>.html [--write-expected]
+ * Needs:  a local Chrome, Chromium, or Edge (or CHROME_PATH). Builds the engine bundle itself.
+ *
+ * The fixture is a body fragment. It is wrapped in a document, loaded in Chrome, and then:
+ *  1. Chrome's accessibility tree is read through the DevTools protocol;
+ *  2. the engine is injected into the page and run on document.body.
+ * Both sides are normalised to (role, name, level) in the same vocabulary and shown as a line
+ * diff. The diff is information for a human, not a pass/fail: every differing line is an engine
+ * bug, a pinned divergence with a reason, or a known gap in the normalisation below.
+ *
+ * --write-expected saves the engine's full output next to the fixture as <name>.expected.json,
+ * the golden file the vitest suite checks against.
+ */
+import { spawnSync } from "node:child_process";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { basename, dirname, join, resolve } from "node:path";
+import { openPage } from "./ax-tree.mjs";
+
+const args = process.argv.slice(2);
+const file = args.find((a) => !a.startsWith("--"));
+const writeExpected = args.includes("--write-expected");
+if (!file) {
+  console.error("usage: node scripts/ax-compare.mjs <fragment.html> [--write-expected]");
+  process.exit(2);
+}
+const fragmentPath = resolve(file);
+const fragment = readFileSync(fragmentPath, "utf8");
+const name = basename(file, ".html");
+
+// Chrome roles that are containers with no announcement of their own: skip the node, keep its
+// children. Mirrors the engine's "transparent" kind.
+const TRANSPARENT = new Set([
+  "RootWebArea", "generic", "paragraph", "none", "presentation", "LabelText", "emphasis", "strong",
+  "code", "time", "mark", "Abbr", "superscript", "subscript", "deletion", "insertion", "Figcaption",
+  "Legend", "Pre", "DescriptionList", "LayoutTable", "LayoutTableRow", "LayoutTableCell",
+]);
+// Chrome nodes that are never announced as content.
+const DROP = new Set(["ListMarker", "InlineTextBox"]);
+// Chrome vocabulary to the engine's.
+const ROLE_MAP = { image: "img", DisclosureTriangle: "button", StaticText: "text" };
+// Roles whose name comes from content: Chrome still lists their text children, the engine does not.
+const NAME_FROM_CONTENT = new Set([
+  "heading", "link", "button", "cell", "gridcell", "columnheader", "rowheader", "option", "tab",
+  "menuitem", "treeitem", "switch", "checkbox", "radio", "tooltip", "menuitemcheckbox", "menuitemradio",
+]);
+// Roles whose Chrome subtree is a value or a hidden popup, never content a screen reader reads
+// in sequence: skip everything below them.
+const LEAF_ROLES = new Set(["textbox", "searchbox", "combobox", "spinbutton", "slider", "progressbar", "meter", "img"]);
+// Same block-level set as the engine: a transparent element with one of these tags ends a text run.
+const BLOCK_TAGS = new Set([
+  "address", "article", "aside", "blockquote", "body", "caption", "dd", "details", "dialog",
+  "div", "dl", "dt", "fieldset", "figcaption", "figure", "footer", "form", "h1", "h2", "h3",
+  "h4", "h5", "h6", "header", "hr", "legend", "li", "main", "nav", "ol", "optgroup", "option",
+  "p", "pre", "section", "select", "summary", "table", "tbody", "td", "textarea", "tfoot", "th",
+  "thead", "tr", "ul",
+]);
+
+const bundle = process.env.SRM_ENGINE_BUNDLE ?? buildBundle();
+const engineSource = readFileSync(bundle, "utf8");
+
+const pageDir = mkdtempSync(join(tmpdir(), "srm-fx-"));
+const pagePath = join(pageDir, `${name}.html`);
+writeFileSync(
+  pagePath,
+  `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${name}</title></head><body>\n${fragment}\n</body></html>`,
+);
+
+let chromeRaw;
+let ours;
+const page = await openPage(pagePath);
+try {
+  chromeRaw = await page.axTree();
+  await page.evaluate(engineSource);
+  ours = JSON.parse(await page.evaluate("JSON.stringify(srm.linearize(document.body))"));
+} finally {
+  await page.close();
+  rmSync(pageDir, { recursive: true, force: true });
+}
+
+if (writeExpected) {
+  const target = join(dirname(fragmentPath), `${name}.expected.json`);
+  writeFileSync(target, JSON.stringify(ours, null, 2) + "\n");
+  console.log(`wrote ${target} (${ours.length} nodes)`);
+}
+
+const chrome = normaliseChrome(chromeRaw);
+const engine = ours.map((n) => ({ role: n.role, name: n.name, level: n.level }));
+
+const dir = mkdtempSync(join(tmpdir(), "srm-cmp-"));
+const a = join(dir, `${name}.chrome.txt`);
+const b = join(dir, `${name}.engine.txt`);
+writeFileSync(a, chrome.map(line).join("\n") + "\n");
+writeFileSync(b, engine.map(line).join("\n") + "\n");
+const diff = spawnSync("git", ["diff", "--no-index", "--no-color", "-U1", a, b], { encoding: "utf8" });
+const body = (diff.stdout ?? "").split("\n").slice(4).join("\n").trim();
+const changed = body.split("\n").filter((l) => /^[+-]/.test(l)).length;
+console.log(`${name}: chrome ${chrome.length} nodes, engine ${engine.length} nodes, ${changed} differing lines`);
+if (body) console.log(body);
+rmSync(dir, { recursive: true, force: true });
+
+function line(n) {
+  return `${n.role}${n.level ? " " + n.level : ""} | ${n.name}`;
+}
+
+function buildBundle() {
+  const out = mkdtempSync(join(tmpdir(), "srm-engine-"));
+  const config = resolve("scripts/ax-engine.tsup.config.ts");
+  const r = spawnSync("pnpm", ["exec", "tsup", "--config", config], {
+    cwd: resolve("packages/core"),
+    env: { ...process.env, SRM_IIFE_OUT: out },
+    shell: true,
+    encoding: "utf8",
+  });
+  if (r.status !== 0) throw new Error("engine bundle build failed:\n" + r.stdout + r.stderr);
+  return join(out, "srm.global.js");
+}
+
+function normaliseChrome(nodes) {
+  const out = [];
+  let skipDepth = Infinity; // everything below a leaf-like role is value or popup, not content
+  let textSkipDepth = Infinity; // StaticText below a name-from-content node is its name, not content
+  const blockDepths = []; // open transparent block elements; leaving one ends the text run
+  const endRun = () => {
+    const prev = out[out.length - 1];
+    if (prev && prev.role === "text") prev.merge = false;
+  };
+  for (const n of nodes) {
+    if (n.depth <= skipDepth) skipDepth = Infinity;
+    if (n.depth <= textSkipDepth) textSkipDepth = Infinity;
+    while (blockDepths.length && blockDepths[blockDepths.length - 1] >= n.depth) {
+      blockDepths.pop();
+      endRun();
+    }
+    if (n.depth > skipDepth) continue;
+    if (n.role === "LineBreak") {
+      endRun();
+      continue;
+    }
+    if (DROP.has(n.role)) continue;
+    if (n.ignored || TRANSPARENT.has(n.role)) {
+      if (BLOCK_TAGS.has(n.tag)) {
+        endRun();
+        blockDepths.push(n.depth);
+      }
+      continue;
+    }
+    const role = ROLE_MAP[n.role] ?? n.role;
+    if (role === "text") {
+      if (n.depth > textSkipDepth) continue;
+      if (!n.name.trim()) continue;
+      const prev = out[out.length - 1];
+      // Merge raw, so the spacing Chrome preserves at segment edges ("tokens" + ".") is kept.
+      if (prev && prev.role === "text" && prev.merge) prev.raw += n.name;
+      else out.push({ role: "text", raw: n.name, merge: true });
+      continue;
+    }
+    endRun();
+    out.push({ role, name: n.name.replace(/\s+/g, " ").trim(), level: n.level });
+    // Keep the outermost name-from-content depth: a link inside a heading must not reopen text.
+    if (NAME_FROM_CONTENT.has(role)) textSkipDepth = Math.min(textSkipDepth, n.depth);
+    if (LEAF_ROLES.has(role)) skipDepth = Math.min(skipDepth, n.depth);
+  }
+  return out.map(({ merge: _merge, raw, ...rest }) =>
+    raw !== undefined ? { ...rest, name: raw.replace(/\s+/g, " ").trim() } : rest,
+  );
+}

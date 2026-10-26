@@ -1,0 +1,111 @@
+<header>
+  <div class="toolbar" role="toolbar" aria-label="Editor">
+    <button type="button" aria-label="Bold" aria-pressed="true"><svg aria-hidden="true" width="12" height="12"></svg></button>
+    <button type="button" aria-label="Italic"><svg aria-hidden="true" width="12" height="12"></svg></button>
+    <button type="button"><svg aria-hidden="true" width="12" height="12"></svg></button>
+    <div class="separator" role="separator"></div>
+    <label>Font size
+      <select><option>12</option><option selected>14</option><option>16</option></select>
+    </label>
+    <label class="switch">
+      <input type="checkbox" role="switch" checked> Autosave
+    </label>
+  </div>
+  <nav aria-label="Breadcrumb">
+    <ol>
+      <li><a href="/">Workspace</a></li>
+      <li><a href="/projects">Projects</a></li>
+      <li aria-current="page">Dark mode</li>
+    </ol>
+  </nav>
+</header>
+
+<main>
+  <h1>Dark mode</h1>
+
+  <div class="tabs">
+    <div role="tablist" aria-label="Project sections">
+      <button role="tab" aria-selected="true" aria-controls="panel-overview" id="tab-overview">Overview</button>
+      <button role="tab" aria-selected="false" aria-controls="panel-tasks" id="tab-tasks" tabindex="-1">Tasks</button>
+      <button role="tab" aria-selected="false" aria-controls="panel-files" id="tab-files" tabindex="-1">Files</button>
+    </div>
+    <div role="tabpanel" id="panel-overview" aria-labelledby="tab-overview">
+      <p>Ship a dark theme for the settings page by the end of the quarter.</p>
+    </div>
+    <div role="tabpanel" id="panel-tasks" aria-labelledby="tab-tasks" hidden>
+      <p>Hidden until the tab is selected.</p>
+    </div>
+  </div>
+
+  <section aria-labelledby="cards">
+    <h2 id="cards">Tasks</h2>
+    <div class="cards">
+      <div class="card" onclick="open(1)">
+        <span class="card-title">Define tokens</span>
+        <p>Light and dark palettes with contrast ratios.</p>
+        <span class="chip">In progress</span>
+      </div>
+      <article class="card">
+        <h3><a href="/t/2">Audit components</a></h3>
+        <p>Check each component in both themes.</p>
+        <span class="chip">Todo</span>
+      </article>
+      <div class="card" role="button" tabindex="0">
+        <span class="card-title">Write the docs</span>
+        <p>Screenshots and a migration note. <a href="/t/3/notes">Notes</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="faq">
+    <h2 id="faq">Questions</h2>
+    <details open>
+      <summary>Will the toggle follow the system setting?</summary>
+      <p>Yes by default, with an override in settings.</p>
+    </details>
+    <details>
+      <summary>What about high-contrast mode?</summary>
+      <p>Handled by the contrast tokens, tracked separately.</p>
+    </details>
+  </section>
+
+  <section aria-labelledby="layout">
+    <h2 id="layout">Status</h2>
+    <table class="layout-grid">
+      <tr>
+        <td><strong>Owner</strong><br>priya</td>
+        <td><strong>Due</strong><br><time datetime="2026-12-18">18 Dec</time></td>
+      </tr>
+      <tr>
+        <td><strong>Progress</strong><br><progress value="40" max="100" aria-label="Progress">40%</progress></td>
+        <td><strong>Priority</strong><br><meter value="0.7" aria-label="Priority">High</meter></td>
+      </tr>
+    </table>
+    <table class="metrics">
+      <tr><td style="border:1px solid #ccc">Tokens</td><td style="border:1px solid #ccc">38</td><td style="border:1px solid #ccc">done</td></tr>
+      <tr><td style="border:1px solid #ccc">Components</td><td style="border:1px solid #ccc">12</td><td style="border:1px solid #ccc">in review</td></tr>
+    </table>
+  </section>
+
+  <div class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">
+    Press Control plus K to search.
+  </div>
+  <div role="status" aria-live="polite">Saved 2 minutes ago</div>
+  <div style="display:none" id="toast">Copied to clipboard</div>
+</main>
+
+<dialog aria-labelledby="dlg-title">
+  <h2 id="dlg-title">Delete project?</h2>
+  <p>This cannot be undone.</p>
+  <form method="dialog">
+    <button value="cancel">Cancel</button>
+    <button value="confirm">Delete</button>
+  </form>
+</dialog>
+
+<footer>
+  <ul role="list" class="inline">
+    <li><a href="/status">System status</a></li>
+    <li><a href="/changelog">Changelog</a></li>
+  </ul>
+</footer>

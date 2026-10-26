@@ -112,6 +112,22 @@ as content, while the table takes the caption as its name. An unnamed inline `<s
 unless it is focusable or carries a global ARIA attribute. Element states (expanded, selected,
 checked) are not modelled yet; they are specified with the verbosity profiles (#10).
 
+*Oracle notes (backfilled 2026-10-26, #6):* `scripts/ax-compare.mjs` runs the engine inside a
+headless Chrome on the same DOM and diffs it against Chrome's accessibility tree, which is the
+project's fidelity oracle. Four realistic pages under `packages/core/test/fixtures/pages` are
+pinned as golden fixtures from that run. Changes made to match Chrome: `thead` and `tfoot` are
+row groups and `tbody` is not exposed; a row is named by the author or not at all; a table with
+no header cells, caption, summary, sections, or `border` attribute is a layout table (not a
+table) when it has one row or one column, or when fewer than half its cells have borders and
+none has its own background; every `<form>` is exposed with role `form` (landmark policy is the
+profiles' concern); `dt`/`dd` are `term`/`definition` and `blockquote` is `blockquote`, all named
+by the author only; a text field with no other name source takes its placeholder; the text of a
+label for a checkbox or radio is read only as the control's name, while the text of a label for a
+text field is also read on its own; `progress`/`meter` are leaves. Pinned divergences: Chrome
+names a `term` from its content (ARIA says author only; the text is read once either way), and it
+exposes a scoped `<footer>`/`<header>` with the ARIA 1.3 roles `sectionfooter`/`sectionheader`,
+which aria-query does not know yet.
+
 ### Public API / data shapes
 
 ```ts
@@ -217,6 +233,10 @@ is enforced by ESLint (`no-restricted-globals`) and the `block-no-telemetry` hoo
 | AC-2 | unnamed inline `<svg>` decorative unless focusable | fixture | `…/linearize.test.ts` |
 | AC-1 | text runs: inline formatting merges, block boundaries and `<br>` split, link inside a run | fixture | `…/linearize.test.ts` |
 | AC-2 | `<li>` under `<ul role=navigation>` is generic (pinned decision, revisit in #6) | fixture | `…/linearize.test.ts` |
+| AC-1/2 | four realistic pages (issue tracker, service form, reference article, component demo) pinned to the output reviewed against Chrome's tree | golden page fixtures | `packages/core/test/real-pages.test.ts` + `fixtures/pages/*` |
+| AC-2 | `thead`/`tfoot` row groups, no `tbody`; rows named by author only | fixture | `…/linearize.test.ts` |
+| AC-2 | layout-table heuristic (one row or column; borderless cells) vs data table (headers, caption, summary, `border`, bordered cells) | fixture | `…/linearize.test.ts` |
+| AC-2 | `dt`/`dd`/`blockquote` roles; placeholder as last-resort name; label text consumed for checkbox and radio only; `progress`/`meter` leaves | fixture | `…/linearize.test.ts` |
 
 ## 9. Risks & rollback
 

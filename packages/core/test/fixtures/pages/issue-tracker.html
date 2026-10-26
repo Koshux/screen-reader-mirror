@@ -1,0 +1,97 @@
+<a href="#main" class="skip">Skip to content</a>
+<header>
+  <nav aria-label="Primary">
+    <a href="/"><img src="/logo.svg" alt="Tracker home"></a>
+    <ul>
+      <li><a href="/issues" aria-current="page">Issues</a></li>
+      <li><a href="/pulls">Pull requests</a></li>
+      <li><a href="/discussions">Discussions</a></li>
+    </ul>
+  </nav>
+  <form role="search">
+    <label for="q">Search issues</label>
+    <input id="q" type="search" placeholder="is:open">
+    <button type="submit">Search</button>
+  </form>
+  <div class="avatar" onclick="openMenu()"><img src="/me.png"></div>
+</header>
+
+<main id="main">
+  <h1>Add a dark mode to the settings page <span class="number">#42</span></h1>
+  <p>
+    <span class="badge">Open</span>
+    <a href="/u/priya">priya</a> opened this issue on <time datetime="2026-10-01">1 Oct 2026</time>
+    &middot; 3 comments
+  </p>
+
+  <div class="layout">
+    <article class="body">
+      <h2>Description</h2>
+      <p>Several users asked for a dark theme. The <code>settings</code> page already reads the
+        <em>system</em> preference, so this should mostly be <strong>CSS tokens</strong>.</p>
+      <p>Acceptance:</p>
+      <ul>
+        <li><label><input type="checkbox" checked> Tokens defined for both themes</label></li>
+        <li><label><input type="checkbox"> Contrast checked at AA</label></li>
+        <li><label><input type="checkbox"> Screenshot added to the docs</label></li>
+      </ul>
+      <table>
+        <caption>Contrast results</caption>
+        <thead><tr><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">text</th><td>12.1</td><td>13.4</td></tr>
+          <tr><th scope="row">muted</th><td>4.6</td><td><a href="/c/7">3.9</a></td></tr>
+        </tbody>
+      </table>
+      <span class="h3">Screenshots</span>
+      <img src="/light.png" alt="Settings page in the light theme">
+      <img src="/dark.png">
+    </article>
+
+    <aside aria-label="Issue details">
+      <h2>Labels</h2>
+      <ul class="labels">
+        <li><a href="/l/enhancement">enhancement</a></li>
+        <li><a href="/l/design">design</a></li>
+      </ul>
+      <h2>Assignees</h2>
+      <p><a href="/u/marc"><img src="/marc.png" alt="marc"></a></p>
+      <button aria-label="Edit assignees"><svg aria-hidden="true" width="12" height="12"></svg></button>
+      <button><svg aria-hidden="true" width="12" height="12"></svg></button>
+    </aside>
+  </div>
+
+  <section aria-labelledby="comments-heading">
+    <h2 id="comments-heading">3 comments</h2>
+    <details>
+      <summary>Show 1 hidden comment</summary>
+      <article><h3><a href="/u/bot">bot</a></h3><p>Linked to #41.</p></article>
+    </details>
+    <article>
+      <h3><a href="/u/marc">marc</a> <time datetime="2026-10-02">2 Oct</time></h3>
+      <p>Happy to take this. Do we want a toggle, or follow the system only?</p>
+      <div class="reactions">
+        <button aria-label="Add reaction"><svg aria-hidden="true" width="12" height="12"></svg></button>
+        <span>👍 2</span>
+      </div>
+    </article>
+    <article>
+      <h3><a href="/u/priya">priya</a> <time datetime="2026-10-03">3 Oct</time></h3>
+      <p>Follow the system, with a toggle later.</p>
+      <blockquote>Keep the scope small.</blockquote>
+    </article>
+  </section>
+
+  <form>
+    <label for="comment">Write a comment</label>
+    <textarea id="comment"></textarea>
+    <div class="actions">
+      <button type="button">Close issue</button>
+      <button type="submit">Comment</button>
+    </div>
+  </form>
+</main>
+
+<footer>
+  <p>&copy; 2026 Tracker &middot; <a href="/terms">Terms</a> &middot; <a href="/privacy">Privacy</a></p>
+</footer>
