@@ -1,6 +1,6 @@
 {
   "name": "screen-reader-mirror",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "See what a screen reader interprets from your UI: a zero-install, client-side engine that turns the accessibility tree into screen-reader reading order (roles, accessible names, heading levels) and flags the common mistakes. No data leaves the machine.",
   "license": "MIT",
   "author": "James Lanzon",
