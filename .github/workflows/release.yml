@@ -1,7 +1,9 @@
 name: Release
 
 # Changesets flow: on push to main, open/update a "Version Packages" PR. When that PR merges
-# (consuming the changesets), publish the affected packages to npm with provenance.
+# (consuming the changesets), publish the affected packages to npm via **trusted publishing**
+# (OIDC) with provenance. No npm token is stored anywhere: npm is retiring bypass-2FA tokens
+# (publishing via them ends Jan 2027); see .claude/rules/distribution.md.
 on:
   push:
     branches: [main]
@@ -13,15 +15,12 @@ concurrency:
 permissions:
   contents: write # create the version PR / tags
   pull-requests: write # open the version PR
-  id-token: write # npm provenance (OIDC)
+  id-token: write # npm trusted publishing (OIDC) + provenance; the critical one
 
 jobs:
   release:
     name: release
     runs-on: ubuntu-latest
-    # Expose the secret as env so the publish step can be guarded on its presence.
-    env:
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -31,25 +30,30 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          node-version: 20
-          cache: pnpm
+          # Trusted publishing needs npm >= 11.5.1, bundled with Node 24 (CI/test stay on Node 20).
+          # pnpm 9 delegates `pnpm publish` to that npm CLI, which performs the OIDC exchange.
+          node-version: 24
           registry-url: https://registry.npmjs.org
+          # Deliberately no dependency cache: never reuse a cache in a release build.
 
       - run: pnpm install --frozen-lockfile
 
       - run: pnpm build
 
-      # Only run the release machinery once an NPM_TOKEN secret exists. Until then this is a
-      # no-op (green), so every push to main doesn't fail trying to publish 0.0.0 with no auth.
-      # To cut M1: add the NPM_TOKEN secret, then push a changeset — the action opens a
-      # "Version Packages" PR; merging it bumps the version off 0.0.0 and the next run publishes.
+      # While changesets are pending this opens/updates the "Version Packages" PR (needs only
+      # GITHUB_TOKEN). Once that PR merges, it publishes via OIDC. npm must list this workflow as
+      # a trusted publisher of the package (npmjs.com > package > Settings > Trusted publishing:
+      # owner Koshux, repository screen-reader-mirror, workflow release.yml, no environment).
+      #
+      # Bootstrap note: npm cannot configure a trusted publisher for a package that does not exist
+      # yet, so the very first version is published once from the maintainer's machine (with 2FA),
+      # the trusted publisher is then added, and this step takes over. The publish run for that
+      # first version fails once (no auth). Re-run it after the manual publish: `changeset
+      # publish` skips versions already on the registry and just tags.
       - name: Create Release PR or publish
-        if: ${{ env.NPM_TOKEN != '' }}
         uses: changesets/action@v2
         with:
           version: pnpm version-packages
           publish: pnpm release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
