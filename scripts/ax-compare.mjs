@@ -53,7 +53,19 @@ const NAME_FROM_CONTENT = new Set([
 // Roles whose Chrome subtree is a value or a hidden popup, never content a screen reader reads
 // in sequence: skip everything below them.
 const LEAF_ROLES = new Set(["textbox", "searchbox", "combobox", "spinbutton", "slider", "progressbar", "meter", "img"]);
-// Same block-level set as the engine: a transparent element with one of these tags ends a text run.
+// Roles whose content Chrome counts toward an ancestor's name besides the name-from-content roles
+// (Chromium SupportsNameFromContents, recursive). Text inside any other emitted role, such as a
+// status inside a button, is not in that name and is read on its own.
+const CONTRIBUTES = new Set([
+  "generic", "none", "paragraph", "region", "list", "listitem", "definition", "term", "math",
+  "caption", "emphasis", "strong", "code", "deletion", "insertion", "subscript", "superscript", "time",
+]);
+// Same rule as the engine for ending a text run: Chrome's computed display (which already
+// blockifies flex and grid items), or the tag when the node has no layout.
+const BLOCK_DISPLAYS = new Set([
+  "block", "flow-root", "list-item", "flex", "grid", "table", "table-caption", "table-row",
+  "table-cell", "table-row-group", "table-header-group", "table-footer-group",
+]);
 const BLOCK_TAGS = new Set([
   "address", "article", "aside", "blockquote", "body", "caption", "dd", "details", "dialog",
   "div", "dl", "dt", "fieldset", "figcaption", "figure", "footer", "form", "h1", "h2", "h3",
@@ -105,6 +117,20 @@ console.log(`${name}: chrome ${chrome.length} nodes, engine ${engine.length} nod
 if (body) console.log(body);
 rmSync(dir, { recursive: true, force: true });
 
+/** True when Chrome counts this emitted node's content toward its ancestor's name. */
+function contributes(n, role) {
+  if (n.name && n.name.trim()) return false; // an author name stands in for the content
+  if (role === "group") return n.tag === "details" || n.tag === "address";
+  return CONTRIBUTES.has(role);
+}
+
+/** True when a transparent Chrome node starts a new line, by its computed display or its tag. */
+function endsLine(n) {
+  if (n.display === "contents") return false;
+  if (n.display) return BLOCK_DISPLAYS.has(n.display);
+  return BLOCK_TAGS.has(n.tag);
+}
+
 function line(n) {
   return `${n.role}${n.level ? " " + n.level : ""} | ${n.name}${n.live ? " | " + liveLine(n.live) : ""}`;
 }
@@ -148,7 +174,11 @@ function buildBundle() {
 function normaliseChrome(nodes) {
   const out = [];
   let skipDepth = Infinity; // everything below a leaf-like role is value or popup, not content
-  let textSkipDepth = Infinity; // StaticText below a name-from-content node is its name, not content
+  // StaticText below a name-from-content node is its name, not content, until a role that Chrome
+  // leaves out of that name starts reading again. Each entry: the depth it opened at, and whether
+  // text below it is skipped.
+  const textSkip = [];
+  const skippingText = () => textSkip.length > 0 && textSkip[textSkip.length - 1].skip;
   const blockDepths = []; // open transparent block elements; leaving one ends the text run
   const endRun = () => {
     const prev = out[out.length - 1];
@@ -156,7 +186,7 @@ function normaliseChrome(nodes) {
   };
   for (const n of nodes) {
     if (n.depth <= skipDepth) skipDepth = Infinity;
-    if (n.depth <= textSkipDepth) textSkipDepth = Infinity;
+    while (textSkip.length && textSkip[textSkip.length - 1].depth >= n.depth) textSkip.pop();
     while (blockDepths.length && blockDepths[blockDepths.length - 1] >= n.depth) {
       blockDepths.pop();
       endRun();
@@ -170,7 +200,7 @@ function normaliseChrome(nodes) {
     const live = chromeLive(n);
     // A live region is a node even when its role is transparent, as in the engine (SPEC-004).
     if (n.ignored || (TRANSPARENT.has(n.role) && !live)) {
-      if (BLOCK_TAGS.has(n.tag)) {
+      if (endsLine(n)) {
         endRun();
         blockDepths.push(n.depth);
       }
@@ -178,9 +208,14 @@ function normaliseChrome(nodes) {
     }
     const role = ROLE_MAP[n.role] ?? n.role;
     if (role === "text") {
-      if (n.depth > textSkipDepth) continue;
-      if (!n.name.trim()) continue;
+      if (skippingText()) continue;
       const prev = out[out.length - 1];
+      // A whitespace-only piece between inline elements is the space a reader sees: keep it in
+      // an open run, drop it anywhere else.
+      if (!n.name.trim()) {
+        if (prev && prev.role === "text" && prev.merge) prev.raw += " ";
+        continue;
+      }
       // Merge raw, so the spacing Chrome preserves at segment edges ("tokens" + ".") is kept.
       if (prev && prev.role === "text" && prev.merge) prev.raw += n.name;
       else out.push({ role: "text", raw: n.name, merge: true });
@@ -190,8 +225,10 @@ function normaliseChrome(nodes) {
     out.push({ role, name: n.name.replace(/\s+/g, " ").trim(), level: n.level, live });
     // Leaving an emitted node ends the text run, as the engine flushes at a container's edge.
     blockDepths.push(n.depth);
-    // Keep the outermost name-from-content depth: a link inside a heading must not reopen text.
-    if (NAME_FROM_CONTENT.has(role)) textSkipDepth = Math.min(textSkipDepth, n.depth);
+    // A link inside a heading keeps skipping; a status inside a button reads its text again, and
+    // so does a role with its own author name, whose content is not in the ancestor's name.
+    if (NAME_FROM_CONTENT.has(role)) textSkip.push({ depth: n.depth, skip: true });
+    else if (skippingText() && !contributes(n, role)) textSkip.push({ depth: n.depth, skip: false });
     if (LEAF_ROLES.has(role)) skipDepth = Math.min(skipDepth, n.depth);
   }
   return out.map(({ merge: _merge, raw, ...rest }) =>
