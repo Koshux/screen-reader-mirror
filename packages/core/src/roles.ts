@@ -1,6 +1,6 @@
 import { roles } from "aria-query";
 import { computeAccessibleName } from "dom-accessibility-api";
-import { firstSummaryOf } from "./visibility";
+import { firstSummaryOf, resolveStyle } from "./visibility";
 
 /**
  * Role resolution for the interpretation (SPEC-001 §3).
@@ -41,6 +41,17 @@ const PRESENTATIONAL = new Set(["presentation", "none"]);
 export type ParentOf = (el: Element) => Element | null;
 
 /**
+ * How role rules read computed style (the layout-table rules). The linearizer passes one that
+ * honours its `getComputedStyle` option; the default reads the element's own window.
+ */
+export type StyleOf = (el: Element) => CSSStyleDeclaration | null;
+
+const ownStyle: StyleOf = (el) => resolveStyle(el, {});
+
+// ARIA 1.3 roles that Chrome exposes and aria-query 5.x does not know yet.
+const ARIA_1_3_ROLES = new Set(["sectionheader", "sectionfooter"]);
+
+/**
  * The parent in the composed tree when nothing better is known: the parent element, or the host
  * for a node at the top of a shadow root. A slotted element's slot is not known here.
  */
@@ -58,22 +69,27 @@ export function composedParent(el: Element): Element | null {
  * and the user agent uses the **first token that names a non-abstract role** — so `role="foo
  * button"` is a button, and an abstract role like `role="widget"` is ignored.
  */
-export function resolveRole(el: Element, parentOf: ParentOf = composedParent): string | null {
+export function resolveRole(
+  el: Element,
+  parentOf: ParentOf = composedParent,
+  styleOf: StyleOf = ownStyle,
+): string | null {
   const explicit = el.getAttribute("role");
   if (explicit) {
     for (const token of explicit.trim().toLowerCase().split(/\s+/)) {
+      if (ARIA_1_3_ROLES.has(token)) return token;
       const def = roleMap.get(token);
       if (!def || def.abstract) continue;
       // ARIA 1.2 presentation-role conflict resolution: a focusable element, or one carrying a
       // global ARIA attribute, ignores `presentation`/`none` and keeps its implicit role.
-      if (PRESENTATIONAL.has(token) && presentationIsOverridden(el)) return implicitRole(el, parentOf);
+      if (PRESENTATIONAL.has(token) && presentationIsOverridden(el)) return implicitRole(el, parentOf, styleOf);
       return token;
     }
   }
-  return implicitRole(el, parentOf);
+  return implicitRole(el, parentOf, styleOf);
 }
 
-function implicitRole(el: Element, parentOf: ParentOf): string | null {
+function implicitRole(el: Element, parentOf: ParentOf, styleOf: StyleOf): string | null {
   const tag = el.tagName.toLowerCase();
   switch (tag) {
     case "a":
@@ -93,11 +109,12 @@ function implicitRole(el: Element, parentOf: ParentOf): string | null {
     case "main":
       return "main";
     case "header":
-      // ARIA in HTML: banner only when scoped to the body — not inside main, sectioning content
-      // (article/aside/nav/section or those roles) or a sectioning root (dialog, figure, td, …).
-      return scopeOf(el, parentOf) === "body" ? "banner" : null;
+      // HTML-AAM: banner when scoped to the body; inside main or sectioning content it is the
+      // ARIA 1.3 sectionheader, which Chrome exposes. A sectioning root (dialog, figure, td, ...)
+      // does not change the scope.
+      return scopeOf(el, parentOf) === "body" ? "banner" : "sectionheader";
     case "footer":
-      return scopeOf(el, parentOf) === "body" ? "contentinfo" : null;
+      return scopeOf(el, parentOf) === "body" ? "contentinfo" : "sectionfooter";
     case "aside":
       // ARIA in HTML: complementary when scoped to body or main; inside sectioning content or a
       // sectioning root only when it has an accessible name, else generic.
@@ -129,7 +146,7 @@ function implicitRole(el: Element, parentOf: ParentOf): string | null {
       // inheritance for required owned elements). The parent is the composed one: an `<li>`
       // slotted into a shadow `<ul>` is a listitem, as Chrome reports.
       const parent = parentOf(el);
-      return parent && resolveRole(parent, parentOf) === "list" ? "listitem" : null;
+      return parent && resolveRole(parent, parentOf, styleOf) === "list" ? "listitem" : null;
     }
     case "p":
       return "paragraph";
@@ -148,24 +165,23 @@ function implicitRole(el: Element, parentOf: ParentOf): string | null {
     case "select":
       return el.hasAttribute("multiple") || numericSize(el) > 1 ? "listbox" : "combobox";
     case "table":
-      // Chrome's layout-table heuristic: a table with no header cells, caption, summary, or
-      // head/foot sections and only one row or one column is presentational. Anything else is a
-      // data table. (Chrome also inspects borders and backgrounds for larger tables; see #11.)
-      return isLayoutTable(el) ? null : "table";
+      // Chrome's layout-table rules (isLayoutTable): a table that is not a data table is
+      // presentational.
+      return isLayoutTable(el, styleOf) ? null : "table";
     case "thead":
     case "tfoot":
-      return tableIsPresentational(el) ? null : "rowgroup"; // exposed by Chrome
+      return tableIsPresentational(el, styleOf) ? null : "rowgroup"; // exposed by Chrome
     case "tbody":
       return null; // not exposed by Chrome; its rows hang directly off the table
     case "tr":
-      return tableIsPresentational(el) ? null : "row";
+      return tableIsPresentational(el, styleOf) ? null : "row";
     case "td": {
-      const table = ancestorTableRole(el);
+      const table = ancestorTableRole(el, styleOf);
       if (table === null || PRESENTATIONAL.has(table)) return null; // layout or presentational table
       return table === "grid" || table === "treegrid" ? "gridcell" : "cell"; // HTML-AAM
     }
     case "th":
-      return tableIsPresentational(el) ? null : headerCellRole(el);
+      return tableIsPresentational(el, styleOf) ? null : headerCellRole(el);
     case "article":
       return "article";
     case "section":
@@ -293,9 +309,9 @@ function headerCellRole(el: Element): string {
 }
 
 /** Resolved role of the closest ancestor `<table>`, or null when there is none. */
-function ancestorTableRole(el: Element): string | null {
+function ancestorTableRole(el: Element, styleOf: StyleOf): string | null {
   const table = el.parentElement?.closest("table");
-  return table ? resolveRole(table) : null;
+  return table ? resolveRole(table, composedParent, styleOf) : null;
 }
 
 /**
@@ -304,10 +320,10 @@ function ancestorTableRole(el: Element): string | null {
  * an explicit role is presentational too. (`<li>` under a presentational list is handled by the
  * `li` case.)
  */
-function tableIsPresentational(el: Element): boolean {
+function tableIsPresentational(el: Element, styleOf: StyleOf): boolean {
   const table = el.parentElement?.closest("table");
   if (!table) return false;
-  const role = resolveRole(table);
+  const role = resolveRole(table, composedParent, styleOf);
   return role === null || PRESENTATIONAL.has(role);
 }
 
@@ -319,7 +335,7 @@ function tableIsPresentational(el: Element): boolean {
  * Chrome looks at presentation: cell borders on at least half the cells, or cell backgrounds
  * that differ from the table's, make it data; otherwise it is layout.
  */
-function isLayoutTable(table: Element): boolean {
+function isLayoutTable(table: Element, styleOf: StyleOf): boolean {
   const children = Array.from(table.children).map((c) => c.tagName.toLowerCase());
   if (table.hasAttribute("summary") || children.some((t) => t === "caption" || t === "thead" || t === "tfoot")) {
     return false;
@@ -336,13 +352,12 @@ function isLayoutTable(table: Element): boolean {
   // a one-cell table stay layout even with a border attribute.
   const border = table.getAttribute("border");
   if (border !== null && border.trim() !== "" && border.trim() !== "0") return false;
-  const view = table.ownerDocument.defaultView;
-  if (!view || cells.length === 0) return true;
+  if (cells.length === 0) return true;
   let bordered = 0;
   let tinted = 0;
-  const tableBackground = safeStyle(view, table)?.backgroundColor ?? "";
+  const tableBackground = styleOf(table)?.backgroundColor ?? "";
   for (const cell of cells) {
-    const style = safeStyle(view, cell);
+    const style = styleOf(cell);
     if (!style) continue;
     if (hasBorder(style)) bordered++;
     const background = style.backgroundColor ?? "";
@@ -364,23 +379,16 @@ function hasBorder(style: CSSStyleDeclaration): boolean {
   return /(^|\s)(0*[1-9]\d*(\.\d+)?|0?\.\d*[1-9]\d*)(px|em|rem|pt|thin|medium|thick)?(\s|$)/.test(style.border ?? "") && !/^\s*0(px)?\s/.test(style.border ?? "");
 }
 
-function safeStyle(view: Window & typeof globalThis, el: Element): CSSStyleDeclaration | null {
-  try {
-    return view.getComputedStyle(el);
-  } catch {
-    return null;
-  }
-}
-
-// HTML sectioning content, the landmark roles ARIA in HTML scopes the same way, and the sectioning
-// roots other than body (HTML §4.3.11).
+// The ancestors ARIA in HTML lists for header and footer: the sectioning content elements and the
+// roles article, complementary, navigation, and region (main is handled on its own). A sectioning
+// root (blockquote, details, dialog, fieldset, figure, td) is not in the list and does not scope.
+// Chrome agrees, except that it does not scope by role="region" (pinned in a test).
 const SECTIONING_CONTENT_TAGS = new Set(["article", "aside", "nav", "section"]);
 const SECTIONING_CONTENT_ROLES = new Set(["article", "complementary", "navigation", "region"]);
-const SECTIONING_ROOT_TAGS = new Set(["blockquote", "details", "dialog", "fieldset", "figure", "td"]);
 
 /**
  * ARIA in HTML scoping for `<header>`/`<footer>`/`<aside>`: the nearest scoping ancestor is the
- * body, `<main>` (or `role="main"`), or sectioning content / a sectioning root. The walk goes
+ * body, `<main>` (or `role="main"`), or sectioning content. The walk goes
  * up the composed tree, as Chrome's does: a header in a shadow root inside an `<article>` is
  * scoped to the article.
  */
@@ -388,7 +396,7 @@ function scopeOf(el: Element, parentOf: ParentOf): "body" | "main" | "sectioning
   for (let p = parentOf(el); p; p = parentOf(p)) {
     const tag = p.tagName.toLowerCase();
     if (tag === "body") return "body";
-    if (SECTIONING_CONTENT_TAGS.has(tag) || SECTIONING_ROOT_TAGS.has(tag)) return "sectioning";
+    if (SECTIONING_CONTENT_TAGS.has(tag)) return "sectioning";
     if (tag === "main") return "main";
     if (p.hasAttribute("role")) {
       const role = resolveRole(p, parentOf);

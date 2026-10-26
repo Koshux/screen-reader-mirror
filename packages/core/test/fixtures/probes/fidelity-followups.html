@@ -1,0 +1,67 @@
+<!--
+  Fidelity follow-ups from the SPEC-003, SPEC-004, and SPEC-005 probes. One source for two checks:
+  - Chrome: `pnpm ax:compare packages/core/test/fixtures/probes/fidelity-followups.html`.
+  - Unit tests: test/fidelity-followups.test.ts loads one case at a time by its data-case.
+  The style block sits outside every case root; happy-dom applies it when the page is loaded.
+-->
+<style>
+  .row { display: flex; }
+  .grid { display: grid; grid-template-columns: 100px 100px; }
+  .inline { display: inline; }
+  .block { display: block; }
+  .inline-block { display: inline-block; }
+</style>
+
+<div data-case="name-from-content">
+  <button>Save <span role="status">3</span></button>
+  <button>Send <span role="group">to all</span></button>
+  <button>Open <span role="list"><span role="listitem">menu</span></span></button>
+  <button>Mark <span role="region" aria-label="read">unread</span></button>
+  <a href="#x">Go <span role="note">new</span></a>
+  <h2>Orders <span role="alert">1 failed</span></h2>
+  <button>Show <details open><summary>more</summary>details</details></button>
+</div>
+
+<div data-case="label-name">
+  <label>Qty <span role="status">3</span> <input type="text"></label>
+  <span id="lb">Total <span role="status">9</span></span><input type="text" aria-labelledby="lb">
+</div>
+
+<div data-case="empty-labels">
+  <label for="e1"></label><input id="e1" type="text" placeholder="Empty for">
+  <label><input type="text" placeholder="Empty wrap"></label>
+  <label for="e3"><span hidden>secret</span></label><input id="e3" type="text" placeholder="Hidden text">
+  <label for="e4"></label><input id="e4" type="text" title="Title only">
+  <label for="e5"></label><input id="e5" type="checkbox" title="Check title">
+  <label for="e6"></label><select id="e6" title="Select title"><option>One</option></select>
+  <input type="text" aria-label="" placeholder="Empty aria-label">
+  <span id="nothing"></span><input type="text" aria-labelledby="nothing" placeholder="Empty labelledby">
+  <label><img alt="Search" src="data:,"><input type="text" placeholder="Image label"></label>
+</div>
+
+<div data-case="header-scope">
+  <article><header>Article header</header><footer>Article footer</footer></article>
+  <section><header>Section header</header></section>
+  <main><header>Main header</header><footer>Main footer</footer></main>
+  <nav><header>Nav header</header></nav>
+  <div role="article"><header>Role header</header></div>
+  <blockquote><header>Quote header</header><footer>Quote footer</footer></blockquote>
+  <figure><header>Figure header</header></figure>
+  <fieldset><legend>Group</legend><header>Fieldset header</header></fieldset>
+  <div role="region" aria-label="Updates"><header>Region header</header></div>
+  <article><div role="sectionheader">Explicit header</div></article>
+</div>
+
+<div data-case="aside-scope">
+  <blockquote><aside>Quote aside</aside></blockquote>
+  <figure><aside>Figure aside</aside></figure>
+  <article><aside>Article aside</aside></article>
+</div>
+
+<div data-case="text-runs">
+  <div class="row"><span>Plan</span><span>Price</span></div>
+  <div class="grid"><span>Left</span><span>Right</span></div>
+  <div><span class="block">Own</span><span class="block">line</span></div>
+  <div><span class="inline-block">Same</span> <span class="inline-block">line</span></div>
+  <div><div class="inline">Inline</div> <div class="inline">divs</div></div>
+</div>

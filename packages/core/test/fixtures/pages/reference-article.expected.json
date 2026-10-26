@@ -465,6 +465,13 @@
     "name": "Use gap instead of margins on grid items; it does not add space at the edges."
   },
   {
+    "role": "sectionfooter",
+    "name": "",
+    "ref": {
+      "tag": "footer"
+    }
+  },
+  {
     "role": "text",
     "name": "From the Layout Cookbook"
   },

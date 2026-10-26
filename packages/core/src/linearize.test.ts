@@ -376,7 +376,9 @@ describe("more conditional implicit roles (SPEC-001 §3)", () => {
     expect(out.map((n) => n.name)).toEqual(["Visible", "Found"]);
   });
 
-  it("header/footer are banner/contentinfo only when scoped to the body", () => {
+  it("header/footer are banner/contentinfo scoped to the body, sectionheader/sectionfooter in main or sectioning content", () => {
+    // As Chrome reports them (probe 2026-10-26): a sectioning root such as <dialog> does not
+    // change the scope, so the header inside it is still a banner.
     const out = linearize(
       root(
         "<header>Top</header><main><header>Inner</header></main><article><footer>AF</footer></article>" +
@@ -388,12 +390,16 @@ describe("more conditional implicit roles (SPEC-001 §3)", () => {
       ["banner", ""],
       ["text", "Top"],
       ["main", ""],
+      ["sectionheader", ""],
       ["text", "Inner"],
       ["article", ""],
+      ["sectionfooter", ""],
       ["text", "AF"],
       ["dialog", ""],
+      ["banner", ""],
       ["text", "DH"],
       ["article", ""],
+      ["sectionheader", ""],
       ["text", "RH"],
       ["contentinfo", ""],
       ["text", "Bottom"],

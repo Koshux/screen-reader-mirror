@@ -48,7 +48,8 @@ export function isHiddenFromAT(el: Element, options: VisibilityOptions = {}): bo
   return false;
 }
 
-function resolveStyle(el: Element, options: VisibilityOptions): CSSStyleDeclaration | null {
+/** The element's computed style from the option or its own window, or null when it cannot be read. */
+export function resolveStyle(el: Element, options: VisibilityOptions): CSSStyleDeclaration | null {
   try {
     if (options.getComputedStyle) return options.getComputedStyle(el) ?? null;
     const view = el.ownerDocument?.defaultView;
