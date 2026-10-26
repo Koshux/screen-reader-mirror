@@ -36,5 +36,7 @@ playwright-report/
 # npm/pnpm pack output (manual bootstrap publishes)
 *.tgz
 
+# a corrupt node_modules set aside for a later chkdsk + delete (2026-10-26)
+node_modules.corrupt/
 # oracle script build output (scripts/ax-engine.tsup.config.ts)
 .cache/
