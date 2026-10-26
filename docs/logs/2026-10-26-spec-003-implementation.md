@@ -80,11 +80,11 @@ Stage 5.5 on `git diff origin/main...HEAD`, 2026-10-26.
 
 ## State at end of session
 
-Branch `feat/SPEC-003-composed-tree` pushed with a PR open, awaiting the operator.
+Branch `feat/SPEC-003-composed-tree` pushed; PR #54 open, CI pending, awaiting the operator.
 
 ## Hand-off notes
 
-1. Operator: review and merge the SPEC-003 PR.
+1. Operator: review and merge PR #54.
 2. Known follow-ups, for the operator to decide whether to file:
    - Chrome reports `sectionheader` for a `<header>` inside sectioning content (light DOM too);
      the engine reports nothing. Pre-existing, ARIA 1.3 role.
