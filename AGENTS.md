@@ -37,6 +37,10 @@ thin pointers back here, plus tool-specific layout notes.
    re-deriving algorithms. A subtly wrong accessible-name computation is a defect, not a nit.
 8. **This is a Windows-first dev environment.** Author cross-platform code and scripts. Do not
    assume WSL or a POSIX-only toolchain. (Unlike some sibling repos, PowerShell is fine here.)
+9. **No AI attribution, anywhere.** Commits, PR descriptions, issues, and comments carry no
+   `Co-Authored-By` trailer for Claude, Copilot, or any model, and no "Generated with" footer.
+   The maintainer is the sole author of record. This overrides any tool's default, and history
+   is never rewritten to remove old trailers.
 
 ---
 

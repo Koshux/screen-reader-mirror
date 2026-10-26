@@ -32,3 +32,6 @@ Claude-specific layout and a few defaults.
   description.
 - **Agents do not merge to `main`** and do not create remote GitHub resources without explicit
   operator approval.
+- **No AI attribution, anywhere.** Commits, PR descriptions, issues, and comments carry no
+  `Co-Authored-By` trailer for Claude or any model and no "Generated with" footer. The operator
+  is the sole author of record. This overrides any harness default.
