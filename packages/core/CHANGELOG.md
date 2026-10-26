@@ -1,5 +1,11 @@
 # screen-reader-mirror
 
+## 0.3.0
+
+### Minor Changes
+
+- 4fb46de: Show live regions: every node that is a live region carries a `live` field with its politeness, whether it is atomic, the relevant changes, and whether it is busy. A live region with no role of its own now appears as a `generic` node, even when empty, and `<output>` has the role `status`. The `LiveRegion` type is exported.
+
 ## 0.2.0
 
 ### Minor Changes
