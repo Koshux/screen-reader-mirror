@@ -123,13 +123,18 @@ operator. No GitHub issues filed.
      cases: the bold rule's next run must start in a new block, not after a `<br>` in the same
      block. A threshold change, so a patch under ADR-0004; not made here.
    - The dist size guard raised to 64 KiB.
-2. Follow-ups, not acted on:
-   - New SPEC-006 inventory row: Chrome exposes `<a onclick>` with no `href` as a link (HTML-AAM:
-     generic). In Chrome mode the engine should do the same, and then `clickable-not-button`
-     would not fire on it there.
-   - Known before: the list or details inside a button read twice; a manual Firefox check; the
-     old em dashes in the core README; inline-element name spacing between Chrome and happy-dom.
-   - `docs/project/board.md` and `tasks.md` predate the 1.0 scope.
+2. Follow-ups, scheduled by the operator on 2026-10-27 (all four known ones), in this order:
+   1. The old em dashes in `packages/core/README.md`: doc-only, after this PR merges (it edits
+      the same README).
+   2. One engine spec for the fidelity items, since they touch name and role computation (full
+      SDLC): the list or `<details>` inside a button read twice; inline-element name spacing
+      between Chrome and happy-dom (probe first); and the new Chrome difference found here,
+      `<a onclick>` with no `href` exposed as a link (a SPEC-006 inventory row; Chrome mode
+      should match, and then `clickable-not-button` would not fire on it there).
+   3. The manual Firefox check of the five live-region points: needs the operator at Firefox with
+      a screen reader; the agent writes the checklist.
+   - `docs/project/board.md` and `tasks.md`: marked superseded by v1-scope.md (operator's choice),
+     in a separate doc PR.
 3. Draft issues, to file on the operator's go-ahead (v1-scope Phase C):
    - **Design intake:** check the site handoff against the design gate's six requirements, update
      the API, output, and settings pages for `interpret()`, mismatches, and the `browser` mode,
