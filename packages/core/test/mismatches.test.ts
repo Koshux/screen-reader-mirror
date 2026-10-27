@@ -172,6 +172,8 @@ describe("looks like a heading (AC-6 to AC-9)", () => {
     expect(marksInBoth("heading-bold")).toEqual([["looks-like-heading", 0, 1, "p", ["font-weight"]]]);
     expect(marksInBoth("heading-bold-colon")).toEqual([]);
     expect(marksInBoth("heading-bold-short")).toEqual([]);
+    // The longer text is after a <br> in the same block: a label over its value, not a heading.
+    expect(marksInBoth("heading-bold-br")).toEqual([]);
   });
 
   it("reads the next node in the chosen mode: a toggle's label text is a run only by default (AC-8, row 8)", () => {

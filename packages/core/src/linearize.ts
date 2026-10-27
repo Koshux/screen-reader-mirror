@@ -123,6 +123,8 @@ interface MismatchWalk {
   holder: Element | null;
   /** Each emitted text run by index: its first and last piece, and the element holding its first. */
   runs: Map<number, { start: number; end: number; holder: Element | null }>;
+  /** Text runs ended by a `<br>`: the next run is in the same block, so the bold rule skips it. */
+  brEnded: Set<number>;
   /** Heading candidates whose text is the pending run, if nothing is added before it ends. */
   deferred: Array<{ el: Element; seq: number; ref: Ref; text: number }>;
   /** Heading candidates whose text is exactly the run at `index`, innermost first. */
@@ -218,7 +220,7 @@ function walkTree(root: Element, options: LinearizeOptions, heuristics: boolean)
   const walk: Walk = { out: [], options, pending: "", frames: 0, frame: undefined, parents, ctx };
   if (heuristics) {
     walk.mm = {
-      found: [], seq: 0, text: 0, runStart: 0, holder: null, runs: new Map(), deferred: [], lines: [],
+      found: [], seq: 0, text: 0, runStart: 0, holder: null, runs: new Map(), brEnded: new Set(), deferred: [], lines: [],
       fields: [], noHeading: 0, inTable: 0, inWidget: 0,
     };
   }
@@ -238,7 +240,9 @@ function emitElement(el: Element, walk: Walk, textConsumed: boolean): void {
     return;
   }
   if (tag === "br") {
+    const before = walk.out.length;
     flushText(walk); // a line break ends the current text run
+    if (walk.mm && walk.out.length > before) walk.mm.brEnded.add(walk.out.length - 1);
     return;
   }
   if (tag === "slot") {
@@ -659,7 +663,8 @@ function finishMismatches(walk: Walk): Mismatch[] {
     const inner = chain[0]!;
     const outer = chain[chain.length - 1]!;
     const parent = ctx.parentOf(outer.el);
-    const nextRun = out[index + 1]?.role === "text" ? mm.runs.get(index + 1) : undefined;
+    // The bold rule wants the next text in a new block, not after a `<br>` (SPEC-005 AC-8).
+    const nextRun = out[index + 1]?.role === "text" && !mm.brEnded.has(index) ? mm.runs.get(index + 1) : undefined;
     const next = nextRun
       ? { text: out[index + 1]!.name, style: nextRun.holder ? ctx.styleOf(nextRun.holder) : null }
       : undefined;
