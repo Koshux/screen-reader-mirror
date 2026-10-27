@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.t-light{--bg:#ffffff;--surface:#f3f3f8;--surface-2:#e9e9f2;--text:#1a1a24;--muted:#4c4c5e;--border:#d6d6e2;--border-strong:#9c9cb4;--link:#4338a8;--primary:#4338a8;--on-primary:#ffffff;--accent-soft:#e6e3fa;--flag-bg:#fbe6d6;--flag-text:#7a2e10;--focus:#4338a8;--str:#5a5230;--cmt:#6b6b7a;--ok-bg:#d6f0e0;--ok-text:#0d4a2b;color-scheme:light}
+.t-dark{--bg:#161826;--surface:#1d2032;--surface-2:#232740;--text:#e9e9ed;--muted:#b3b4c4;--border:#2c3048;--border-strong:#4d5272;--link:#b5abf0;--primary:#b5abf0;--on-primary:#12122a;--accent-soft:#2a2a4d;--flag-bg:#3b2514;--flag-text:#fcd3b6;--focus:#b5abf0;--str:#d9cfae;--cmt:#8a8ba0;--ok-bg:#1f4d35;--ok-text:#c3ead2;color-scheme:dark}
+.t-ochre{--bg:#1a1917;--surface:#232220;--surface-2:#2c2a26;--text:#efeae0;--muted:#b9b2a3;--border:#34312b;--border-strong:#5a554b;--link:#e2b45a;--primary:#e2b45a;--on-primary:#1a1200;--accent-soft:#3a3020;--flag-bg:#163a3a;--flag-text:#a9e7e1;--focus:#e2b45a;--str:#c9c3b2;--cmt:#8d877a;--ok-bg:#1f4d35;--ok-text:#c3ead2;color-scheme:dark}
+.t-green{--bg:#0f1f1a;--surface:#15291f;--surface-2:#1b3328;--text:#e8efe9;--muted:#a9bdb1;--border:#24392f;--border-strong:#436353;--link:#7fd3a6;--primary:#7fd3a6;--on-primary:#06241a;--accent-soft:#1c3a2d;--flag-bg:#3b2a12;--flag-text:#f7d58f;--focus:#7fd3a6;--str:#cfdac9;--cmt:#86a08f;--ok-bg:#1f4d35;--ok-text:#c3ead2;color-scheme:dark}
+.t-coral{--bg:#15181c;--surface:#1d2126;--surface-2:#252a31;--text:#e6e9ee;--muted:#aeb5c0;--border:#2d333b;--border-strong:#4e5663;--link:#ff9b85;--primary:#ff9b85;--on-primary:#2a0e07;--accent-soft:#3a2622;--flag-bg:#3b3410;--flag-text:#efe08a;--focus:#ff9b85;--str:#d6d1c2;--cmt:#8a919c;--ok-bg:#1f4d35;--ok-text:#c3ead2;color-scheme:dark}
+.t-coral-light{--bg:#f7f8fa;--surface:#eef0f3;--surface-2:#e3e6ea;--text:#171a1f;--muted:#4a505a;--border:#d5d9df;--border-strong:#99a0ab;--link:#9a2e17;--primary:#9a2e17;--on-primary:#ffffff;--accent-soft:#fde4dc;--flag-bg:#fff1b8;--flag-text:#5a4a00;--focus:#9a2e17;--str:#5a4a2a;--cmt:#6b7079;--ok-bg:#d6f0e0;--ok-text:#0d4a2b;color-scheme:light}
+.t-auto{--bg:#15181c;--surface:#1d2126;--surface-2:#252a31;--text:#e6e9ee;--muted:#aeb5c0;--border:#2d333b;--border-strong:#4e5663;--link:#ff9b85;--primary:#ff9b85;--on-primary:#2a0e07;--accent-soft:#3a2622;--flag-bg:#3b3410;--flag-text:#efe08a;--focus:#ff9b85;--str:#d6d1c2;--cmt:#8a919c;--ok-bg:#1f4d35;--ok-text:#c3ead2;color-scheme:dark}
+@media (prefers-color-scheme:light){.t-auto{--bg:#f7f8fa;--surface:#eef0f3;--surface-2:#e3e6ea;--text:#171a1f;--muted:#4a505a;--border:#d5d9df;--border-strong:#99a0ab;--link:#9a2e17;--primary:#9a2e17;--on-primary:#ffffff;--accent-soft:#fde4dc;--flag-bg:#fff1b8;--flag-text:#5a4a00;--focus:#9a2e17;--str:#5a4a2a;--cmt:#6b7079;--ok-bg:#d6f0e0;--ok-text:#0d4a2b;color-scheme:light}}
+.t-paper{--bg:#f6f3ec;--surface:#ece8de;--surface-2:#e2ddd1;--text:#1b1b1f;--muted:#4f4e55;--border:#d8d2c4;--border-strong:#a39d8f;--link:#0b4f4c;--primary:#0b4f4c;--on-primary:#f6f3ec;--accent-soft:#d6e6e1;--flag-bg:#f3dccb;--flag-text:#6e2a0c;--focus:#0b4f4c;--str:#5a4a2a;--cmt:#6f6c64;--ok-bg:#d6f0e0;--ok-text:#0d4a2b;color-scheme:light}
+.srm *:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.srm a{color:var(--link)}
+.srm .lnk{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 6px;text-decoration:none;color:var(--text);font-size:15px;border-radius:8px}.srm .lnk:hover{color:var(--link)}
+.srm .b{white-space:nowrap;min-height:40px;padding:0 14px;border:1px solid var(--border-strong);border-radius:8px;background:transparent;color:var(--text);font:inherit;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.srm .b:hover{background:var(--surface)}
+.srm .b-p{border-color:var(--primary);color:var(--link);font-weight:600}.srm .b-p:hover{background:var(--accent-soft)}
+.srm .b-g{border-color:transparent;color:var(--link);padding:0 8px}.srm .b-g:hover{background:var(--accent-soft)}
+.srm .sel{min-height:40px;padding:0 32px 0 12px;border:1px solid var(--border-strong);border-radius:8px;background:transparent;color:var(--text);font:inherit;font-size:14px;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 10px center}
+.srm .sel option{background:var(--surface);color:var(--text)}
+.srm{container:srm / inline-size}
+.srm .stepper{display:none;grid-column:1/-1;gap:6px;padding:4px;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+.srm .step{flex:1;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;border:1px solid transparent;border-radius:9px;background:transparent;color:var(--muted);font:inherit;font-size:14px;cursor:pointer}
+.srm .step[aria-selected="true"]{background:var(--primary);color:var(--on-primary);border-color:var(--primary);font-weight:600}
+.srm .step[aria-selected="true"] .num{background:var(--on-primary);color:var(--primary)}
+.srm .step .num{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:999px;background:var(--accent-soft);color:var(--link);font-size:11px;font-weight:600}
+.srm .stepnav{display:none}
+.srm .codebar{display:none;align-items:center;gap:10px;padding:0 28px;min-height:44px}
+.srm .codestub,.srm .codetoggle{display:none}
+@container srm (max-width:1023px){.srm .codestub{display:flex;order:-1;grid-column:1/-1;align-items:center;gap:12px;min-height:52px;padding:8px 14px;border:1px dashed var(--border-strong);border-radius:12px;background:var(--surface);color:var(--text);font:inherit;text-align:left;cursor:pointer}
+.srm .codestub:hover{border-style:solid;border-color:var(--primary);background:var(--accent-soft)}
+.srm .codestub .num{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:999px;background:var(--primary);color:var(--on-primary);font-size:13px;font-weight:700;flex:none}
+.srm .codestub .vt{font-size:15px;font-weight:600;white-space:nowrap}
+.srm .codestub .vt2{font-size:13px;color:var(--muted);min-width:0;flex:1}
+.srm .codestub svg{margin-left:auto;color:var(--link);flex:none;transform:rotate(90deg)}
+.srm.step-1 .codestub{border-style:solid;border-color:var(--primary);border-radius:12px 12px 0 0;margin-bottom:-20px}
+.srm.step-1 .col.code>.lbl.hd{border-top:0}
+.srm.step-1 .codestub svg{transform:rotate(-90deg)}
+.srm.step-1 .stepper,.srm.step-1 .stepsub,.srm .step.s1{display:none!important}
+.srm.step-1 .col.code>.lbl.hd{border-radius:0}}
+@container srm (max-width:560px){.srm .codestub .vt2{display:none}}
+@container srm (min-width:1201px){.srm.code-closed .col.code{display:none}.srm.code-closed .grid3{grid-template-columns:64px repeat(2,minmax(0,1fr))!important}.srm .codetoggle{display:inline-flex}
+.srm.code-closed .codestub{display:flex;grid-column:1;grid-row:2/span 3;align-self:stretch;flex-direction:column;align-items:center;gap:14px;padding:12px 0;border:1px dashed var(--border-strong);border-radius:12px;background:var(--surface);color:var(--text);font:inherit;cursor:pointer}
+.srm .codestub:hover{border-style:solid;border-color:var(--primary);background:var(--accent-soft)}
+.srm .codestub .vt{writing-mode:vertical-rl;font-size:15px;font-weight:600}
+.srm .codestub .vt2{writing-mode:vertical-rl;font-size:12.5px;color:var(--muted)}
+.srm .codestub .num{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:999px;background:var(--primary);color:var(--on-primary);font-size:13px;font-weight:700}
+.srm .codestub svg{margin-top:auto;color:var(--link)}}
+@container srm (min-width:1024px) and (max-width:1180px){.srm .seg label{padding:0 9px;font-size:13px}.srm .seg-s label{padding:0 8px}.srm .lbl-nw .sel{max-width:150px}}
+.srm .more summary::-webkit-details-marker{display:none}
+.srm .menu .b{width:100%}
+.srm .step .ssub{font-weight:400;font-size:13px;opacity:.8;margin-left:2px}
+.srm .step .ssub::before{content:"·";margin-right:8px}
+@container srm (max-width:640px){.srm .navlinks{display:none!important}.srm .hdr-tools{display:none!important}.srm .mtools{display:flex!important}.srm .navmenu{display:block!important}.srm header{position:relative}.srm .navmenu{position:static!important}.srm .navmenu .menu{position:absolute!important;left:12px!important;right:12px!important;top:calc(100% - 4px)!important;min-width:0!important;max-width:none}.srm header{gap:8px!important;flex-wrap:nowrap!important}.srm header nav{gap:4px!important}.srm .navmenu summary{min-width:36px!important;padding:0 6px!important}.srm header>a>span:last-child{font-size:15px!important}.srm header,.srm footer,.srm .pitch,.srm .intro,.srm .band,.srm .demohd{padding-left:16px!important;padding-right:16px!important}.srm .intro{padding-top:28px!important;padding-bottom:20px!important}.srm .grid3{padding-left:16px!important;padding-right:16px!important}.srm h1{font-size:38px!important}.srm .demohd{padding-top:28px!important}.srm .pane{height:clamp(300px,52vh,420px)!important;min-height:300px!important}.srm .pitch h2{font-size:22px!important}.srm .pitch p{font-size:14.5px!important}.srm .band code,.srm .band pre{font-size:12px!important}.srm .band .b{min-height:36px;padding:0 10px;font-size:13px}.srm .seg label{padding:0 9px;font-size:13px}.srm .legend{display:none!important}.srm .qs-sub{display:none}.srm .stepper .step{padding:6px 4px}.srm .intro p{font-size:15px!important}}
+@container srm (min-width:900px){.srm .intro{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr)!important}}
+@container srm (max-width:820px){.srm .paths{grid-template-columns:minmax(0,1fr)!important}}
+.srm .stepsub{display:none;grid-column:1/-1;margin:-10px 0 0;font-size:14px;color:var(--muted)}
+@container srm (max-width:860px){.srm .step{flex-direction:column;gap:2px;padding:6px 8px}.srm .step .ssub{margin:0;font-size:12px;line-height:1.3;text-align:center}.srm .step .ssub::before{content:none}}
+@container srm (max-width:560px){.srm .step .ssub{display:none}.srm .stepsub{display:block}}
+.srm .b-ok{background:var(--ok-bg)!important;border-color:var(--ok-bg)!important;color:var(--ok-text)!important}
+.srm .grp{display:inline-flex;gap:8px;margin-left:auto;align-items:center}
+.srm .col>.lbl.nav{display:none}
+.srm .col>.lbl.nav.meta{display:flex}
+.srm .col:not(:has(.lbl.nav.meta))>.pane{grid-row:span 2;align-self:stretch;height:auto;min-height:clamp(420px,60vh,600px);border-bottom:1px solid var(--border);border-radius:0 0 12px 12px}
+.srm .mini{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface);font-size:13px;min-width:0}
+.srm .mini-hd{padding:6px 10px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
+.srm .mini-hd svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+@container srm (max-width:900px){.srm .pitch{grid-template-columns:1fr!important;gap:24px}}
+.srm .pitch nav a:hover span:last-child{background:var(--accent-soft)}
+.srm .b-f{background:var(--primary)!important;border-color:var(--primary);color:var(--on-primary);font-weight:600}.srm .b-f:hover{filter:brightness(1.08);background:var(--primary)!important}
+@container srm (max-width:1023px){.srm .col:not(:has(.lbl.nav.meta))>.pane{grid-row:auto;height:clamp(420px,60vh,600px);border-bottom:1px solid var(--border);border-radius:0 0 12px 12px}.srm .col:not(:has(.lbl.nav.meta))>.lbl.nav{display:none}.srm .col>.title{display:flex}.srm .col.code>.title{display:none}.srm .col:has(.lbl.nav.meta)>.lbl.nav{display:flex}.srm .hint{text-align:left!important}.srm .stepper,.srm .stepsub{display:none!important}.srm .col.code{display:none}.srm.step-1 .col.code{display:grid}.srm .grid3 .col{grid-row:auto!important;grid-column:1/-1;grid-template-rows:auto auto 1fr auto!important}.srm .col>.lbl.hd{border-radius:12px 12px 0 0}.srm .stepnav{display:none}.srm .col>.lbl{flex-wrap:wrap}.srm .lbl-nw>label{flex:1 1 120px;min-width:0}.srm .lbl-nw .sel{width:100%;max-width:none}.srm .lbl-nw>.seg{flex:none}.srm .lbl-nw h2{white-space:normal!important}}
+.srm .col{display:grid;grid-template-rows:subgrid;grid-row:span 4;row-gap:0;min-width:0;align-items:stretch}
+.srm .col>.title{display:flex;align-items:center;padding:0 4px 10px;align-self:end}
+.srm .col>.title h2{flex-wrap:wrap}
+.srm .col>.lbl{padding:6px 12px;background:var(--surface);min-height:52px}
+.srm .col>.lbl.hd{border:1px solid var(--border);border-radius:12px 12px 0 0}
+.srm .col>.pane{border:1px solid var(--border);border-top:0;border-radius:0 0 12px 12px;background:var(--bg)}
+.srm .col>.lbl.nav{border:1px solid var(--border);border-top:0;border-radius:0 0 12px 12px}
+.srm .col:has(.lbl.nav.meta)>.pane{border-radius:0}
+.srm .lbl-nw{flex-wrap:wrap}
+.srm .lbl-nw .sel{max-width:200px;min-width:0}
+.srm .lbl-nw .b{margin-left:0}
+.srm .lbl-nw .grp{flex:0 1 auto}
+.srm .lbl-nw>.seg{flex:none}
+.srm .col>.pane{align-self:stretch}
+.srm .lbl{display:flex;align-items:center;flex-wrap:wrap;gap:8px;min-height:44px;font-size:13px;color:var(--muted)}
+.srm .lbl-nw>*{min-width:0}
+.srm .col>*{min-width:0;max-width:100%}
+.srm .ed{min-width:0;overflow:hidden}
+.srm .sel{min-width:0;max-width:100%;text-overflow:ellipsis}
+.srm .pane{height:clamp(420px,60vh,600px);min-height:420px;display:flex;flex-direction:column;min-width:0;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--bg)}
+.srm .seg{display:inline-flex;border:1px solid var(--border-strong);border-radius:8px;overflow:hidden;background:var(--bg)}
+.srm .col .b{background:var(--bg)}.srm .col .b-g{background:transparent}.srm .col .sel{background-color:var(--bg)}
+.srm .seg label{display:inline-flex;align-items:center;min-height:38px;padding:0 12px;font-size:14px;cursor:pointer;color:var(--text);border-right:1px solid var(--border-strong)}
+.srm .seg label:last-child{border-right:0}
+.srm .seg input{position:absolute;opacity:0;width:1px;height:1px}
+.srm .seg label:has(input:checked){background:var(--accent-soft);color:var(--link);font-weight:600}
+.srm .seg label:has(input:focus-visible){outline:2px solid var(--focus);outline-offset:-2px}
+.srm .seg-s label{min-height:32px;padding:0 10px;font-size:13px}
+.srm .ed{position:relative;flex:1;min-height:0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.55;tab-size:2}
+.srm .ed pre,.srm .ed textarea{position:absolute;inset:0;margin:0;padding:12px 14px;box-sizing:border-box;font:inherit;line-height:inherit;white-space:pre;overflow:auto;tab-size:2;border:0}
+.srm .ed pre{pointer-events:none;color:var(--text);overflow:hidden}
+.srm .ed textarea{background:transparent;color:transparent;caret-color:var(--text);resize:none;outline:none;border-radius:0}
+.srm .ed textarea:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
+.srm .tk-t{color:var(--link)}.srm .tk-a{color:var(--text)}.srm .tk-s{color:var(--str)}.srm .tk-c{color:var(--cmt);font-style:italic}.srm .tk-p{color:var(--muted)}.srm .tk-k{color:var(--link)}.srm .tk-v{color:var(--str)}
+.srm .mrow{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:4px 14px;padding:6px 10px;border-radius:8px;cursor:default}
+.srm .say{display:flex;gap:8px;align-items:flex-start;min-width:0;line-height:1.5}
+.srm .rem{display:flex;gap:6px;align-items:flex-start;max-width:min(100%,30ch);padding:3px 9px;border:1px dashed var(--flag-text);border-radius:8px;background:var(--flag-bg);color:var(--flag-text);font-size:12.5px;line-height:1.4;font-style:italic;text-wrap:pretty}
+@container srm (max-width:640px){.srm .mrow{grid-template-columns:minmax(0,1fr)}.srm .rem{max-width:none;margin-left:21px}}
+.srm .mrow:hover{background:var(--surface)}
+.srm .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--link);border-radius:6px;padding:3px 10px;font-size:13px;color:var(--link)}
+.srm .chip-img{border:1px dashed var(--border-strong);color:var(--muted)}
+.srm .flag{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:999px;background:var(--flag-bg);color:var(--flag-text);font-size:12px;font-weight:500;line-height:1.4}
+.srm .row{display:grid;grid-template-columns:2.2em 7em minmax(0,1fr);gap:4px 10px;align-items:baseline;padding:8px 12px;border-bottom:1px solid var(--border);cursor:default}
+.srm .row:last-child{border-bottom:0}.srm .row:hover{background:var(--surface)}
+.srm .mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+@keyframes bobx{from{transform:translate3d(-1px,0,0)}to{transform:translate3d(1px,0,0)}}
+@keyframes boby{from{transform:translate3d(0,-0.75px,0)}to{transform:translate3d(0,0.75px,0)}}
+.srm .bx,.srm .by{will-change:transform;backface-visibility:hidden;transform:translateZ(0)}
+.srm .herofig.paused .bx,.srm .herofig.paused .by{animation-play-state:paused}
+.srm .bx{animation:bobx .6s ease-in-out infinite alternate}
+.srm .by{animation:boby .5s ease-in-out infinite alternate}
+
+.srm footer a:hover{color:var(--link)!important}
+@container srm (max-width:1000px){.srm .fgrid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:24px 24px!important}.srm .fgrid>:first-child{grid-column:1/-1;max-width:none!important;display:grid!important;grid-template-columns:auto minmax(0,1fr);gap:4px 24px;align-items:baseline}.srm .fgrid>:first-child>a{grid-row:1/span 2}.srm .fgrid>:first-child p{margin:0}.srm footer{padding:32px 28px 24px!important;gap:20px!important}}
+@container srm (max-width:640px){.srm footer{padding-left:16px!important;padding-right:16px!important}}
+
+@container srm (max-width:640px){.srm footer{padding:24px 16px 16px!important;gap:16px!important;font-size:13px!important}.srm .fgrid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:14px 12px!important}.srm .fgrid>:first-child{grid-column:1/-1}.srm .fgrid>:first-child p{display:none}.srm .fgrid a{min-height:26px!important;font-size:12.5px}.srm .fbar{padding-top:10px!important;gap:4px 12px!important}.srm .fbar .fver{display:none}}
+@media (prefers-reduced-motion:reduce){.srm *{transition:none!important;animation:none!important}.srm{--sy:0!important}}
+.srm.motion-off *{transition:none!important;animation:none!important}.srm.motion-off{--sy:0!important}
+</style>
+</helmet>
+<div class="{{ srmClass }}" ref="{{ rootRef }}" style="width:{{ widthPx }};max-width:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,'Segoe UI',Roboto,Ubuntu,Cantarell,sans-serif;font-size:16px;line-height:1.5;display:flex;flex-direction:column;min-height:100%">
+
+<header id="top" style="display:flex;align-items:center;flex-wrap:nowrap;gap:8px 20px;padding:10px 28px">
+  <a href="#" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);min-height:44px"><span aria-hidden="true" style="display:inline-grid;place-items:center;width:24px;height:24px;border:1.5px solid var(--link);color:var(--link);border-radius:6px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10px;font-weight:600">sr</span><span style="font-weight:600;font-size:17px;white-space:nowrap">screen-reader-mirror</span></a>
+  <span style="flex:1"></span>
+  <nav aria-label="Project links" style="display:flex;gap:10px;align-items:center">
+    <span class="navlinks" style="display:flex;gap:10px"><a class="lnk" href="#"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg>GitHub</a>
+    <a class="lnk" href="#"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><path d="m3.3 7 8.7 5 8.7-5"></path><path d="M12 22V12"></path></svg>npm</a>
+    <a class="lnk" href="#"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><path d="M4 22v-7"></path></svg>Report a divergence</a>
+    </span>
+    <details class="navmenu more" style="position:relative;display:none"><summary class="b b-g" style="list-style:none;min-width:40px;padding:0 10px;justify-content:center" aria-label="Project links"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></summary><div class="menu" style="position:absolute;right:0;top:calc(100% + 6px);z-index:6;min-width:220px;padding:8px;display:flex;flex-direction:column;gap:2px;background:var(--bg);border:1px solid var(--border-strong);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.25)"><a class="lnk" style="min-height:44px;padding:0 10px;justify-content:flex-start" href="#"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg>GitHub</a>
+    <a class="lnk" style="min-height:44px;padding:0 10px;justify-content:flex-start" href="#"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><path d="m3.3 7 8.7 5 8.7-5"></path><path d="M12 22V12"></path></svg>npm</a>
+    <a class="lnk" style="min-height:44px;padding:0 10px;justify-content:flex-start" href="#"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><path d="M4 22v-7"></path></svg>Report a divergence</a>
+    <span class="mtools" style="display:none;flex-direction:column;gap:2px;margin-top:6px;padding-top:6px;border-top:1px solid var(--border)"><button type="button" class="b b-g" style="justify-content:flex-start;min-height:44px;padding:0 10px;color:var(--text)" aria-pressed="{{ motionOff }}" onClick="{{ toggleMotion }}">{{ motionBtnLabel }}</button><button type="button" class="b b-g" style="justify-content:flex-start;min-height:44px;padding:0 10px;color:var(--text)" onClick="{{ toggleTheme }}">{{ themeBtnLabel }}</button></span>
+    </div></details>
+    <span class="hdr-tools" style="display:flex;gap:4px;align-items:center"><button type="button" class="b b-g" style="min-width:40px;padding:0 10px;justify-content:center" aria-label="{{ motionBtnLabel }}" aria-pressed="{{ motionOff }}" title="{{ motionBtnLabel }}" onClick="{{ toggleMotion }}"><sc-if value="{{ motionOn }}" hint-placeholder-val="{{ true }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12c3-4 6-4 9 0s6 4 9 0"></path><path d="M2 17c3-4 6-4 9 0s6 4 9 0"></path></svg></sc-if><sc-if value="{{ motionOff }}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12c3-4 6-4 9 0s6 4 9 0"></path><path d="M2 17c3-4 6-4 9 0s6 4 9 0"></path><path d="m3 3 18 18"></path></svg></sc-if></button>
+    <button type="button" class="b b-g" style="min-width:40px;padding:0 10px;justify-content:center" aria-label="{{ themeBtnLabel }}" onClick="{{ toggleTheme }}"><sc-if value="{{ isLightNow }}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg></sc-if><sc-if value="{{ isDarkNow }}" hint-placeholder-val="{{ true }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg></sc-if></button></span>
+  </nav>
+</header>
+
+<div class="intro" style="padding:44px 28px 36px;display:grid;grid-template-columns:minmax(0,1fr);gap:32px 48px;align-items:end">
+  <div style="display:flex;flex-direction:column;gap:18px;min-width:0">
+  <p style="margin:0;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--link)">Screen reader simulator for developers</p>
+  <h1 style="margin:0;font-size:clamp(40px,6.2cqw,84px);line-height:.98;font-weight:700;letter-spacing:-0.035em;max-width:14ch;text-wrap:balance">See what screen readers hear.</h1>
+  <p style="margin:0;font-size:clamp(17px,1.5cqw,21px);line-height:1.45;color:var(--muted);max-width:50ch;text-wrap:pretty">Paste HTML. Get the reading order next to the rendered page, flagged where a blind user would get nothing. Runs in your browser. The demo and the bookmarklet need nothing installed.</p>
+  </div>
+  <figure class="{{ heroClass }}" ref="{{ heroRef }}" style="margin:0;min-width:0;max-width:600px;justify-self:end;width:100%;position:relative;container-type:inline-size">
+    <svg viewBox="0 0 600 420" width="100%" height="auto" role="img" aria-label="A laptop showing a web page, with the page read out beside it as a list of roles and names, one row flagged as having no name" style="display:block;overflow:visible">
+      <defs>
+        <radialGradient id="hg" cx="50%" cy="45%" r="55%"><stop offset="0" stop-color="var(--primary)" stop-opacity=".28"></stop><stop offset="1" stop-color="var(--primary)" stop-opacity="0"></stop></radialGradient>
+        <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--surface-2)"></stop><stop offset="1" stop-color="var(--surface)"></stop></linearGradient>
+        <linearGradient id="kg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--surface)"></stop><stop offset=".5" stop-color="var(--surface-2)"></stop><stop offset="1" stop-color="var(--surface)"></stop></linearGradient>
+      </defs>
+      <ellipse cx="300" cy="230" rx="300" ry="190" fill="url(#hg)"></ellipse>
+      <g stroke="var(--border-strong)" stroke-width="1.5" fill="url(#sg)" style="transform:translateY(calc(var(--sy,0) * 0.06px))">
+        <rect x="70" y="46" width="340" height="226" rx="14"></rect>
+        <rect x="84" y="60" width="312" height="196" rx="6" fill="var(--bg)" stroke="var(--border)"></rect>
+        <path d="M30 288h420l-16 30H46z" fill="url(#kg)"></path>
+        <path d="M30 288h420v10a8 8 0 0 1-8 8H38a8 8 0 0 1-8-8z" fill="var(--surface-2)" stroke="none"></path>
+        <rect x="200" y="290" width="80" height="6" rx="3" fill="var(--border-strong)" stroke="none"></rect>
+      </g>
+      <g fill="var(--text)" opacity=".92" style="transform:translateY(calc(var(--sy,0) * 0.06px))">
+        <rect x="100" y="76" width="118" height="14" rx="3"></rect>
+        <rect x="100" y="100" width="190" height="6" rx="3" fill="var(--muted)"></rect>
+        <rect x="100" y="112" width="160" height="6" rx="3" fill="var(--muted)"></rect>
+        <rect x="100" y="132" width="78" height="9" rx="3"></rect>
+        <rect x="100" y="150" width="200" height="22" rx="4" fill="none" stroke="var(--border-strong)" stroke-width="1.5"></rect>
+        <rect x="100" y="186" width="36" height="24" rx="4" fill="none" stroke="var(--border-strong)" stroke-width="1.5"></rect>
+        <rect x="146" y="186" width="60" height="24" rx="3" fill="var(--surface-2)"></rect>
+        <rect x="100" y="224" width="84" height="20" rx="4" fill="var(--link)"></rect>
+      </g>
+      <g stroke="var(--link)" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="2 7" opacity=".55">
+        <path d="M218 83C300 83 330 42 392 42"></path>
+        <path d="M178 136C300 136 330 108 392 108"></path>
+        <path d="M118 198C300 198 330 174 392 174"></path>
+        <path d="M184 234C300 234 330 240 392 240"></path>
+      </g>
+      <g stroke="var(--primary)" stroke-width="3" fill="none" stroke-linecap="round" stroke-dasharray="18 82" style="stroke-dashoffset:calc(118px - var(--sy,0) * 0.42px)">
+        <path pathLength="100" d="M218 83C300 83 330 42 392 42"></path>
+        <path pathLength="100" d="M178 136C300 136 330 108 392 108" style="stroke-dashoffset:calc(128px - var(--sy,0) * 0.42px)"></path>
+        <path pathLength="100" d="M118 198C300 198 330 174 392 174" style="stroke-dashoffset:calc(138px - var(--sy,0) * 0.42px)"></path>
+        <path pathLength="100" d="M184 234C300 234 330 240 392 240" style="stroke-dashoffset:calc(148px - var(--sy,0) * 0.42px)"></path>
+      </g>
+            <g style="transform:translate(470px,318px) translateY(calc(var(--sy,0) * 0.12px))" fill="none" stroke="var(--link)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 5 6 9H2v6h4l5 4z" fill="var(--link)" stroke="none"></path>
+        <path d="M15.5 8.5a5 5 0 0 1 0 7"></path><path d="M19 5a10 10 0 0 1 0 14" opacity=".7"></path><path d="M22.5 1.5a15 15 0 0 1 0 21" opacity=".4"></path>
+      </g>
+      <text x="300" y="372" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" fill="var(--muted)">Page on the left, what gets spoken on the right.</text>
+    </svg>
+    <div class="bx" aria-hidden="true" style="position:absolute;left:65.33%;top:5.71%;width:31.33%;height:8.57%;animation-delay:0s;animation-duration:.6s"><div style="box-sizing:border-box;width:100%;height:100%;display:flex;align-items:center;gap:1.4cqw;padding:0 2.3cqw;border:1px solid var(--border-strong);border-radius:1.5cqw;background:var(--surface);font-size:2.08cqw;line-height:1;white-space:nowrap;overflow:hidden"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--link)">heading 1</span><span style="color:var(--text);font-weight:600">Apply for a…</span></div></div><div aria-hidden="true" style="position:absolute;left:65.33%;top:21.43%;width:31.33%;height:8.57%"><div class="by" style="animation-delay:-0.25s;animation-duration:.5s;box-sizing:border-box;width:100%;height:100%;display:flex;align-items:center;gap:1.4cqw;padding:0 2.3cqw;border:1px solid var(--border-strong);border-radius:1.5cqw;background:var(--surface);font-size:2.08cqw;line-height:1;white-space:nowrap;overflow:hidden"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--muted)">text</span><span style="color:var(--text)">Your details</span></div></div><div class="bx" aria-hidden="true" style="position:absolute;left:65.33%;top:37.14%;width:31.33%;height:8.57%;animation-delay:-0.35s;animation-duration:.8s"><div style="box-sizing:border-box;width:100%;height:100%;display:flex;align-items:center;gap:1.4cqw;padding:0 2.3cqw;border:1px solid color-mix(in srgb,var(--flag-text) 50%,transparent);border-radius:1.5cqw;background:var(--flag-bg);font-size:2.08cqw;line-height:1;white-space:nowrap;overflow:hidden"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--flag-text)">button</span><svg width="2.2cqw" height="2.2cqw" viewBox="0 0 24 24" fill="none" stroke="var(--flag-text)" stroke-width="2" stroke-linejoin="round" style="margin-left:auto;width:2.2cqw;height:2.2cqw"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path></svg></div></div><div aria-hidden="true" style="position:absolute;left:65.33%;top:52.86%;width:31.33%;height:8.57%"><div class="by" style="animation-delay:-0.15s;animation-duration:.7s;box-sizing:border-box;width:100%;height:100%;display:flex;align-items:center;gap:1.4cqw;padding:0 2.3cqw;border:1px solid var(--border-strong);border-radius:1.5cqw;background:var(--surface);font-size:2.08cqw;line-height:1;white-space:nowrap;overflow:hidden"><span style="font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--link)">link</span><span style="color:var(--link);text-decoration:underline">Continue</span></div></div>
+  </figure>
+</div>
+
+<div class="demohd" id="demo" style="scroll-margin-top:16px;display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:44px 28px 4px;border-top:1px solid var(--border)">
+  <p style="margin:0;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--link);display:inline-flex;align-items:center;gap:10px"><span aria-hidden="true" style="width:9px;height:9px;border-radius:999px;background:var(--primary);box-shadow:0 0 0 4px var(--accent-soft)"></span>Live demo</p>
+  <h2 style="margin:0;font-size:clamp(26px,3cqw,36px);line-height:1.08;font-weight:600;letter-spacing:-0.02em;text-wrap:balance;max-width:24ch">Try it on a sample page.</h2>
+  <p style="margin:0;color:var(--muted);font-size:clamp(16px,1.3cqw,18px);text-wrap:pretty;max-width:60ch;min-width:0">Three steps. What you see in step 2 is the <strong style="color:var(--text);font-weight:600">sample</strong>, not this site. Edit it or paste your own.</p>
+  <span class="grp" style="margin-left:0;flex-wrap:wrap;margin-top:2px"><label style="display:inline-flex;align-items:center;gap:8px;font-size:14px;color:var(--muted)">Sample<select class="sel" aria-label="Sample page" value="{{ example }}" onChange="{{ pickExample }}"><option value="badge">Blue Badge form</option><option value="orders">Orders page</option><option value="cards">Card grid</option><option value="table">Invalid table</option><option value="vtable">Valid table</option><option value="nav">Navigation menu</option><option value="blank">Blank</option></select></label><button type="button" class="b b-g codetoggle" aria-expanded="{{ codeOpen }}" aria-controls="html-in" onClick="{{ toggleCode }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 18 6-6-6-6"></path><path d="m8 6-6 6 6 6"></path></svg><sc-if value="{{ codeClosed }}" hint-placeholder-val="{{ true }}">Show code</sc-if><sc-if value="{{ codeOpen }}" hint-placeholder-val="{{ false }}">Hide code</sc-if></button></span>
+</div>
+<div class="grid3" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));grid-auto-rows:auto;gap:20px;padding:14px 28px 0;align-items:start">
+  <div class="stepper" role="tablist" aria-label="Steps">
+    <button type="button" class="step s1" role="tab" aria-selected="{{ step1 }}" onClick="{{ goStep1 }}"><span class="num" aria-hidden="true">1</span>Code<span class="ssub">Sample HTML and CSS</span></button>
+    <button type="button" class="step" role="tab" aria-selected="{{ step2 }}" onClick="{{ goStep2 }}"><span class="num" aria-hidden="true">2</span>Page<span class="ssub">The sample, rendered</span></button>
+    <button type="button" class="step" role="tab" aria-selected="{{ step3 }}" onClick="{{ goStep3 }}"><span class="num" aria-hidden="true">3</span>Mirror<span class="ssub">What a screen reader gets</span></button>
+  </div>
+  <p class="stepsub">{{ stepSub }}</p>
+
+  <button type="button" class="codestub" aria-expanded="{{ stubOpen }}" aria-controls="html-in" onClick="{{ stubClick }}"><span class="num" aria-hidden="true">1</span><span class="vt">Code</span><span class="vt2">{{ stubHint }}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg></button>
+  <section aria-labelledby="in-h" class="col code {{ col1Class }}">
+    <div class="title"><h2 id="in-h" style="margin:0;display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--text)"><span aria-hidden="true" style="display:inline-grid;place-items:center;width:20px;height:20px;border-radius:999px;background:var(--accent-soft);color:var(--link);font-size:11px;font-weight:600">1</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 18 6-6-6-6"></path><path d="m8 6-6 6 6 6"></path></svg><span style="color:var(--text);font-weight:600;font-size:14px">Code</span><span class="tsub" style="margin-left:8px;color:var(--muted);font-weight:400;font-size:13px">The sample’s HTML and CSS. Edit or paste your own.</span></h2></div>
+    <div class="lbl lbl-nw hd">
+      <span class="seg seg-s" role="radiogroup" aria-label="File"><label><input type="radio" name="{{ tabName }}" checked="{{ isHtmlTab }}" onChange="{{ showHtml }}">HTML</label><label><input type="radio" name="{{ tabName }}" checked="{{ isCssTab }}" onChange="{{ showCss }}">CSS</label></span>
+      <span style="flex:1"></span>
+      <span class="grp"><button type="button" class="b b-p" onClick="{{ run }}">Run</button></span>
+    </div>
+    <div class="pane">
+      <div class="ed">
+        <pre ref="{{ preRef }}" aria-hidden="true">{{ highlighted }}</pre>
+        <textarea ref="{{ taRef }}" aria-label="{{ editorLabel }}" spellcheck="false" autoCapitalize="off" autoCorrect="off" wrap="off" value="{{ code }}" onChange="{{ onInput }}" onKeyDown="{{ onKey }}" onScroll="{{ onScroll }}"></textarea>
+      </div>
+    </div>
+    <div class="lbl nav meta"><details class="more" style="position:relative"><summary class="b b-g" style="list-style:none;min-width:40px;padding:0 10px;justify-content:center" aria-label="More"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="5" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle></svg></summary><div class="menu" style="position:absolute;left:0;bottom:calc(100% + 6px);z-index:5;min-width:300px;padding:10px 12px;display:flex;flex-direction:column;gap:10px;background:var(--bg);border:1px solid var(--border-strong);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.25)"><button type="button" class="b" onClick="{{ clear }}" style="justify-content:flex-start">Clear editor</button><span style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600">Shortcuts</span><dl style="margin:0;padding:10px 0 0;border-top:1px solid var(--border);display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13px;color:var(--text)">
+<dt class="mono">Ctrl+Enter, Ctrl+S</dt><dd style="margin:0;color:var(--muted)">Run</dd>
+<dt class="mono">Tab, Shift+Tab</dt><dd style="margin:0;color:var(--muted)">Indent, outdent</dd>
+<dt class="mono">Ctrl+], Ctrl+[</dt><dd style="margin:0;color:var(--muted)">Indent, outdent</dd>
+<dt class="mono">Ctrl+/</dt><dd style="margin:0;color:var(--muted)">Toggle comment</dd>
+<dt class="mono">Alt+Up, Alt+Down</dt><dd style="margin:0;color:var(--muted)">Move line</dd>
+<dt class="mono">Shift+Alt+Up, Down</dt><dd style="margin:0;color:var(--muted)">Copy line</dd>
+<dt class="mono">Ctrl+D</dt><dd style="margin:0;color:var(--muted)">Duplicate line</dd>
+<dt class="mono">Ctrl+Shift+K</dt><dd style="margin:0;color:var(--muted)">Delete line</dd>
+<dt class="mono">Ctrl+L</dt><dd style="margin:0;color:var(--muted)">Select line</dd>
+<dt class="mono">Home</dt><dd style="margin:0;color:var(--muted)">Start of text, then of line</dd>
+<dt class="mono">( [ { " '</dt><dd style="margin:0;color:var(--muted)">Auto close, wrap selection</dd>
+<dt class="mono">Enter</dt><dd style="margin:0;color:var(--muted)">Keep indent, indent after tag or {</dd>
+<dt class="mono">Ctrl+Z, Ctrl+Y</dt><dd style="margin:0;color:var(--muted)">Undo, redo</dd>
+</dl></div></details><span class="grp"><button type="button" class="b b-f stepnav" onClick="{{ goStep2 }}">Next: Page<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></button></span></div>
+  </section>
+
+
+  <section aria-labelledby="pv-h" class="col {{ col2Class }}">
+    <div class="title"><h2 id="pv-h" style="margin:0;display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--text)"><span aria-hidden="true" style="display:inline-grid;place-items:center;width:20px;height:20px;border-radius:999px;background:var(--accent-soft);color:var(--link);font-size:11px;font-weight:600">2</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg><span style="color:var(--text);font-weight:600;font-size:14px">Page</span><span class="tsub" style="margin-left:8px;color:var(--muted);font-weight:400;font-size:13px">The sample as a sighted person sees it.</span></h2></div>
+    <div class="lbl hd"><span style="flex:1"></span><span class="hint" style="min-width:0;text-align:right">The sample, not this site. Point at an element to find its row in Mirror.</span></div>
+    <div class="pane" style="background:#fff">
+      <div aria-hidden="true" style="display:flex;align-items:center;gap:10px;padding:7px 10px;background:#e9e9ee;border-bottom:1px solid #d3d3dc;color:#3a3a46;font-size:12px;flex:none"><span style="display:inline-flex;gap:5px"><i style="width:9px;height:9px;border-radius:999px;background:#c4c4ce"></i><i style="width:9px;height:9px;border-radius:999px;background:#c4c4ce"></i><i style="width:9px;height:9px;border-radius:999px;background:#c4c4ce"></i></span><span class="mono" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:4px 10px;background:#fff;border-radius:6px;border:1px solid #d3d3dc">{{ exampleUrl }}</span><span style="white-space:nowrap;padding:3px 9px;border-radius:999px;background:#fff1b8;color:#5a4a00;font-weight:700;font-size:11px;letter-spacing:.06em;text-transform:uppercase">Sample page</span></div>
+      <iframe ref="{{ frameRef }}" sandbox="allow-scripts" title="The sample page, rendered from the HTML and CSS in step 1" style="display:block;width:100%;flex:1;min-height:0;border:0;background:#fff"></iframe>
+    </div>
+    <div class="lbl nav"><span class="grp"><button type="button" class="b b-g stepnav" onClick="{{ goStep1 }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"></path><path d="m11 18-6-6 6-6"></path></svg>Back</button><button type="button" class="b b-f stepnav" onClick="{{ goStep3 }}">Next: Mirror<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></button></span></div>
+  </section>
+
+  <main aria-labelledby="out-h" class="col {{ col3Class }}">
+    <div class="title"><h2 id="out-h" style="margin:0;display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--text);white-space:nowrap"><span aria-hidden="true" style="display:inline-grid;place-items:center;width:20px;height:20px;border-radius:999px;background:var(--accent-soft);color:var(--link);font-size:11px;font-weight:600">3</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8.5a6.5 6.5 0 1 1 13 0c0 6-6 6-6 10a3.5 3.5 0 1 1-7 0"></path><path d="M15 8.5a2.5 2.5 0 0 0-5 0v1a2 2 0 1 1 0 4"></path></svg><span style="color:var(--text);font-weight:600;font-size:14px">Mirror</span><span class="tsub" style="margin-left:8px;color:var(--muted);font-weight:400;font-size:13px">The sample as a screen reader gets it.</span></h2></div>
+    <div class="lbl lbl-nw hd">
+      <span class="seg" role="radiogroup" aria-label="View"><label><input type="radio" name="{{ viewName }}" checked="{{ isMirror }}" onChange="{{ showMirror }}">Spoken</label><label><input type="radio" name="{{ viewName }}" checked="{{ isPlain }}" onChange="{{ showPlain }}">Preview</label><label><input type="radio" name="{{ viewName }}" checked="{{ isNodes }}" onChange="{{ showNodes }}">Nodes</label><label><input type="radio" name="{{ viewName }}" checked="{{ isJson }}" onChange="{{ showJson }}">JSON</label></span>
+      <sc-if value="{{ isMirror }}" hint-placeholder-val="{{ true }}"><span class="legend" style="display:inline-flex;align-items:center;gap:10px;font-size:12.5px;color:var(--muted);white-space:nowrap"><span style="display:inline-flex;align-items:center;gap:5px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7"></path></svg>spoken</span><span style="display:inline-flex;align-items:center;gap:5px;padding:1px 7px;border:1px dashed var(--flag-text);border-radius:6px;background:var(--flag-bg);color:var(--flag-text);font-style:italic">note, not spoken</span></span></sc-if><sc-if value="{{ isPlain }}" hint-placeholder-val="{{ false }}"><span class="legend" style="font-size:12.5px;color:var(--muted)">The same HTML with its CSS removed.</span></sc-if>
+      
+    </div>
+    <div role="status" aria-live="polite" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">{{ announcement }}</div>
+    <div class="pane" style="overflow:auto">
+      <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}"><p style="margin:auto;padding:24px;color:var(--muted);text-align:center">Paste HTML on the left and choose Run.</p></sc-if>
+      <sc-if value="{{ showMirrorList }}" hint-placeholder-val="{{ true }}">
+      <ol ref="{{ listRef }}" tabindex="-1" aria-label="Reading order, as a screen reader speaks it" style="list-style:none;margin:0;padding:10px 12px;display:flex;flex-direction:column;gap:2px;font-size:15px">
+        <sc-for list="{{ rows }}" as="r" hint-placeholder-count="11">
+          <li tabindex="0" class="mrow" onFocus="{{ r.focus }}" onMouseEnter="{{ r.focus }}" onMouseLeave="{{ r.blur }}" onBlur="{{ r.blur }}" style="outline:{{ r.outline }};outline-offset:-2px">
+            <span class="say"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:5px;color:var(--muted)"><path d="M11 5 6 9H2v6h4l5 4z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7"></path></svg><span style="min-width:0;overflow-wrap:anywhere"><sc-if value="{{ r.sayHasName }}" hint-placeholder-val="{{ true }}"><span>{{ r.sayName }}</span></sc-if><sc-if value="{{ r.sayBothParts }}" hint-placeholder-val="{{ false }}"><span style="color:var(--muted)">, </span></sc-if><sc-if value="{{ r.sayHasRole }}" hint-placeholder-val="{{ false }}"><span style="color:var(--muted)">{{ r.sayRole }}</span></sc-if></span></span>
+            <sc-if value="{{ r.hasRemark }}" hint-placeholder-val="{{ false }}"><span class="rem"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:3px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg><span><span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Note, not spoken: </span>{{ r.remark }}</span></span></sc-if>
+          </li>
+        </sc-for>
+      </ol>
+      </sc-if>
+      <sc-if value="{{ showNodeList }}" hint-placeholder-val="{{ false }}">
+      <ol ref="{{ listRef }}" tabindex="-1" aria-label="Reading order" style="list-style:none;margin:0;padding:0">
+        <sc-for list="{{ rows }}" as="r" hint-placeholder-count="11">
+          <li tabindex="0" class="row" onFocus="{{ r.focus }}" onMouseEnter="{{ r.focus }}" onMouseLeave="{{ r.blur }}" onBlur="{{ r.blur }}" style="outline:{{ r.outline }};outline-offset:-2px">
+            <span aria-hidden="true" style="color:var(--muted);font-variant-numeric:tabular-nums;font-size:13px">{{ r.pos }}</span>
+            <span class="mono" style="font-size:13px;color:var(--muted)">{{ r.role }}</span>
+            <span style="display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline;min-width:0;overflow-wrap:anywhere;font-size:14px">
+              <sc-if value="{{ r.hasName }}" hint-placeholder-val="{{ true }}"><span>{{ r.name }}</span></sc-if>
+              <sc-if value="{{ r.noName }}" hint-placeholder-val="{{ false }}"><span style="color:var(--muted);font-style:italic">no name</span></sc-if>
+              <sc-for list="{{ r.flags }}" as="f" hint-placeholder-count="0"><span class="flag"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>{{ f }}</span></sc-for>
+            </span>
+          </li>
+        </sc-for>
+      </ol>
+      </sc-if>
+      <sc-if value="{{ showPlainView }}" hint-placeholder-val="{{ false }}"><iframe ref="{{ plainRef }}" sandbox="allow-scripts" title="The HTML with its CSS removed, sandboxed" style="display:block;width:100%;flex:1;min-height:0;border:0;background:#fff"></iframe></sc-if>
+      <sc-if value="{{ showJsonView }}" hint-placeholder-val="{{ false }}"><pre class="mono" style="margin:0;padding:12px 14px;font-size:12.5px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere">{{ json }}</pre></sc-if>
+      <sc-if value="{{ noneShown }}" hint-placeholder-val="{{ false }}"><p style="margin:0;padding:16px;color:var(--muted);font-size:14px">No flagged items.</p></sc-if>
+    </div>
+    <div class="lbl nav meta"><sc-if value="{{ hasResults }}" hint-placeholder-val="{{ true }}"><span>{{ summary }}</span></sc-if><label style="display:inline-flex;align-items:center;gap:6px;min-height:40px;color:var(--text);font-size:14px;cursor:pointer"><input type="checkbox" checked="{{ flaggedOnly }}" onChange="{{ toggleFlagged }}" style="width:16px;height:16px;margin:0;accent-color:var(--primary)">Flagged only</label><span class="grp"><details class="more" style="position:relative"><summary class="b" style="list-style:none;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>Copy<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></summary><div class="menu" style="position:absolute;right:0;bottom:calc(100% + 6px);z-index:5;min-width:200px;padding:8px;display:flex;flex-direction:column;gap:6px;background:var(--bg);border:1px solid var(--border-strong);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.25)"><button type="button" class="b {{ cpText.cls }}" style="justify-content:flex-start" onClick="{{ copyText }}"><sc-if value="{{ cpText.done }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></sc-if>{{ cpText.label }}</button><button type="button" class="b {{ cpJson.cls }}" style="justify-content:flex-start" onClick="{{ copyJson }}"><sc-if value="{{ cpJson.done }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></sc-if>{{ cpJson.label }}</button></div></details><button type="button" class="b b-g stepnav" onClick="{{ goStep2 }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"></path><path d="m11 18-6-6 6-6"></path></svg>Back</button></span></div>
+  </main>
+</div>
+
+<section class="band" aria-labelledby="gs-h" style="display:flex;flex-direction:column;gap:28px;padding:48px 28px 52px;margin-top:28px;background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:16px 40px">
+    <div style="display:flex;flex-direction:column;gap:12px;max-width:60ch;flex:1 1 360px">
+      <p style="margin:0;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--link)">Getting started</p>
+      <h2 id="gs-h" style="margin:0;font-size:clamp(26px,3cqw,36px);line-height:1.08;font-weight:600;letter-spacing:-0.02em;text-wrap:balance">Run it on your own pages.</h2>
+      <p style="margin:0;color:var(--muted);font-size:clamp(16px,1.3cqw,18px);text-wrap:pretty">Three ways in, same engine, same four views. No account, nothing leaves the browser.</p>
+    </div>
+    <a href="Getting started.dc.html" class="b b-f" style="text-decoration:none;min-height:44px;padding:0 18px;font-size:15px">Read the guide<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></a>
+  </div>
+  <ul class="paths" style="list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 32px;border-top:1px solid var(--border)">
+    <li class="bandsec" style="display:flex;flex-direction:column;gap:12px;min-width:0;padding:22px 0 26px;border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:12px"><span aria-hidden="true" style="display:inline-grid;place-items:center;width:28px;height:28px;border-radius:999px;border:1px solid var(--link);color:var(--link);flex:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path></svg></span><h3 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-0.01em">Bookmarklet</h3></div>
+      <p style="margin:0;color:var(--muted);font-size:15px;text-wrap:pretty">Nothing to install. Drag to your bookmarks bar, click on any page.</p>
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin-top:auto"><a href="#" draggable="true" class="b b-p" style="text-decoration:none;min-height:44px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path></svg>Mirror this page</a><button type="button" class="b {{ cpBm.cls }}" onClick="{{ copyBookmarklet }}"><sc-if value="{{ cpBm.done }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></sc-if>{{ cpBm.label }}</button></div>
+      <a href="Getting started.dc.html#bookmarklet" style="font-size:14px;display:inline-flex;align-items:center;gap:6px;min-height:32px">How it works<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></a>
+    </li>
+    <li class="bandsec" style="display:flex;flex-direction:column;gap:12px;min-width:0;padding:22px 0 26px;border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:12px"><span aria-hidden="true" style="display:inline-grid;place-items:center;width:28px;height:28px;border-radius:999px;border:1px solid var(--link);color:var(--link);flex:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><path d="m3.3 7 8.7 5 8.7-5"></path><path d="M12 22V12"></path></svg></span><h3 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-0.01em">Package</h3></div>
+      <p style="margin:0;color:var(--muted);font-size:15px;text-wrap:pretty">For builds and tests. Returns the reading order as data.</p>
+      <div style="display:flex;align-items:center;gap:8px;min-width:0;margin-top:auto"><code class="mono" style="flex:1;min-width:0;overflow-wrap:anywhere;padding:11px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);font-size:13px">npm install screen-reader-mirror</code><button type="button" class="b {{ cpNpm.cls }}" aria-label="Copy npm command" onClick="{{ copyNpm }}"><sc-if value="{{ cpNpm.done }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></sc-if>{{ cpNpm.label }}</button></div>
+      <a href="Getting started.dc.html#package" style="font-size:14px;display:inline-flex;align-items:center;gap:6px;min-height:32px">Quick start and tests<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></a>
+    </li>
+    <li class="bandsec" style="display:flex;flex-direction:column;gap:12px;min-width:0;padding:22px 0 26px;border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:12px"><span aria-hidden="true" style="display:inline-grid;place-items:center;width:28px;height:28px;border-radius:999px;border:1px solid var(--link);color:var(--link);flex:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="14" rx="1"></rect><rect width="7" height="7" x="3" y="14" rx="1"></rect></svg></span><h3 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-0.01em">Browser extension</h3></div>
+      <p style="margin:0;color:var(--muted);font-size:15px;text-wrap:pretty">For signed-in pages and live apps, in the browser's side panel.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px 10px;margin-top:auto"><a href="#" class="b b-p" style="text-decoration:none;min-height:44px">Chrome and Edge</a><a href="#" class="b b-p" style="text-decoration:none;min-height:44px">Firefox</a></div>
+      <a href="Getting started.dc.html#sideload" style="font-size:14px;display:inline-flex;align-items:center;gap:6px;min-height:32px">Or download the signed build, with checksum</a>
+      <a href="Getting started.dc.html#extension" style="font-size:14px;display:inline-flex;align-items:center;gap:6px;min-height:32px">Popup, side panel, settings<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></a>
+    </li>
+  </ul>
+</section>
+
+<section aria-labelledby="pitch-h" class="pitch" style="display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:40px;align-items:start;padding:40px 28px 44px">
+  <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+    <h2 id="pitch-h" style="margin:0;font-size:clamp(26px,3cqw,36px);line-height:1.08;font-weight:600;letter-spacing:-0.02em;text-wrap:balance">Read speech as HTML</h2>
+    <p style="margin:0;color:var(--muted);font-size:15.5px;text-wrap:pretty;max-width:60ch">A linter passes the page. A screen reader log is a wall of words. The mirror puts the reading order next to the markup, so any developer can see what a blind user gets, fix it, and run again. For dev teams, agencies and public bodies working to ADA, Section 508, the European Accessibility Act and WCAG 2.2.</p>
+  </div>
+  <nav aria-label="Learn more" style="display:flex;flex-direction:column;border-bottom:1px solid var(--border);min-width:0">
+    <a href="Getting started.dc.html" style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 16px;align-items:center;padding:16px 0;border-top:1px solid var(--border);text-decoration:none;color:var(--text);min-height:44px"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600">Getting started</span><span style="font-size:17px;font-weight:600">Bookmarklet, package, extension</span><span style="color:var(--muted);font-size:14px;text-wrap:pretty">Install, start, use, and how to read the four views.</span></span><span style="display:inline-grid;place-items:center;width:36px;height:36px;border-radius:999px;border:1px solid var(--border-strong);color:var(--link)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></span></a>
+    <a href="About.dc.html" style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 16px;align-items:center;padding:16px 0;border-top:1px solid var(--border);text-decoration:none;color:var(--text);min-height:44px"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600">About</span><span style="font-size:17px;font-weight:600">Who it is for and how it works</span><span style="color:var(--muted);font-size:14px;text-wrap:pretty">Developers, agencies, public bodies. Code, page, mirror.</span></span><span style="display:inline-grid;place-items:center;width:36px;height:36px;border-radius:999px;border:1px solid var(--border-strong);color:var(--link)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></span></a>
+    <a href="Compared.dc.html" style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 16px;align-items:center;padding:16px 0;border-top:1px solid var(--border);text-decoration:none;color:var(--text);min-height:44px"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600">Compared</span><span style="font-size:17px;font-weight:600">Linters, devtools, screen readers, simulators</span><span style="color:var(--muted);font-size:14px;text-wrap:pretty">What each one shows, what it misses, where the mirror fits.</span></span><span style="display:inline-grid;place-items:center;width:36px;height:36px;border-radius:999px;border:1px solid var(--border-strong);color:var(--link)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></span></a>
+  </nav>
+</section>
+<footer style="padding:40px 28px 28px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:28px;font-size:14px;color:var(--muted)">
+  <div class="fgrid" style="display:grid;grid-template-columns:minmax(0,2fr) repeat(3,minmax(0,1fr));gap:28px 32px">
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0;max-width:40ch">
+      <a href="#top" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);font-weight:600;font-size:16px"><span aria-hidden="true" style="display:inline-grid;place-items:center;width:22px;height:22px;border:1.5px solid var(--link);color:var(--link);border-radius:6px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:9px;font-weight:600">sr</span>screen-reader-mirror</a>
+      <p style="margin:0;text-wrap:pretty">A screen reader simulator developers can read. Nothing on these pages is sent anywhere; the analysis runs in your browser.</p>
+      <p style="margin:0;text-wrap:pretty">Not a screen reader. There is no substitute for testing with real screen readers and real users.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px;min-width:0"><span style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--text)">Use it</span><a href="#top#demo" style="color:var(--muted);text-decoration:none;min-height:32px;display:inline-flex;align-items:center">Live demo</a><a href="Getting started.dc.html#bookmarklet" style="color:var(--muted);text-decoration:none;min-height:32px;display:inline-flex;align-items:center">Bookmarklet</a><a href="Getting started.dc.html#package" style="color:var(--muted);text-decoration:none;min-height:32px;display:inline-flex;align-items:center">Package</a><a href="Getting started.dc.html#extension" style="color:var(--muted);text-decoration:none;min-height:32px;display:inline-flex;align-items:center">Browser extension</a></div>
+    <div style="display:flex;flex-direction:column;gap:6px;min-width:0"><span style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--text)">Learn</span><a href="Getting started.dc.html" style="color:var(--muted);text-decoration:none;min-height:32px;display:inline-flex;align-items:center">Getting started</a><a href="Getting started.dc.html#reading" style="color:var(--muted);text-decoration:none;min-height:32px;display:inline-flex;align-items:center">Reading output</a><a href="About.dc.html" style="color:var(--muted);text-decoration:none;min-height:32px;display:inline-flex;align-items:center">About</a><a href="Compared.dc.html" style="color:var(--muted);text-decoration:none;min-height:32px;display:inline-flex;align-items:center">Compared</a></div>
+    <div style="display:flex;flex-direction:column;gap:6px;min-width:0"><span style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--text)">Project</span><a href="#" style="color:var(--muted);text-decoration:none;min-height:32px;display:inline-flex;align-items:center">GitHub repository</a><a href="#" style="color:var(--muted);text-decoration:none;min-height:32px;display:inline-flex;align-items:center">npm</a><a href="#" style="color:var(--muted);text-decoration:none;min-height:32px;display:inline-flex;align-items:center">Report a divergence</a><a href="#" style="color:var(--muted);text-decoration:none;min-height:32px;display:inline-flex;align-items:center">MIT license</a></div>
+  </div>
+  <div class="fbar" style="display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;padding-top:16px;border-top:1px solid var(--border);font-size:13px"><span>© 2026 James Lanzon</span><span class="fver">Version 0.2</span><span>No analytics, no cookies.</span><span style="flex:1"></span><a href="#top" style="color:var(--link);text-decoration:none;min-height:32px;display:inline-flex;align-items:center;gap:6px">Back to top<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 15-6-6-6 6"></path></svg></a></div>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;auto&quot;,&quot;coral&quot;,&quot;coral-light&quot;,&quot;dark&quot;,&quot;light&quot;,&quot;ochre&quot;,&quot;green&quot;,&quot;paper&quot;],&quot;default&quot;:&quot;auto&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Theme&quot;},&quot;example&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;badge&quot;,&quot;orders&quot;,&quot;cards&quot;,&quot;table&quot;,&quot;vtable&quot;,&quot;nav&quot;],&quot;default&quot;:&quot;badge&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Initial state&quot;},&quot;view&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;mirror&quot;,&quot;plain&quot;,&quot;nodes&quot;,&quot;json&quot;],&quot;default&quot;:&quot;mirror&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Initial state&quot;},&quot;state&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;empty&quot;,&quot;results&quot;,&quot;not-html&quot;],&quot;default&quot;:&quot;results&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Initial state&quot;},&quot;width&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[320,768,1280],&quot;default&quot;:1280,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Layout&quot;},&quot;focusRow&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:0,&quot;min&quot;:0,&quot;max&quot;:20,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Initial state&quot;}}">
+const J = (a) => a.join('\n');
+const EXAMPLES = {
+  badge: { html: J(['<main>', '  <h1>Apply for a Blue Badge</h1>', '  <p>Use this service if you live in England.</p>', '  <span class="heading-m">Your details</span>', '  <label>Full name</label>', '  <input type="text">', '  <div class="row">', '    <button><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>', '    <img src="badge.png">', '  </div>', '  <div class="summary">', '    <div class="line"><div class="key">Fee</div><div>£10</div></div>', '  </div>', '  <a href="/continue" class="cta">Continue</a>', '</main>']),
+    css: J(['body { font-family: system-ui, sans-serif; color: #0b0c0c; margin: 0; padding: 24px; }', 'h1 { font-size: 28px; margin: 0 0 8px; }', '.heading-m { display: block; font-size: 20px; font-weight: 700; margin: 18px 0 10px; }', 'label { display: block; margin-bottom: 6px; }', 'input { width: 100%; height: 36px; border: 2px solid #0b0c0c; box-sizing: border-box; }', '.row { display: flex; gap: 12px; align-items: center; margin: 14px 0; }', 'button { width: 36px; height: 36px; border: 2px solid #0b0c0c; background: #fff; }', 'button svg { width: 16px; height: 16px; fill: none; stroke: #0b0c0c; stroke-width: 2; }', 'img { width: 100px; height: 60px; background: repeating-linear-gradient(45deg, #dde 0 8px, #eef 8px 16px); border: 1px solid #b1b4b6; }', '.summary { border-top: 1px solid #b1b4b6; }', '.line { display: flex; padding: 8px 0; border-bottom: 1px solid #b1b4b6; }', '.key { width: 140px; font-weight: 700; }', '.cta { display: inline-block; margin-top: 18px; background: #00703c; color: #fff; padding: 8px 12px; font-weight: 700; text-decoration: none; }']) },
+  orders: { html: J(['<main>', '  <h1>Orders</h1>', '  <p>3 open, 1 overdue</p>', '  <span class="h2">Recent</span>', '  <button><svg aria-hidden="true"></svg></button>', '  <img src="chart.png">', '  <a href="/orders/42">Details</a>', '</main>']),
+    css: J(['body { font-family: system-ui, sans-serif; padding: 24px; }', '.h2 { display: block; font-size: 20px; font-weight: 700; margin: 16px 0 8px; }', 'button { width: 36px; height: 36px; }', 'img { display: block; width: 160px; height: 80px; background: #eee; margin: 12px 0; }']) },
+  cards: { html: J(['<section>', '  <div class="title">Plans</div>', '  <div class="grid">', '    <div class="card">', '      <img src="basic.png">', '      <div class="card-title">Basic</div>', '      <p>For one person</p>', '      <a href="/basic">Choose</a>', '    </div>', '    <div class="card">', '      <img src="team.png" alt="Team plan">', '      <div class="card-title">Team</div>', '      <p>Up to 10 people</p>', '      <a href="/team">Choose</a>', '    </div>', '  </div>', '</section>']),
+    css: J(['body { font-family: system-ui, sans-serif; padding: 24px; }', '.title { font-size: 24px; font-weight: 700; margin-bottom: 12px; }', '.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }', '.card { border: 1px solid #ccc; border-radius: 8px; padding: 12px; }', '.card img { width: 100%; height: 60px; background: #eee; display: block; }', '.card-title { font-weight: 700; font-size: 18px; margin-top: 8px; }']) },
+  vtable: { html: J(['<table>', '  <caption>Blue Badge fees</caption>', '  <thead>', '    <tr><th scope="col">Item</th><th scope="col">Price</th></tr>', '  </thead>', '  <tbody>', '    <tr><td>Fee</td><td>£10</td></tr>', '    <tr><td>Valid for</td><td>3 years</td></tr>', '  </tbody>', '</table>']),
+    css: J(['body { font-family: system-ui, sans-serif; padding: 24px; }', 'table { border-collapse: collapse; width: 100%; }', 'caption { text-align: left; font-weight: 700; margin-bottom: 8px; }', 'th, td { text-align: left; padding: 8px 0; border-bottom: 1px solid #ccc; }', 'th { border-bottom: 2px solid #333; }']) },
+  table: { html: J(['<div class="table">', '  <div class="r head"><div>Item</div><div>Price</div></div>', '  <div class="r"><div>Fee</div><div>£10</div></div>', '  <div class="r"><div>Valid for</div><div>3 years</div></div>', '</div>']),
+    css: J(['body { font-family: system-ui, sans-serif; padding: 24px; }', '.r { display: grid; grid-template-columns: 1fr 1fr; padding: 8px 0; border-bottom: 1px solid #ccc; }', '.head { font-weight: 700; border-bottom: 2px solid #333; }']) },
+  nav: { html: J(['<div class="nav">', '  <a href="/">Home</a>', '  <a href="/docs">Docs</a>', '  <span class="link" onclick="go()">Pricing</span>', '  <button aria-label="Open menu"><svg aria-hidden="true"></svg></button>', '  <button><svg aria-hidden="true"></svg></button>', '</div>']),
+    css: J(['body { font-family: system-ui, sans-serif; padding: 24px; }', '.nav { display: flex; gap: 16px; align-items: center; }', '.nav a, .link { color: #1d4ed8; text-decoration: underline; cursor: pointer; }', 'button { width: 32px; height: 32px; }']) },
+  blank: { html: '', css: '' },
+};
+const EX_URL = { badge: 'https://apply.blue-badge.example/start', orders: 'https://app.example/orders', cards: 'https://shop.example/plans', table: 'https://shop.example/fees', vtable: 'https://shop.example/fees', nav: 'https://www.example.com', blank: 'about:blank' };
+const EX_NAME = { badge: 'Blue Badge form', orders: 'Orders page', cards: 'Card grid', table: 'Invalid table', vtable: 'Valid table', nav: 'Navigation menu', blank: 'Blank' };
+const LANDMARKS = { main: 'main', nav: 'navigation', header: 'banner', footer: 'contentinfo', aside: 'complementary', form: 'form', section: 'region' };
+const SKIP = new Set(['script', 'style', 'template', 'noscript', 'head', 'svg']);
+const CONTROLS = new Set(['button', 'link', 'textbox', 'checkbox', 'radio', 'combobox']);
+const CONTENT_NAMED = new Set(['heading', 'link', 'button', 'cell', 'columnheader', 'rowheader', 'caption', 'tab', 'menuitem', 'option']);
+const FLAG_LABEL = { unnamed: 'No accessible name', missingAlt: 'Missing alt' };
+const SCRIPT_OPEN = '<' + 'script>', SCRIPT_CLOSE = '</' + 'script>';
+
+function linearize(html) {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const items = [];
+  const nameFrom = (el, role) => {
+    const lb = el.getAttribute('aria-labelledby');
+    if (lb) { const t = lb.split(/\s+/).map(id => doc.getElementById(id)?.textContent || '').join(' ').trim(); if (t) return t; }
+    const al = el.getAttribute('aria-label'); if (al && al.trim()) return al.trim();
+    if (el.tagName === 'IMG') return el.getAttribute('alt') || '';
+    if (/^(INPUT|SELECT|TEXTAREA)$/.test(el.tagName)) {
+      if (el.id) { const l = doc.querySelector('label[for="' + CSS.escape(el.id) + '"]'); if (l) return l.textContent.trim(); }
+      const w = el.closest('label'); if (w) return w.textContent.trim();
+      return (el.getAttribute('title') || '').trim();
+    }
+    if (!CONTENT_NAMED.has(role)) return '';
+    return el.textContent.replace(/\s+/g, ' ').trim();
+  };
+  const push = (item, el) => { items.push(item); if (el) el.setAttribute('data-srm', String(items.length)); };
+  const walk = (node) => {
+    if (node.nodeType === 3) { const t = node.nodeValue.replace(/\s+/g, ' ').trim(); if (t) push({ role: 'text', name: t }, node.parentElement && !node.parentElement.hasAttribute('data-srm') ? node.parentElement : null); return; }
+    if (node.nodeType !== 1) return;
+    const el = node, tag = el.tagName.toLowerCase();
+    if (SKIP.has(tag) || el.hidden || el.getAttribute('aria-hidden') === 'true') return;
+    const explicit = el.getAttribute('role');
+    let role = explicit, consume = false;
+    if (!role) {
+      if (/^h[1-6]$/.test(tag)) { role = 'heading'; consume = true; }
+      else if (tag === 'a' && el.hasAttribute('href')) { role = 'link'; consume = true; }
+      else if (tag === 'button' || (tag === 'input' && /^(button|submit|reset)$/.test(el.type))) { role = 'button'; consume = true; }
+      else if (tag === 'input' && el.type === 'checkbox') role = 'checkbox';
+      else if (tag === 'input' && el.type === 'radio') role = 'radio';
+      else if (tag === 'input' || tag === 'textarea') role = 'textbox';
+      else if (tag === 'select') role = 'combobox';
+      else if (tag === 'img') role = 'img';
+      else if (tag === 'ul' || tag === 'ol') role = 'list';
+      else if (tag === 'li') role = 'listitem';
+      else if (tag === 'table') role = 'table';
+      else if (tag === 'tr') role = 'row';
+      else if (tag === 'th') role = 'columnheader';
+      else if (tag === 'td') role = 'cell';
+      else if (tag === 'caption') role = 'caption';
+      else if (LANDMARKS[tag]) role = LANDMARKS[tag];
+    } else if (/^(link|button|heading)$/.test(role)) consume = true;
+    if (/^(cell|columnheader|rowheader|caption)$/.test(role)) consume = true;
+    if (role === 'region' && !el.hasAttribute('aria-label') && !el.hasAttribute('aria-labelledby')) role = null;
+    if (role) {
+      if (role === 'img' && el.getAttribute('alt') === '') return;
+      let name = nameFrom(el, role);
+      if (role === 'table' && !name) { const cap = el.querySelector('caption'); if (cap) name = cap.textContent.replace(/\s+/g, ' ').trim(); }
+      const item = { role, name, ref: { tag } };
+      if (tag === 'img') item.ref.src = el.getAttribute('src') || '';
+      if (role === 'heading') item.level = explicit ? Number(el.getAttribute('aria-level') || 2) : Number(tag[1]);
+      const flags = {};
+      if (CONTROLS.has(role) && !name) flags.unnamed = true;
+      if (role === 'img' && !el.hasAttribute('alt')) flags.missingAlt = true;
+      if (Object.keys(flags).length) item.flags = flags;
+      push(item, el);
+      if (consume || /^(img|textbox|checkbox|radio|combobox)$/.test(role)) return;
+    }
+    for (const c of Array.from(el.childNodes)) walk(c);
+  };
+  for (const c of Array.from(doc.body.childNodes)) walk(c);
+  doc.querySelectorAll('script').forEach(s => s.remove());
+  return { items, body: doc.body.innerHTML };
+}
+
+const ROLE_WORD = { table: 'table', row: 'row', cell: 'cell', columnheader: 'column header', caption: 'caption', textbox: 'edit text', combobox: 'combo box', img: 'image', main: 'main landmark', navigation: 'navigation landmark', banner: 'banner landmark', contentinfo: 'content information landmark', complementary: 'complementary landmark', form: 'form landmark', region: 'region landmark', listitem: 'list item' };
+const REMARK = { unnamed: 'No accessible name. Only the role is spoken.', missingAlt: 'Missing alt. The file name is spoken instead.' };
+function speak(it) {
+  const role = it.role, flags = it.flags || {};
+  let name = it.name, suffix = ROLE_WORD[role] || role;
+  if (role === 'heading') suffix = 'heading level ' + (it.level || 2);
+  if (role === 'text') suffix = '';
+  if (role === 'img' && flags.missingAlt) name = ((it.ref && it.ref.src) || '').split('/').pop();
+  const remarks = Object.keys(flags).map(k => REMARK[k] || k);
+  return { sayName: name, sayRole: suffix, sayHasName: name !== '', sayHasRole: suffix !== '', sayBothParts: name !== '' && suffix !== '', hasRemark: remarks.length > 0, remark: remarks.join(' ') };
+}
+
+function highlight(src, lang) {
+  const out = []; let last = 0, k = 0;
+  const re = lang === 'css'
+    ? /\/\*[\s\S]*?\*\/|[^{};\s][^{};]*(?=\{)|[\w-]+(?=\s*:)|:[^;{}]+|[{};]/g
+    : /<!--[\s\S]*?-->|<\/?[\w-]+|\/?>|[\w:-]+(?==)|"[^"]*"|'[^']*'/g;
+  const push = (text, cls) => { if (text) out.push(cls ? React.createElement('span', { key: k++, className: cls }, text) : text); };
+  let m;
+  while ((m = re.exec(src))) {
+    push(src.slice(last, m.index));
+    const t = m[0];
+    let cls;
+    if (lang === 'css') cls = t.startsWith('/*') ? 'tk-c' : /^[{};]$/.test(t) ? 'tk-p' : t.startsWith(':') ? 'tk-v' : /^[\w-]+$/.test(t) ? 'tk-a' : 'tk-t';
+    else cls = t.startsWith('<!--') ? 'tk-c' : t.startsWith('<') ? 'tk-t' : /^\/?>$/.test(t) ? 'tk-t' : /^["']/.test(t) ? 'tk-s' : 'tk-a';
+    push(t, cls); last = m.index + t.length;
+  }
+  push(src.slice(last)); out.push('\n');
+  return out;
+}
+
+class Component extends DCLogic {
+  themeNow() {
+    const o = this.state.themeOverride;
+    if (o) return o;
+    const p = this.props.theme ?? 'auto';
+    if (p !== 'auto') return p;
+    return (typeof matchMedia !== 'undefined' && matchMedia('(prefers-color-scheme: light)').matches) ? 'coral-light' : 'coral';
+  }
+  themeVals() {
+    const t = this.themeNow();
+    const light = /light|paper/.test(t);
+    return {
+      themeClass: 't-' + t, isLightNow: light, isDarkNow: !light,
+      themeBtnLabel: light ? 'Switch to dark theme' : 'Switch to light theme',
+      toggleTheme: () => { const next = light ? 'coral' : 'coral-light'; try { localStorage.setItem('srm-theme', next); } catch (e) {} this.setState({ themeOverride: next }); },
+    };
+  }
+  readStoredMotion() { try { return localStorage.getItem('srm-motion') === 'off'; } catch (e) { return false; } }
+  readStoredTheme() { try { return localStorage.getItem('srm-theme') || null; } catch (e) { return null; } }
+
+  constructor(props) {
+    super(props);
+    const ex = props.example ?? 'badge';
+    const st = props.state ?? 'results';
+    let html = EXAMPLES[ex].html, css = EXAMPLES[ex].css;
+    if (st === 'not-html') { html = 'hello world'; css = ''; }
+    if (st === 'empty') { html = ''; css = ''; }
+    const res = st === 'empty' ? null : linearize(html);
+    this.state = { themeOverride: this.readStoredTheme(), motionOff: this.readStoredMotion(), step: 2, html, css, tab: 'html', example: st === 'empty' ? 'blank' : ex, res, view: props.view ?? 'mirror', flaggedOnly: false, codeOpen: false, focused: res ? (props.focusRow ?? 0) : 0, announcement: '', id: Math.random().toString(36).slice(2, 8) };
+    this.rootRef = React.createRef(); this.heroRef = React.createRef(); this.plainRef = React.createRef(); this.frameRef = React.createRef(); this.listRef = React.createRef(); this.preRef = React.createRef(); this.taRef = React.createRef();
+    this.onMsg = (e) => { if (e.data && e.data.srmId === this.state.id) this.setState({ focused: e.data.srm }); };
+  }
+  componentDidMount() { window.addEventListener('message', this.onMsg); this.syncFrame(); this.onScrollDoc = () => { if (this._sf) return; this._sf = requestAnimationFrame(() => { this._sf = 0; const r = this.rootRef.current; if (!r) return; const sy = Math.max(0, Math.min(480, -r.getBoundingClientRect().top)); r.style.setProperty('--sy', sy); const h = this.heroRef.current; if (h) { const b = h.getBoundingClientRect(); const hidden = b.bottom < 0 || b.top > window.innerHeight; if (hidden !== !!this.state.heroHidden) this.setState({ heroHidden: hidden }); } }); }; document.addEventListener('scroll', this.onScrollDoc, true); window.addEventListener('scroll', this.onScrollDoc); this.onScrollDoc(); window.addEventListener('resize', this.onScrollDoc); }
+  componentWillUnmount() { window.removeEventListener('message', this.onMsg); window.removeEventListener('resize', this.onScrollDoc); document.removeEventListener('scroll', this.onScrollDoc, true); window.removeEventListener('scroll', this.onScrollDoc); }
+  componentDidUpdate() { this.syncFrame(); }
+  syncFrame() {
+    const f = this.frameRef.current; if (!f && !this.plainRef.current) return;
+    const body = this.state.res ? this.state.res.body : '';
+    const css = 'body{margin:0;font-family:system-ui,sans-serif;color:#111;line-height:1.5}img{max-width:100%}' + '\n' + this.state.css + '\n[data-srm="' + this.state.focused + '"]{outline:2px solid #4338a8 !important;outline-offset:3px}';
+    const js = 'var id=' + JSON.stringify(this.state.id) + ';document.addEventListener("mouseover",function(e){var el=e.target.closest("[data-srm]");parent.postMessage({srmId:id,srm:el?+el.getAttribute("data-srm"):0},"*")});document.documentElement.addEventListener("mouseleave",function(){parent.postMessage({srmId:id,srm:0},"*")});document.addEventListener("click",function(e){e.preventDefault()},true);document.addEventListener("submit",function(e){e.preventDefault()},true);';
+    if (f) {
+    const doc = '<!doctype html><html><head><meta charset="utf-8"><style>' + css + '</style></head><body>' + body + SCRIPT_OPEN + js + SCRIPT_CLOSE + '</body></html>';
+    if (f.dataset.doc !== doc) { f.dataset.doc = doc; f.srcdoc = doc; } }
+    const p = this.plainRef.current;
+    if (p) { const pdoc = '<!doctype html><html><head><meta charset="utf-8"><style>[data-srm="' + this.state.focused + '"]{outline:2px solid #4338a8 !important;outline-offset:3px}</style></head><body>' + body + SCRIPT_OPEN + js + SCRIPT_CLOSE + '</body></html>'; if (p.dataset.doc !== pdoc) { p.dataset.doc = pdoc; p.srcdoc = pdoc; } }
+  }
+  run() {
+    const res = linearize(this.state.html);
+    const n = res.items.length, fl = res.items.filter(i => i.flags).length;
+    this.setState({ res, step: 3, focused: 0, announcement: 'Done. ' + n + ' item' + (n === 1 ? '' : 's') + ', ' + fl + ' flagged.' }, () => this.listRef.current && this.listRef.current.focus());
+  }
+  copy(text, key) {
+    if (navigator.clipboard) navigator.clipboard.writeText(text).catch(() => {});
+    clearTimeout(this._cpT);
+    this.setState({ announcement: 'Copied.', copied: key });
+    this._cpT = setTimeout(() => this.setState({ copied: null }), 1800);
+  }
+  setCode(v) { this.setState(this.state.tab === 'html' ? { html: v } : { css: v }); }
+  editorKey(e) {
+    const ta = e.target, v = ta.value, s = ta.selectionStart, en = ta.selectionEnd;
+    const apply = (nv, ns, ne) => { this.setCode(nv); requestAnimationFrame(() => { ta.selectionStart = ns; ta.selectionEnd = ne; }); };
+    const mod = e.ctrlKey || e.metaKey;
+    const lineStart = (p) => v.lastIndexOf('\n', p - 1) + 1;
+    const lineEnd = (p) => { const i = v.indexOf('\n', p); return i === -1 ? v.length : i; };
+    if (mod && (e.key === 'Enter' || e.key === 's')) { e.preventDefault(); this.run(); return; }
+    if (mod && (e.key === ']' || e.key === '[')) {
+      e.preventDefault();
+      const ls = lineStart(s), le = lineEnd(en);
+      const nb = v.slice(ls, le).split('\n').map(l => e.key === '[' ? l.replace(/^ {1,2}/, '') : '  ' + l).join('\n');
+      apply(v.slice(0, ls) + nb + v.slice(le), ls, ls + nb.length); return;
+    }
+    if (mod && e.key.toLowerCase() === 'd' && !e.shiftKey) {
+      e.preventDefault();
+      const ls = lineStart(s), le = lineEnd(en), block = v.slice(ls, le);
+      apply(v.slice(0, le) + '\n' + block + v.slice(le), s + block.length + 1, en + block.length + 1); return;
+    }
+    if (mod && e.shiftKey && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      const ls = lineStart(s), le = lineEnd(en);
+      const nv = le < v.length ? v.slice(0, ls) + v.slice(le + 1) : v.slice(0, Math.max(0, ls - 1));
+      apply(nv, Math.min(ls, nv.length), Math.min(ls, nv.length)); return;
+    }
+    if (mod && e.key.toLowerCase() === 'l') { e.preventDefault(); const ls = lineStart(s), le = lineEnd(en); ta.selectionStart = ls; ta.selectionEnd = Math.min(le + 1, v.length); return; }
+    if (e.key === 'Home' && !mod && !e.shiftKey) {
+      const ls = lineStart(s); const first = ls + (v.slice(ls, lineEnd(s)).match(/^[ \t]*/) || [''])[0].length;
+      e.preventDefault(); const to = s === first ? ls : first; ta.selectionStart = to; ta.selectionEnd = to; return;
+    }
+    if (e.altKey && e.shiftKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+      e.preventDefault();
+      const ls = lineStart(s), le = lineEnd(en), block = v.slice(ls, le);
+      const nv = v.slice(0, le) + '\n' + block + v.slice(le);
+      const off = e.key === 'ArrowDown' ? block.length + 1 : 0;
+      apply(nv, s + off, en + off); return;
+    }
+    const pairs = { '(': ')', '[': ']', '{': '}', '"': '"', "'": "'" };
+    if (pairs[e.key] && !mod && !e.altKey) {
+      const close = pairs[e.key];
+      if (s !== en) { e.preventDefault(); apply(v.slice(0, s) + e.key + v.slice(s, en) + close + v.slice(en), s + 1, en + 1); return; }
+      const next = v[s] || '';
+      if (/^["']$/.test(e.key) && /\w/.test(v[s - 1] || '')) { /* apostrophe inside a word: type normally */ }
+      else if (next === '' || /[\s)\]}>;,]/.test(next)) { e.preventDefault(); apply(v.slice(0, s) + e.key + close + v.slice(s), s + 1, s + 1); return; }
+    }
+    if (/^[)\]}"']$/.test(e.key) && !mod && v[s] === e.key && s === en) { e.preventDefault(); ta.selectionStart = ta.selectionEnd = s + 1; return; }
+    if (e.key === 'Backspace' && s === en && s > 0) {
+      const a = v[s - 1], b = v[s];
+      if (pairs[a] && pairs[a] === b) { e.preventDefault(); apply(v.slice(0, s - 1) + v.slice(s + 1), s - 1, s - 1); return; }
+    }
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const ls = v.lastIndexOf('\n', s - 1) + 1;
+      if (s === en && !e.shiftKey) { apply(v.slice(0, s) + '  ' + v.slice(s), s + 2, s + 2); return; }
+      const le = v.indexOf('\n', en) === -1 ? v.length : v.indexOf('\n', en);
+      const block = v.slice(ls, le);
+      const lines = block.split('\n');
+      const nb = lines.map(l => e.shiftKey ? l.replace(/^ {1,2}/, '') : '  ' + l).join('\n');
+      apply(v.slice(0, ls) + nb + v.slice(le), ls, ls + nb.length); return;
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === '/') {
+      e.preventDefault();
+      const ls = v.lastIndexOf('\n', s - 1) + 1;
+      const le = v.indexOf('\n', en) === -1 ? v.length : v.indexOf('\n', en);
+      const block = v.slice(ls, le), css = this.state.tab === 'css';
+      const o = css ? '/* ' : '<!-- ', c = css ? ' */' : ' -->';
+      const t = block.trim();
+      const nb = t.startsWith(o.trim()) && t.endsWith(c.trim()) ? block.replace(o.trim() + ' ', '').replace(' ' + c.trim(), '').replace(o.trim(), '').replace(c.trim(), '') : block.replace(/^(\s*)/, '$1' + o) + c;
+      apply(v.slice(0, ls) + nb + v.slice(le), ls, ls + nb.length); return;
+    }
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      const ls = v.lastIndexOf('\n', s - 1) + 1;
+      const indent = (v.slice(ls, s).match(/^[ \t]*/) || [''])[0];
+      const prev = v.slice(ls, s).trimEnd();
+      const extra = (/>$/.test(prev) && !/^<\//.test(prev.trim()) && !/\/>$/.test(prev) && !/<(img|input|br|hr|meta|link)\b/.test(prev)) || /\{$/.test(prev) ? '  ' : '';
+      const ins = '\n' + indent + extra;
+      apply(v.slice(0, s) + ins + v.slice(en), s + ins.length, s + ins.length); return;
+    }
+    if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+      e.preventDefault();
+      const lines = v.split('\n'); let idx = v.slice(0, s).split('\n').length - 1;
+      const j = e.key === 'ArrowUp' ? idx - 1 : idx + 1; if (j < 0 || j >= lines.length) return;
+      [lines[idx], lines[j]] = [lines[j], lines[idx]];
+      const nv = lines.join('\n'); const pos = lines.slice(0, j).join('\n').length + (j ? 1 : 0);
+      apply(nv, pos, pos); return;
+    }
+  }
+  renderVals() {
+    const { html, css, tab, res, flaggedOnly, focused, view, example } = this.state;
+    const items = res ? res.items : [];
+    const fl = items.filter(i => i.flags).length;
+    const summary = items.length + ' item' + (items.length === 1 ? '' : 's') + ', ' + fl + ' flagged.';
+    const rows = items.map((it, i) => ({ it, pos: i + 1 })).filter(r => !flaggedOnly || r.it.flags).map(r => ({
+      pos: r.pos, role: r.it.role + (r.it.level ? ' ' + r.it.level : ''), name: r.it.name, hasName: r.it.name !== '', noName: r.it.name === '',
+      flags: Object.keys(r.it.flags || {}).map(k => FLAG_LABEL[k] || k),
+      isLandmark: /^(main|navigation|banner|contentinfo|complementary|form|region)$/.test(r.it.role),
+      isHeading: r.it.role === 'heading', isText: r.it.role === 'text', isLink: r.it.role === 'link',
+      isControl: /^(button|textbox|checkbox|radio|combobox)$/.test(r.it.role), isImg: r.it.role === 'img',
+      isOther: !/^(main|navigation|banner|contentinfo|complementary|form|region|heading|text|link|button|textbox|checkbox|radio|combobox|img)$/.test(r.it.role),
+      hSize: (r.it.level === 1 ? 24 : r.it.level === 2 ? 20 : 17) + 'px',
+      ...speak(r.it),
+      outline: focused === r.pos ? '2px solid var(--focus)' : 'none',
+      focus: () => this.setState({ focused: r.pos }), blur: () => this.setState(s => s.focused === r.pos ? { focused: 0 } : null),
+    }));
+    const asText = [summary].concat(items.map((it, i) => (i + 1) + '. ' + it.role + (it.level ? ' ' + it.level : '') + ': ' + (it.name || 'no name') + (it.flags ? ' [' + Object.keys(it.flags).map(k => FLAG_LABEL[k]).join(', ') + ']' : ''))).join('\n');
+    const code = tab === 'html' ? html : css;
+    const cp = (key, label) => { const done = this.state.copied === key; return { done, label: done ? 'Copied' : label, cls: done ? 'b-ok' : '' }; };
+    const hasResults = !!res;
+    const heroRows = items.slice(0, 7).map((it, i) => ({ pos: String(i + 1).padStart(2, '0'), role: it.role + (it.level ? ' ' + it.level : ''), name: it.name, hasName: it.name !== '', noName: it.name === '', weight: it.role === 'heading' ? 600 : 400, flags: Object.keys(it.flags || {}).map(k => FLAG_LABEL[k] || k) }));
+    return {
+      ...this.themeVals(), widthPx: (this.props.width ?? 1280) + 'px', exampleUrl: EX_URL[example] || 'about:blank',
+      step1: this.state.step === 1, step2: this.state.step === 2, step3: this.state.step === 3,
+      stepSub: ['', 'The sample\u2019s HTML and CSS. Edit or paste your own.', 'The sample as a sighted person sees it.', 'The sample as a screen reader gets it.'][this.state.step],
+      col1Class: this.state.step === 1 ? 'col-active' : '', col2Class: this.state.step === 2 ? 'col-active' : '', col3Class: this.state.step === 3 ? 'col-active' : '',
+      goStep1: () => this.setState({ step: 1 }), goStep2: () => this.setState({ step: 2 }), goStep3: () => this.setState({ step: 3 }),
+      codeOpen: !!this.state.codeOpen, codeClosed: !this.state.codeOpen, toggleCode: () => this.setState(st => ({ codeOpen: !st.codeOpen })),
+      srmClass: 'srm ' + this.themeVals().themeClass + (this.state.codeOpen ? ' code-open' : ' code-closed') + (this.state.step === 1 ? ' step-1' : '') + (this.state.motionOff ? ' motion-off' : ''),
+      motionOff: !!this.state.motionOff, motionOn: !this.state.motionOff, motionBtnLabel: this.state.motionOff ? 'Turn animations on' : 'Turn animations off',
+      toggleMotion: () => { const off = !this.state.motionOff; try { localStorage.setItem('srm-motion', off ? 'off' : 'on'); } catch (e) {} this.setState({ motionOff: off, announcement: off ? 'Animations off.' : 'Animations on.' }); },
+      rootRef: this.rootRef, heroRef: this.heroRef, heroClass: 'herofig' + (this.state.heroHidden ? ' paused' : ''), stubOpen: this.state.step === 1 || !!this.state.codeOpen,
+      stubHint: this.state.step === 1 ? 'The sample\u2019s HTML and CSS. Tap to collapse.' : 'Sample HTML and CSS. Tap to edit.',
+      stubClick: () => { const w = this.rootRef.current ? this.rootRef.current.clientWidth : 1280; if (w >= 1201) this.setState(st => ({ codeOpen: !st.codeOpen })); else this.setState(st => ({ step: st.step === 1 ? 2 : 1 })); },
+      code, highlighted: highlight(code, tab), editorLabel: tab === 'html' ? 'HTML. Ctrl+Enter runs.' : 'CSS. Ctrl+Enter runs.',
+      tabName: 'tab-' + this.state.id, viewName: 'view-' + this.state.id,
+      isHtmlTab: tab === 'html', isCssTab: tab === 'css', showHtml: () => this.setState({ tab: 'html' }), showCss: () => this.setState({ tab: 'css' }),
+      example, pickExample: (e) => { const k = e.target.value; this.setState({ example: k, html: EXAMPLES[k].html, css: EXAMPLES[k].css, res: k === 'blank' ? null : linearize(EXAMPLES[k].html), focused: 0, announcement: '' }); },
+      preRef: this.preRef, taRef: this.taRef, frameRef: this.frameRef, listRef: this.listRef,
+      onInput: (e) => this.setCode(e.target.value), onKey: (e) => this.editorKey(e),
+      onScroll: (e) => { const p = this.preRef.current; if (p) { p.scrollTop = e.target.scrollTop; p.scrollLeft = e.target.scrollLeft; } },
+      rows, summary, hasResults, isEmpty: !hasResults, noneShown: hasResults && rows.length === 0 && view !== 'json' && view !== 'plain',
+      showMirrorList: hasResults && view === 'mirror', showPlainView: hasResults && view === 'plain', isPlain: view === 'plain', showPlain: () => this.setState({ view: 'plain' }), plainRef: this.plainRef, showNodeList: hasResults && view === 'nodes', showJsonView: hasResults && view === 'json',
+      isMirror: view === 'mirror', isNodes: view === 'nodes', isJson: view === 'json',
+      showMirror: () => this.setState({ view: 'mirror' }), showNodes: () => this.setState({ view: 'nodes' }), showJson: () => this.setState({ view: 'json' }),
+      json: JSON.stringify(items, null, 2), flaggedOnly, announcement: this.state.announcement,
+      run: () => this.run(), clear: () => this.setState({ html: '', css: '', example: 'blank', res: null, focused: 0, announcement: '' }),
+      toggleFlagged: (e) => this.setState({ flaggedOnly: e.target.checked }),
+      cpText: cp('text', 'Copy as text'), cpJson: cp('json', 'Copy JSON'), cpNpm: cp('npm', 'Copy'), cpCdn: cp('cdn', 'Copy'), cpBm: cp('bm', 'Copy bookmarklet code'), cpQs: cp('qs', 'Copy'),
+      copyQs: () => this.copy('import { linearize } from "screen-reader-mirror";\nconst items = linearize(document.body);\nconsole.table(items.filter(i => i.flags));', 'qs'),
+      copyJson: () => this.copy(JSON.stringify(items, null, 2), 'json'), copyText: () => this.copy(asText, 'text'),
+      copyNpm: () => this.copy('npm install screen-reader-mirror', 'npm'),
+      copyCdn: () => this.copy('import { linearize } from "https://cdn.jsdelivr.net/npm/screen-reader-mirror@0.2/+esm"', 'cdn'),
+      copyBookmarklet: () => this.copy("javascript:(function(){var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/screen-reader-mirror@0.2/bookmarklet.js';document.body.appendChild(s)})()", 'bm'),
+    };
+  }
+}
+</script>
+</body>
+</html>

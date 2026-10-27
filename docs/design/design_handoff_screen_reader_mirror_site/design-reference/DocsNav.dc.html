@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><link rel="stylesheet" href="docs.css"></helmet>
+<div style="min-width:0">
+<label class="jump"><span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Go to a documentation page</span><select class="sel" onChange="{{ go }}" value=""><option value="">Documentation pages</option><sc-for list="{{ flat }}" as="it" hint-placeholder-count="12"><option value="{{ it.href }}">{{ it.label }}</option></sc-for></select></label>
+<nav class="side" aria-label="Documentation">
+  <sc-for list="{{ groups }}" as="g" hint-placeholder-count="4">
+    <span class="grp">{{ g.name }}</span>
+    <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="3"><a class="{{ it.cls }}" href="{{ it.href }}" aria-current="{{ it.cur }}">{{ it.label }}</a></sc-for>
+  </sc-for>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:240,&quot;height&quot;:520},&quot;active&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;overview&quot;,&quot;install&quot;,&quot;output&quot;,&quot;testing&quot;,&quot;ci&quot;,&quot;settings&quot;,&quot;api&quot;,&quot;cli&quot;,&quot;divergences&quot;,&quot;privacy&quot;,&quot;contributing&quot;,&quot;sitemap&quot;],&quot;default&quot;:&quot;overview&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  static GROUPS = [
+    ['Start', [['overview','Overview','Docs.dc.html'],['install','Install','Docs - Install.dc.html'],['output','Reading the output','Docs - Reading the output.dc.html']]],
+    ['Use', [['testing','Testing with NVDA','Docs - Testing with NVDA.dc.html'],['ci','Continuous integration','Docs - CI.dc.html'],['settings','Settings','Docs - Settings.dc.html']]],
+    ['Reference', [['api','API','Docs - API.dc.html'],['cli','CLI','Docs - CLI.dc.html'],['divergences','Divergences','Docs - Divergences.dc.html']]],
+    ['Project', [['privacy','Privacy','Docs - Privacy.dc.html'],['contributing','Contributing','Docs - Contributing.dc.html'],['sitemap','Site map','Site map.dc.html']]],
+  ];
+  renderVals() {
+    const a = this.props.active ?? '';
+    const groups = Component.GROUPS.map(([name, items]) => ({ name, items: items.map(([id, label, href]) => ({ id, label, href, cls: id === a ? 'cur' : '', cur: id === a ? 'page' : undefined })) }));
+    return { groups, flat: groups.flatMap(g => g.items), go: (e) => { if (e.target.value) location.href = e.target.value; } };
+  }
+}
+</script>
+</body>
+</html>

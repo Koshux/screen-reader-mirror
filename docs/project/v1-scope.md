@@ -32,14 +32,25 @@ described in [../design/README.md](../design/README.md) before implementation st
 | Visual-versus-semantic mismatch heuristics | #11 | At minimum: text that looks like a heading but is not one, a grid of divs that looks like a table, a clickable div that is not a button or link, a form field with no label. Each heuristic documents its signal and its false-positive behaviour. |
 | Verbosity profiles | #10 | Pluggable NVDA, JAWS, and VoiceOver phrasing on top of the raw interpretation, plus a neutral default. Never hard-coded in the linearizer. |
 
-### Phase C: hosts (how people use it)
+### Phase C: hosts, the public site, and the NVDA bridge (how people use it)
+
+The designs for this phase arrived on 2026-10-27 in
+[`docs/design/design_handoff_screen_reader_mirror_site/`](../design/design_handoff_screen_reader_mirror_site/README.md):
+the public website, the documentation inside it, how to use each install path, the UI for the
+bookmarklet and the extension, and how the tool works beside a real screen reader, NVDA first.
+They are built out in full once A and B are done and the engine works fully, starting with the
+design intake below.
 
 | Item | Ticket | Notes |
 |---|---|---|
+| Design intake: check the site handoff against the design gate, reconcile it with the code, and split it into one spec per surface | new issue, on the operator's go-ahead | First row of the phase. The handoff predates SPEC-005 and SPEC-006, so the API, output, and settings pages need `interpret()`, mismatches, and the `browser` mode. Gaps against the six handoff requirements in [../design/README.md](../design/README.md) are listed there. |
+| Public website: landing, Getting started, About, Compared, on the shared header and footer | with #9 | Static HTML, no webfont, no third-party scripts, no analytics. The handoff's `.dc.html` files are references, not code to ship. |
+| Documentation site: the twelve docs pages (overview, install, reading the output, testing with NVDA, CI, settings, API, CLI, divergences, privacy, contributing, site map) | new issue, on the operator's go-ahead | Copy is final in the handoff. Every fact is checked against the code when the page is built, and each "Proposed" pill is dropped only when the feature has landed. Screenshots for the step guides are captured from the real build. |
 | Demo page and bookmarklet on GitHub Pages | #9 | Design gate first. Static, no backend, no analytics. The link a Show HN points at. |
 | Browser extension, Manifest V3 | #7 | SPEC-002 exists and needs its spec review. Design gate first. Chrome Web Store review time is on the critical path. |
 | Real accessibility tree in the extension via the debugger API | #20 | Opt-in, because it shows the browser's debugging banner. The highest-fidelity oracle. |
 | CLI, `npx screen-reader-mirror <url>` | #8 | Playwright or CDP host, fully offline, JSON and text output. The output format is part of the design gate. |
+| NVDA bridge: `npx screen-reader-mirror listen`, a pair code, what NVDA speaks captured beside the mirror and compared row by row (match, differs, extra), and a divergence report | new issue, on the operator's go-ahead | The most important adaptor. Marked Proposed in the handoff and not specced yet: it needs its own journey, spec, and threat model. Localhost only, started by the user, documented in the CLI README, never retaining content (infrastructure rules). Builds on the CLI (#8) and the NVDA profile (#10). VoiceOver on a Mac and other screen readers follow the same bridge shape after NVDA. |
 
 ### Phase D: extras
 
@@ -68,8 +79,12 @@ C: the hosts render real engine output and their designs need the final node sha
 mismatch flags and the verbosity phrasing. D after C: the PDF mode reuses the host rendering, and
 the VS Code extension reuses the CLI. E last, with the README and #19 able to start during C.
 
-Design handoffs for C can start as soon as the node shape from B is specified, which means the
-operator's design work runs in parallel with the engineering of A and B.
+The design handoff for C arrived on 2026-10-27, while B is still in progress. It waits until A and
+B are done, so the design intake can reconcile it with the final node shape (mismatches from
+SPEC-005, the `browser` mode from SPEC-006, phrasing from #10). Within C: the intake first, then the
+shared site shell, the website, the demo page, and the bookmarklet, then the extension and the CLI,
+then the NVDA bridge, which needs the CLI and the profiles. The docs pages are written alongside
+each surface and finished last, so they describe what shipped.
 
 ## Estimate
 
@@ -80,11 +95,11 @@ day and SPEC-001's engine work took three sessions including review:
 |---|---|---|
 | A | 6 to 8 | 2 weeks |
 | B | 5 to 7 | 2 weeks |
-| C | 8 to 10 plus design time and store review | 3 to 4 weeks |
+| C | 14 to 18 plus store review (revised 2026-10-27 for the site, the docs, and the NVDA bridge) | 5 to 6 weeks |
 | D | 5 to 7 | 2 weeks |
 | E | 3 to 4 plus the beta week | 2 weeks |
 
-Roughly 11 to 12 weeks end to end if the phases are worked in order, less where design and
+Roughly 13 to 14 weeks end to end if the phases are worked in order, less where design and
 engineering overlap. The estimate is a planning figure, not a commitment, and is revised at the
 end of each phase.
 

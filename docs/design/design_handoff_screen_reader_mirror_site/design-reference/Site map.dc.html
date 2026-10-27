@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><link rel="stylesheet" href="docs.css"></helmet>
+<div class="srm {{ themeClass }}" style="width:{{ widthPx }}">
+<dc-import name="SiteHeader" is-light="{{ isLightNow }}" theme-label="{{ themeBtnLabel }}" on-toggle="{{ toggleTheme }}" hint-size="100%,64px"></dc-import>
+<div class="hero"><p class="kicker pg">Site map</p><h1>Every journey, and the page that serves it</h1><p class="lead">Each row is something a person comes here to do. The middle column is the public page that does it; the right column is the design storyboard frame it was built from, for anyone working on the product.</p></div>
+<div class="wrap">
+<dc-import name="DocsNav" active="sitemap" hint-size="240px,520px"></dc-import>
+<main>
+
+<section id="pages" class="ch wide" aria-labelledby="h-pages">
+  <p class="kicker">Pages</p><h2 id="h-pages">The public site</h2>
+  <div class="cards">
+    <a class="card" href="Demo page - Concept.dc.html"><span class="kicker" style="color:var(--link)">Home</span><span class="t">Landing and live demo</span></a>
+    <a class="card" href="Getting started.dc.html"><span class="kicker" style="color:var(--link)">Start</span><span class="t">Getting started</span></a>
+    <a class="card" href="Docs.dc.html"><span class="kicker" style="color:var(--link)">Docs</span><span class="t">Overview</span></a>
+    <a class="card" href="Docs - Install.dc.html"><span class="kicker" style="color:var(--link)">Docs</span><span class="t">Install</span></a>
+    <a class="card" href="Docs - Reading the output.dc.html"><span class="kicker" style="color:var(--link)">Docs</span><span class="t">Reading the output</span></a>
+    <a class="card" href="Docs - Testing with NVDA.dc.html"><span class="kicker" style="color:var(--link)">Docs</span><span class="t">Testing with NVDA</span></a>
+    <a class="card" href="Docs - CI.dc.html"><span class="kicker" style="color:var(--link)">Docs</span><span class="t">Continuous integration</span></a>
+    <a class="card" href="Docs - Settings.dc.html"><span class="kicker" style="color:var(--link)">Docs</span><span class="t">Settings</span></a>
+    <a class="card" href="Docs - API.dc.html"><span class="kicker" style="color:var(--link)">Reference</span><span class="t">API</span></a>
+    <a class="card" href="Docs - CLI.dc.html"><span class="kicker" style="color:var(--link)">Reference</span><span class="t">CLI</span></a>
+    <a class="card" href="Docs - Divergences.dc.html"><span class="kicker" style="color:var(--link)">Reference</span><span class="t">Divergences</span></a>
+    <a class="card" href="Docs - Privacy.dc.html"><span class="kicker" style="color:var(--link)">Project</span><span class="t">Privacy</span></a>
+    <a class="card" href="Docs - Contributing.dc.html"><span class="kicker" style="color:var(--link)">Project</span><span class="t">Contributing</span></a>
+    <a class="card" href="About.dc.html"><span class="kicker" style="color:var(--link)">Project</span><span class="t">About</span></a>
+    <a class="card" href="Compared.dc.html"><span class="kicker" style="color:var(--link)">Project</span><span class="t">Compared</span></a>
+  </div>
+</section>
+
+<section id="journeys" class="ch wide" aria-labelledby="h-j">
+  <p class="kicker">Journeys</p><h2 id="h-j">What people come to do</h2>
+  <div class="tbl c3" role="table" aria-label="Journeys"><span class="h">Journey</span><span class="h">Page</span><span class="h">Storyboard</span>
+    <span>See what it does in ten seconds</span><span><a href="Demo page - Concept.dc.html">Landing</a> hero and demo</span><span><a href="Demo page screens.dc.html">Demo page screens</a></span>
+    <span>Paste my HTML and read the order</span><span><a href="Demo page - Concept.dc.html#demo">Demo</a>; states on <a href="Docs - Reading the output.dc.html#states">Reading the output</a></span><span>—</span>
+    <span>Try it on a real page with nothing installed</span><span><a href="Getting started.dc.html#bookmarklet">Getting started</a> › <a href="Docs - Install.dc.html#bookmarklet">Install › Bookmarklet</a></span><span><a href="Surfaces.dc.html#a1">a1</a>–<a href="Surfaces.dc.html#a4">a4</a></span>
+    <span>The bookmarklet is blocked on my site</span><span><a href="Docs - Install.dc.html#bookmarklet">Install › When it does not run</a></span><span>—</span>
+    <span>Install the extension and read a page</span><span><a href="Docs - Install.dc.html#extension">Install › Extension</a></span><span><a href="Surfaces.dc.html#b1">b1</a>–<a href="Surfaces.dc.html#b4">b4</a></span>
+    <span>Install without the store, verifying the release</span><span><a href="Docs - Install.dc.html#sideload">Install › Install it yourself</a></span><span>—</span>
+    <span>Use the engine in my code</span><span><a href="Docs - Install.dc.html#package">Install › Package</a>, <a href="Docs - API.dc.html">API</a></span><span><a href="Testing.dc.html#d2">d2</a></span>
+    <span>Understand a flagged row and fix it</span><span><a href="Docs - Reading the output.dc.html">Reading the output</a></span><span><a href="Surfaces.dc.html#b2">b2</a>, <a href="Surfaces.dc.html#b4">b4</a></span>
+    <span>Set up NVDA and the bridge from nothing</span><span><a href="Docs - Testing with NVDA.dc.html#setup">Testing with NVDA › Set up</a></span><span><a href="Testing.dc.html#setup">C0</a>, <a href="Testing.dc.html#c1">c1</a>–<a href="Testing.dc.html#c2">c2</a></span>
+    <span>Compare the mirror with NVDA, row by row</span><span><a href="Docs - Testing with NVDA.dc.html#controls">Testing › The four controls</a></span><span><a href="Testing.dc.html#c3">c3</a>, <a href="Testing.dc.html#d1">d1</a>–<a href="Testing.dc.html#d4">d4</a></span>
+    <span>Test by headings, Tab, tables, forms, live regions</span><span><a href="Docs - Testing with NVDA.dc.html#controls">Testing › Mode</a></span><span><a href="Testing.dc.html#c4">c4</a>–<a href="Testing.dc.html#c8">c8</a></span>
+    <span>Switch to the browser's real accessibility tree</span><span><a href="Docs - Testing with NVDA.dc.html#controls">Testing › Source</a>, <a href="Docs - Install.dc.html#extension">permissions</a></span><span><a href="Testing.dc.html#c9">c9</a>–<a href="Testing.dc.html#c10">c10</a></span>
+    <span>Import a speech log from another machine</span><span><a href="Docs - Testing with NVDA.dc.html#import">Testing › Import a log</a></span><span><a href="Testing.dc.html#c12">c12</a></span>
+    <span>Report a difference between the mirror and NVDA</span><span><a href="Docs - Divergences.dc.html#report">Divergences › Report one</a></span><span><a href="Testing.dc.html#c3">c3</a> footer</span>
+    <span>Gate a pull request on reading order</span><span><a href="Docs - CI.dc.html">Continuous integration</a>, <a href="Docs - CLI.dc.html#check">CLI › Gates</a></span><span><a href="Testing.dc.html#c11">c11</a></span>
+    <span>Read a failed CI report</span><span><a href="Docs - CI.dc.html#report">CI › Reading a failure</a></span><span>—</span>
+    <span>Change what is said and how the panel behaves</span><span><a href="Docs - Settings.dc.html">Settings</a></span><span><a href="Surfaces.dc.html#b5">b5</a>, <a href="Testing.dc.html#d3">d3</a></span>
+    <span>Know what is stored and sent</span><span><a href="Docs - Privacy.dc.html">Privacy</a></span><span>—</span>
+    <span>Decide whether this replaces my linter or screen reader</span><span><a href="Compared.dc.html">Compared</a></span><span>—</span>
+    <span>Contribute a fix or a fixture</span><span><a href="Docs - Contributing.dc.html">Contributing</a></span><span>—</span>
+  </div>
+</section>
+
+<section id="design" class="ch wide" aria-labelledby="h-d">
+  <p class="kicker">For the product team</p><h2 id="h-d">Storyboards and components</h2>
+  <div class="cards">
+    <a class="card" href="Surfaces.dc.html"><span class="t">Surfaces</span><span class="d">a1–a4 bookmarklet, b1–b5 extension.</span></a>
+    <a class="card" href="Testing.dc.html"><span class="t">Testing</span><span class="d">C0 set-up, c1–c12 capture, modes, sources; d1–d4 per install; edge cases.</span></a>
+    <a class="card" href="Demo page screens.dc.html"><span class="t">Demo page screens</span><span class="d">The demo at three widths, two themes, four states.</span></a>
+    <a class="card" href="MirrorPanel.dc.html"><span class="t">MirrorPanel, HostPage</span><span class="d">Reusable pieces the storyboards are composed from.</span></a>
+    <a class="card" href="readme.md"><span class="t">Design system</span><span class="d">Tokens, eight core components, ten guideline cards.</span></a>
+    <a class="card" href="docs/outline.md"><span class="t">Docs outline</span><span class="d">Anchors, sources of truth, proposals not yet in the repo.</span></a>
+  </div>
+</section>
+
+<nav class="pn" aria-label="Previous and next"><a href="Docs - Contributing.dc.html"><span>Previous</span><span>Contributing</span></a><span></span></nav>
+</main>
+</div>
+<dc-import name="SiteFooter" hint-size="100%,320px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;auto&quot;,&quot;coral&quot;,&quot;coral-light&quot;],&quot;default&quot;:&quot;auto&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Theme&quot;},&quot;width&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[320,768,1280],&quot;default&quot;:1280,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Layout&quot;}}">
+class Component extends DCLogic {
+  state = { themeOverride: (() => { try { return localStorage.getItem('srm-theme') || null; } catch (e) { return null; } })() };
+  themeNow() { const o = this.state.themeOverride; if (o) return o; const p = this.props.theme ?? 'auto'; if (p !== 'auto') return p; return (typeof matchMedia !== 'undefined' && matchMedia('(prefers-color-scheme: light)').matches) ? 'coral-light' : 'coral'; }
+  renderVals() { const t = this.themeNow(); const light = /light/.test(t); return { themeClass: 't-' + t, isLightNow: light, themeBtnLabel: light ? 'Switch to dark theme' : 'Switch to light theme', toggleTheme: () => { const next = light ? 'coral' : 'coral-light'; try { localStorage.setItem('srm-theme', next); } catch (e) {} this.setState({ themeOverride: next }); }, widthPx: (this.props.width ?? 1280) + 'px' }; }
+}
+</script>
+</body>
+</html>

@@ -5,7 +5,14 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   {
-    ignores: ["**/dist/**", "**/node_modules/**", "**/coverage/**", "**/*.tsbuildinfo"],
+    // docs/design holds design exports: references to view, not code that ships.
+    ignores: [
+      "**/dist/**",
+      "**/node_modules/**",
+      "**/coverage/**",
+      "**/*.tsbuildinfo",
+      "docs/design/**",
+    ],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,

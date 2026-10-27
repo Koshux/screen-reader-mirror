@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><link rel="stylesheet" href="docs.css"></helmet>
+<div class="srm {{ themeClass }}" style="width:{{ widthPx }}">
+<dc-import name="SiteHeader" is-light="{{ isLightNow }}" theme-label="{{ themeBtnLabel }}" on-toggle="{{ toggleTheme }}" hint-size="100%,64px"></dc-import>
+<div class="hero"><p class="kicker pg">Docs · API</p><h1>linearize, and what it returns</h1><p class="lead">One function, one type. Everything a surface shows is derived from this. Items marked <span class="st wip">Proposed</span> are designed but not yet in a release.</p></div>
+<div class="wrap">
+<dc-import name="DocsNav" active="api" hint-size="240px,520px"></dc-import>
+<main>
+
+<section id="linearize" class="ch" aria-labelledby="h-lin">
+  <p class="kicker">Function <span class="st ok">0.x</span></p><h2 id="h-lin">linearize(root, options?)</h2>
+  <pre>import { linearize } from "screen-reader-mirror";
+function linearize(root: Element, options?: LinearizeOptions): InterpretationNode[];</pre>
+  <p>Walks the composed tree under <span class="mono">root</span> in DOM order and returns one entry per thing a screen reader would land on. Pure: no network, no side effects, no live node references in the result. CSS reordering (<span class="mono">order</span>, positioning) is intentionally not reflected.</p>
+  <h3>Options</h3>
+  <div class="tbl" role="table" aria-label="LinearizeOptions"><span class="h">Option</span><span class="h">Use</span>
+    <span class="k">getComputedStyle(el)</span><span>Override the style source for jsdom, happy-dom or non-browser hosts. Decides <span class="mono">display:none</span> and <span class="mono">visibility:hidden</span>.</span>
+    <span class="k">getShadowRoot(host)</span><span>Supply a closed shadow root the DOM hides. Defaults to <span class="mono">el.shadowRoot</span>, so closed roots read as their light children.</span>
+  </div>
+</section>
+
+<section id="node" class="ch" aria-labelledby="h-node">
+  <p class="kicker">Type <span class="st ok">0.x</span></p><h2 id="h-node">InterpretationNode</h2>
+  <pre>interface InterpretationNode {
+  role: string;                 <b>// computed ARIA role, or "text"</b>
+  name: string;                 <b>// accessible name, may be ""</b>
+  level?: number;               <b>// headings only</b>
+  flags?: { unnamed?: boolean; missingAlt?: boolean; unreachable?: boolean };
+  live?: {                      <b>// live regions only</b>
+    politeness: "polite" | "assertive";
+    atomic: boolean;
+    relevant: Array&lt;"additions" | "removals" | "text"&gt;;
+    busy?: true;
+  };
+  ref?: { tag: string; shadow?: true; frame?: number };
+}</pre>
+  <div class="tbl c3" role="table" aria-label="Fields"><span class="h">Field</span><span class="h">Rule</span><span class="h">Spec</span>
+    <span class="k">role</span><span>Explicit <span class="mono">role</span> wins; otherwise the conditional implicit role (<span class="mono">&lt;a&gt;</span> is a link only with <span class="mono">href</span>, <span class="mono">&lt;li&gt;</span> a listitem only inside a list, an unnamed <span class="mono">&lt;section&gt;</span> is not a landmark). Bare text is <span class="mono">"text"</span>.</span><span>SPEC-001 §3</span>
+    <span class="k">name</span><span>AccName 1.2 via dom-accessibility-api. Elements named from content carry it here and do not also emit text nodes for the same subtree.</span><span>SPEC-001 §3</span>
+    <span class="k">level</span><span>1–6 from the tag, any integer from <span class="mono">aria-level</span> (which wins), 2 for a bare <span class="mono">role="heading"</span>.</span><span>SPEC-001</span>
+    <span class="k">flags</span><span>Omitted entirely when none apply. Each key omitted unless true.</span><span>SPEC-001 AC-5, AC-6; SPEC-003 AC-7</span>
+    <span class="k">live</span><span>From <span class="mono">aria-live</span>, <span class="mono">aria-atomic</span>, <span class="mono">aria-relevant</span>, <span class="mono">aria-busy</span>, or the role's implicit values (alert assertive; status, log, output polite). Describes set-up, not whether anything was announced.</span><span>SPEC-004</span>
+    <span class="k">ref</span><span>Tag name plus where it lives. <span class="mono">shadow</span> for any depth of shadow tree; <span class="mono">frame</span> is the 1-based index of the innermost frame met in reading order. Text inside a frame carries <span class="mono">{ tag: "#text", frame }</span>.</span><span>SPEC-003 AC-5, AC-6</span>
+  </div>
+</section>
+
+<section id="capture" class="ch" aria-labelledby="h-cap">
+  <p class="kicker">Capture <span class="st wip">Proposed</span></p><h2 id="h-cap">capture.connect, compare</h2>
+  <pre>import { capture, compare } from "screen-reader-mirror/capture";
+
+const bridge = await capture.connect({ port?: 7331, pair: "4821" });
+bridge.on("utterance", (u: Utterance) =&gt; { … });
+bridge.on("status", (s: "connected" | "no-speech" | "lost") =&gt; { … });
+bridge.close();
+
+interface Utterance { text: string; at: number; reader: "nvda" | "jaws" | "voiceover" | "unknown"; }
+
+function compare(nodes: InterpretationNode[], u: Utterance, profile?: Profile):
+  { row?: InterpretationNode; at?: number; verdict: "match" | "differs" | "extra" };</pre>
+  <p><span class="mono">compare</span> aligns by order first, then by text, and remembers the last matched position between calls so a sequence of utterances walks the list. "extra" is an utterance with no row (such as "clickable"); it is attached to the nearest row, never counted as a divergence.</p>
+</section>
+
+<section id="speak" class="ch" aria-labelledby="h-speak">
+  <p class="kicker">Profiles <span class="st wip">Proposed</span></p><h2 id="h-speak">speak(nodes, profile)</h2>
+  <pre>import { speak } from "screen-reader-mirror/profiles";
+type Profile = "generic" | "nvda" | "jaws" | "voiceover";
+function speak(nodes: InterpretationNode[], profile: Profile, opts?: SpeakOptions): string[];</pre>
+  <p>One string per node in that screen reader's default phrasing. <span class="mono">SpeakOptions</span> mirror the Speech settings: landmarks, heading levels, table dimensions, punctuation. Profiles are tracked on the roadmap; until they land, every surface uses Generic.</p>
+</section>
+
+<section id="versions" class="ch" aria-labelledby="h-ver">
+  <p class="kicker">Versioning</p><h2 id="h-ver">What counts as breaking</h2>
+  <ul><li>Any change to the shape of <span class="mono">InterpretationNode</span>, even in 0.x, is a minor bump and marked breaking in the changelog.</li><li>A change in computed output for the same HTML (a new role rule, a fixed name) is a patch, listed under "Output changes" with the fixture that covers it. Snapshots will show it.</li><li>Node 20+, evergreen browsers. ESM only.</li></ul>
+</section>
+
+<nav class="pn" aria-label="Previous and next"><a href="Docs - Settings.dc.html"><span>Previous</span><span>Settings</span></a><a href="Docs - CLI.dc.html" style="text-align:right"><span>Next</span><span>CLI</span></a></nav>
+</main>
+</div>
+<dc-import name="SiteFooter" hint-size="100%,320px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;auto&quot;,&quot;coral&quot;,&quot;coral-light&quot;],&quot;default&quot;:&quot;auto&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Theme&quot;},&quot;width&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[320,768,1280],&quot;default&quot;:1280,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Layout&quot;}}">
+class Component extends DCLogic {
+  state = { themeOverride: (() => { try { return localStorage.getItem('srm-theme') || null; } catch (e) { return null; } })() };
+  themeNow() { const o = this.state.themeOverride; if (o) return o; const p = this.props.theme ?? 'auto'; if (p !== 'auto') return p; return (typeof matchMedia !== 'undefined' && matchMedia('(prefers-color-scheme: light)').matches) ? 'coral-light' : 'coral'; }
+  renderVals() { const t = this.themeNow(); const light = /light/.test(t); return { themeClass: 't-' + t, isLightNow: light, themeBtnLabel: light ? 'Switch to dark theme' : 'Switch to light theme', toggleTheme: () => { const next = light ? 'coral' : 'coral-light'; try { localStorage.setItem('srm-theme', next); } catch (e) {} this.setState({ themeOverride: next }); }, widthPx: (this.props.width ?? 1280) + 'px' }; }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><link rel="stylesheet" href="docs.css"></helmet>
+<div class="srm {{ themeClass }}" style="width:{{ widthPx }}">
+<dc-import name="SiteHeader" is-light="{{ isLightNow }}" theme-label="{{ themeBtnLabel }}" on-toggle="{{ toggleTheme }}" hint-size="100%,64px"></dc-import>
+<div class="hero"><p class="kicker pg">Docs · Divergences</p><h1>Where the mirror and screen readers disagree</h1><p class="lead">A living list. The mirror is not a screen reader and will differ from one in places. Each known difference is written down with what each side says, why, and whether it is a bug, a profile gap, or intended. If yours is not here, report it.</p></div>
+<div class="wrap">
+<dc-import name="DocsNav" active="divergences" hint-size="240px,520px"></dc-import>
+<main>
+
+<section id="known" class="ch wide" aria-labelledby="h-known">
+  <p class="kicker">Known</p><h2 id="h-known">The list</h2>
+  <div class="tbl c4" role="table" aria-label="Known divergences"><span class="h">Mirror says</span><span class="h">Screen reader says · why</span><span class="h">Kind</span><span class="h">Status</span>
+    <span>button</span><span>NVDA: "menu button". The element has <span class="mono">aria-haspopup</span>; the Generic profile does not voice it yet.</span><span>Profile gap</span><span><span class="st wip">Open</span></span>
+    <span>graphic chart.png</span><span>NVDA: "graphic chart". NVDA strips the file extension from an image name that is a filename.</span><span>Profile gap</span><span><span class="st wip">Open</span></span>
+    <span>link Details</span><span>NVDA: "visited link Details" after the link has been followed. The mirror has no history.</span><span>Intended</span><span><span class="st">Won't fix</span></span>
+    <span>(nothing)</span><span>NVDA: "clickable" on elements with a click handler. Not in the accessibility tree; NVDA infers it. Shown as extra, never as differs.</span><span>Intended</span><span><span class="st">Won't fix</span></span>
+    <span>button (unnamed)</span><span>AX tree and NVDA: "button Actions". Named through a closed shadow root the DOM walk cannot see. Use Source › AX tree, or pass <span class="mono">getShadowRoot</span>.</span><span>Source limit</span><span><span class="st">Documented</span></span>
+    <span>table with 1 row and 3 columns</span><span>Chrome AX tree: nothing. Chrome treats a single-row table with no headers as layout. The DOM walk follows the spec; Chrome applies a heuristic.</span><span>Source limit</span><span><span class="st">Documented</span></span>
+    <span>document unreachable</span><span>Any screen reader reads the cross-origin frame's content. The page cannot.</span><span>Source limit</span><span><span class="st">Documented</span></span>
+    <span>generic (live region, empty)</span><span>NVDA: silence when the region is inserted together with its message. The mirror shows set-up; the Live regions mode shows "not announced".</span><span>Intended</span><span><span class="st">Documented</span></span>
+    <span>heading level 2, Recent</span><span>VoiceOver: "Recent, heading level 2". Word order differs per screen reader; the VoiceOver profile will carry it.</span><span>Profile gap</span><span><span class="st wip">Open</span></span>
+    <span>edit Due before</span><span>JAWS: "Due before edit, type in text". JAWS adds usage hints by default; the JAWS profile will carry them.</span><span>Profile gap</span><span><span class="st wip">Open</span></span>
+  </div>
+  <p style="max-width:72ch">Kinds: <b>Profile gap</b>, the engine is right and the words are not yet modelled; <b>Source limit</b>, the DOM walk cannot see what the browser can; <b>Bug</b>, the engine is wrong; <b>Intended</b>, the mirror will never do this and says so.</p>
+</section>
+
+<section id="report" class="ch" aria-labelledby="h-report">
+  <p class="kicker">Report one</p><h2 id="h-report">From a row to an issue</h2>
+  <ol class="steps">
+    <li><span class="n">1</span><div class="body"><h4>Click "Report divergence" under the row</h4><p>Any row marked differs has it. In the CLI, the session report has a <span class="mono">report</span> link per differing row.</p></div></li>
+    <li><span class="n">2</span><div class="body"><h4>Review the sheet</h4><p>It lists exactly what goes in: the mirror's row, the screen reader's row, profile, source, versions (engine, browser, screen reader), the element's selector, and about 20 lines of HTML around it. The page URL is not included unless you tick it. Edit anything.</p><p class="see"><b>If it is already known</b>, the sheet says so and links the entry above instead of opening a new issue.</p></div></li>
+    <li><span class="n">3</span><div class="body"><h4>Send</h4><p>Opens a pre-filled GitHub issue in a new tab. Nothing leaves the machine until you press Submit there.</p></div></li>
+  </ol>
+  <h3>What happens next</h3>
+  <ul><li>Triaged into one of the four kinds within a week.</li><li>Bugs get a golden fixture reproducing the HTML, then the fix. The fixture stays forever.</li><li>Profile gaps are grouped per screen reader and land with that profile.</li><li>Every entry above links its issue.</li></ul>
+</section>
+
+<nav class="pn" aria-label="Previous and next"><a href="Docs - CLI.dc.html"><span>Previous</span><span>CLI</span></a><a href="Docs - Privacy.dc.html" style="text-align:right"><span>Next</span><span>Privacy</span></a></nav>
+</main>
+</div>
+<dc-import name="SiteFooter" hint-size="100%,320px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;auto&quot;,&quot;coral&quot;,&quot;coral-light&quot;],&quot;default&quot;:&quot;auto&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Theme&quot;},&quot;width&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[320,768,1280],&quot;default&quot;:1280,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Layout&quot;}}">
+class Component extends DCLogic {
+  state = { themeOverride: (() => { try { return localStorage.getItem('srm-theme') || null; } catch (e) { return null; } })() };
+  themeNow() { const o = this.state.themeOverride; if (o) return o; const p = this.props.theme ?? 'auto'; if (p !== 'auto') return p; return (typeof matchMedia !== 'undefined' && matchMedia('(prefers-color-scheme: light)').matches) ? 'coral-light' : 'coral'; }
+  renderVals() { const t = this.themeNow(); const light = /light/.test(t); return { themeClass: 't-' + t, isLightNow: light, themeBtnLabel: light ? 'Switch to dark theme' : 'Switch to light theme', toggleTheme: () => { const next = light ? 'coral' : 'coral-light'; try { localStorage.setItem('srm-theme', next); } catch (e) {} this.setState({ themeOverride: next }); }, widthPx: (this.props.width ?? 1280) + 'px' }; }
+}
+</script>
+</body>
+</html>

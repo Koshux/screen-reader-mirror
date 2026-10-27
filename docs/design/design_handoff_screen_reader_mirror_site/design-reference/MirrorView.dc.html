@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/nocturne-bd7651e7-87e9-4651-a78b-257047ee4cc9/styles.css">
+<script src="_ds/nocturne-bd7651e7-87e9-4651-a78b-257047ee4cc9/_ds_bundle.js"></script>
+</helmet>
+<div style="display:flex;flex-direction:column;gap:10px;font-size:15px;line-height:1.5;color:var(--color-text);font-family:var(--font-body)">
+<sc-for list="{{ nodes }}" as="n" hint-placeholder-count="11">
+  <sc-if value="{{ n.isLandmark }}" hint-placeholder-val="{{ false }}"><span class="text-muted" style="font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding-bottom:4px;border-bottom:1px solid var(--color-divider)">{{ n.roleLabel }}</span></sc-if>
+  <sc-if value="{{ n.isHeading }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap"><span style="font-family:var(--font-heading);font-weight:500;font-size:24px;line-height:1.15">{{ n.nameLabel }}</span><span class="text-muted" style="font-family:ui-monospace,Menlo,monospace;font-size:11px">{{ n.roleLabel }}</span></div></sc-if>
+  <sc-if value="{{ n.isText }}" hint-placeholder-val="{{ true }}"><span>{{ n.nameLabel }}</span></sc-if>
+  <sc-if value="{{ n.isControl }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="display:inline-flex;align-items:center;gap:6px;border:1px solid var(--color-accent);border-radius:var(--radius-sm);padding:4px 10px;font-size:13px;color:var(--color-accent-300)">{{ n.controlLabel }}</span><sc-if value="{{ n.hasFlag }}" hint-placeholder-val="{{ false }}"><span class="tag tag-accent">{{ n.flag }}</span></sc-if></div></sc-if>
+  <sc-if value="{{ n.isImg }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="text-muted" style="display:inline-flex;align-items:center;border:1px dashed var(--color-neutral-600);border-radius:var(--radius-sm);padding:4px 10px;font-size:13px">image, no alt</span><span class="tag tag-accent">no alt</span></div></sc-if>
+  <sc-if value="{{ n.isLink }}" hint-placeholder-val="{{ false }}"><span><a href="#" style="color:var(--color-accent-300)">{{ n.nameLabel }}</a> <span class="text-muted" style="font-family:ui-monospace,Menlo,monospace;font-size:11px">link</span></span></sc-if>
+</sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:400,&quot;height&quot;:420},&quot;nodes&quot;:{&quot;editor&quot;:null,&quot;default&quot;:[],&quot;tsType&quot;:&quot;MirrorNode[]&quot;}}"></script>
+</body>
+</html>

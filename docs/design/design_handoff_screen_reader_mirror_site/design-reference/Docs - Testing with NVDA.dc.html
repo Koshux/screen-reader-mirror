@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><link rel="stylesheet" href="docs.css"></helmet>
+<div class="srm {{ themeClass }}" style="width:{{ widthPx }}">
+<dc-import name="SiteHeader" is-light="{{ isLightNow }}" theme-label="{{ themeBtnLabel }}" on-toggle="{{ toggleTheme }}" hint-size="100%,64px"></dc-import>
+<div class="hero"><p class="kicker pg">Docs · Testing with NVDA</p><h1>The mirror beside a real screen reader</h1><p class="lead">The mirror predicts what a screen reader will say. NVDA is the screen reader most testers run. Put the two side by side and every difference becomes a row you can point at. This page gets you there from a blank Windows machine, then explains the four controls above every list.</p></div>
+<div class="wrap">
+<dc-import name="DocsNav" active="testing" hint-size="240px,520px"></dc-import>
+<main>
+
+<section id="setup" class="ch" aria-labelledby="h-setup">
+  <p class="kicker">Set up</p><h2 id="h-setup">Five steps, fifteen minutes the first time</h2>
+  <p>You need three things on one Windows computer: NVDA, Node, and the mirror in any form. Each step says what to type, what you should see, and what to do if you do not.</p>
+  <ol class="steps">
+    <li><span class="n">1</span><div class="body"><h4>Install NVDA</h4><p>NVDA is a free screen reader. Download it from <span class="mono">nvaccess.org/download</span>, run the installer, keep the defaults, let it start. It begins talking.</p><p>Open its Speech Viewer: press <span class="mono">Insert + N</span> for the NVDA menu, then Tools › Speech Viewer. A small window shows every word NVDA says, as text.</p><p class="see"><b>You should see</b> the Speech Viewer fill with text as you move around. Leave it open; the bridge reads from it. <b>If NVDA is silent</b>: <span class="mono">Insert + S</span> cycles speech mode; choose "talk".</p></div></li>
+    <li><span class="n">2</span><div class="body"><h4>Install Node</h4><p>Node runs the bridge. Download the LTS from <span class="mono">nodejs.org</span>, run the installer, keep the defaults. Open a terminal: press the Windows key, type <span class="mono">terminal</span>, Enter.</p><pre>&gt; node --version
+v22.11.0</pre><p class="see"><b>You should see</b> v20 or higher. <b>If not</b>: close the terminal and open a new one; the installer only reaches new windows.</p></div></li>
+    <li><span class="n">3</span><div class="body"><h4>Start the bridge</h4><p>In that terminal, one line. The first run downloads the tool. Leave this window open while you test.</p><pre>&gt; npx screen-reader-mirror listen
+
+● NVDA 2025.1 detected
+  Bridge on  ws://localhost:7331
+  Pair code  4 8 2 1</pre><p class="see"><b>You should see</b> the dot, NVDA's version and a four-digit code. <b>If it says "no screen reader found"</b>: NVDA is not running or Speech Viewer is closed; fix that and the line updates by itself. <b>"EADDRINUSE"</b>: the port is taken; add <span class="mono">--port 7332</span>.</p></div></li>
+    <li><span class="n">4</span><div class="body"><h4>Open the mirror and pair</h4><p>Any install works; they all ask for the same code once.</p><ul><li><b>Bookmarklet</b>: open the page you want to test, click the Mirror this page bookmark.</li><li><b>Extension</b>: click the <span class="mono">sr</span> icon, Open side panel.</li><li><b>CLI</b>: a second terminal, <span class="mono">npx screen-reader-mirror &lt;url&gt; --capture bridge --headed</span>.</li></ul><p class="see"><b>You should see</b> "Bridge found on this machine" and four boxes for the code. Type it. The Capture pill turns green: <b style="color:var(--live)">NVDA · live</b>. <b>If there is no "Bridge found"</b>: the step 3 window closed, or the port changed; the panel has a field for the port. Three wrong codes and the terminal prints a new one.</p></div></li>
+    <li><span class="n">5</span><div class="body"><h4>Press keys, read both columns</h4><p>Click once inside the web page so NVDA is reading it. Press <span class="mono">↓</span> to move one item at a time. The left column is what the mirror expected; the right fills with what NVDA said.</p><div class="pnl" style="max-width:560px"><div class="strip"><span class="lbl">Source</span><span class="pill on">DOM walk</span><span class="lbl">Profile</span><span class="pill on">NVDA</span><span class="lbl">Mode</span><span class="pill on">Read all</span><span class="lbl">Capture</span><span class="pill live">● NVDA · live</span></div><div style="display:grid;grid-template-columns:1fr 1fr"><div class="rows" style="border-right:1px solid var(--border)"><span class="lbl">Mirror says</span><div class="row"><span class="r">main landmark</span><span></span></div><div class="row"><span>heading level 1, Orders</span><span></span></div><div class="row cur"><span class="r">button</span><span class="flag">unnamed</span></div></div><div class="rows"><span class="lbl" style="color:var(--live)">NVDA said</span><div class="row"><span class="r">main landmark</span><span class="flag ok">match</span></div><div class="row"><span>Orders heading level 1</span><span class="flag ok">match</span></div><div class="row cur"><span>menu button</span><span class="flag">differs</span></div></div></div></div><ul><li><span class="flag ok">match</span> the same thing. Good.</li><li><span class="flag">differs</span> two different strings. Read both. If the mirror is wrong, <a href="#report">report it</a>.</li><li><span class="flag mute">extra</span> NVDA said something the mirror has no row for ("clickable"). Normal; shown as a sub-line.</li><li><span style="color:var(--muted);font-style:italic">not reached yet</span> you have not got that far. Keep pressing.</li></ul><p class="see"><b>When done</b>: Ctrl+C in the bridge window. It writes a session report. Nothing was sent anywhere; the pairing is remembered for next time.</p></div></li>
+  </ol>
+  <div class="cards">
+    <div class="state"><span class="t">On a Mac</span><span>Skip step 1; VoiceOver is built in (<span class="mono">Cmd + F5</span>). The bridge reads its captions panel. The Profile pill says VoiceOver and there is no forms mode.</span></div>
+    <div class="state"><span class="t">No bridge, just looking</span><span>Skip steps 2 to 4. The left column works alone. Add NVDA later to check the mirror against the real thing.</span></div>
+    <div class="state"><span class="t">Tester here, developer there</span><span>The bridge only talks to the same machine. Send the session report; the developer <a href="#import">imports it as a log</a>.</span></div>
+  </div>
+</section>
+
+<section id="controls" class="ch" aria-labelledby="h-controls">
+  <p class="kicker">The four controls</p><h2 id="h-controls">Source, Profile, Mode, Capture</h2>
+  <p>Every Spoken list has the same strip above it. Left to right: where the tree came from, how it is phrased, how you are moving, and what a real screen reader said.</p>
+  <h3>Source</h3>
+  <div class="tbl c3" role="table" aria-label="Sources"><span class="h">Source</span><span class="h">What it is</span><span class="h">Where</span>
+    <span>DOM walk</span><span>The engine reads the page's DOM in JavaScript and computes roles and names itself. Portable; the same everywhere. The default.</span><span>All installs</span>
+    <span>AX tree</span><span>The browser's own accessibility tree, the one screen readers read. Most faithful. Needs the debugger permission; Chrome shows a bar while it is on.</span><span>Extension, CLI</span>
+    <span>Pasted HTML</span><span>The demo's paste box. Rendered in a sandbox, then walked.</span><span>Demo</span>
+    <span>Public URL</span><span>Fetched by the CLI through Playwright, or typed into the demo for public pages.</span><span>Demo, CLI</span>
+  </div>
+  <p>Switching source re-reads the page. Rows that changed keep both readings, so DOM-walk and AX-tree disagreements become a list.</p>
+  <h3>Profile</h3>
+  <p>Generic, NVDA, JAWS, VoiceOver. Same nodes, different words: "heading level 1, Orders" against "Orders heading level 1". Switching never re-reads the page. When NVDA is paired, Profile sets itself to NVDA.</p>
+  <h3>Mode</h3>
+  <div class="tbl c3" role="table" aria-label="Modes"><span class="h">Mode</span><span class="h">Shows</span><span class="h">NVDA key</span>
+    <span>Read all</span><span>Everything, in reading order.</span><span class="k">↓ / ↑</span>
+    <span>Tab order</span><span>Focusable elements only, numbered, with the stop drawn on the page. Clickable divs that are not focusable are listed as unreachable.</span><span class="k">Tab</span>
+    <span>Headings</span><span>Headings only, indented by level; skipped levels and heading look-alikes called out. Number keys narrow to one level.</span><span class="k">H, 1–6</span>
+    <span>Landmarks</span><span>Regions only: main, navigation, banner, and named sections.</span><span class="k">D</span>
+    <span>Table cells</span><span>A grid of the current table; each move speaks the header for the axis that changed, then the cell. Header-less and layout tables called out.</span><span class="k">Ctrl Alt arrows</span>
+    <span>Forms mode</span><span>What is said when focus lands on a field and NVDA switches from browse to focus mode. Hints that are not linked by <span class="mono">aria-describedby</span> are flagged.</span><span class="k">Enter / Esc</span>
+    <span>Live regions</span><span>A timeline: how each region is set up, what changed when, and what was announced. Regions inserted with their message show as "not announced".</span><span class="k">time</span>
+  </div>
+  <p>With Capture on, the panel follows the real keys: press H in NVDA and the right column fills with what it said at each heading.</p>
+  <h3>Capture</h3>
+  <p>Off, bridge, or imported log. Rows align by order, then by text. A row that differs carries both strings. A row only one side has is left empty on the other. Nothing is ever hidden to make the columns tidy.</p>
+</section>
+
+<section id="installs" class="ch" aria-labelledby="h-installs">
+  <p class="kicker">Per install</p><h2 id="h-installs">Where the two columns appear</h2>
+  <ul>
+    <li><b>Bookmarklet</b>: the panel over the page widens into two columns. It connects to the bridge from the page; localhost counts as a secure origin, so https pages are allowed to.</li>
+    <li><b>Extension</b>: the side panel splits. Settings has a Capture section: auto-connect, pairing, follow NVDA's keys, show extra utterances. See <a href="Docs - Settings.dc.html#capture">Settings</a>.</li>
+    <li><b>CLI</b>: <span class="mono">--capture bridge --headed</span> opens the page in a visible browser and prints rows with timestamps as NVDA speaks. Ctrl+C writes <span class="mono">mirror-session-&lt;date&gt;.json</span>.</li>
+    <li><b>Package</b>: <span class="mono">capture.connect()</span> subscribes to the bridge; <span class="mono">compare(nodes, utterance)</span> returns the matched row and a verdict. Build your own view. See <a href="Docs - API.dc.html#capture">API</a>.</li>
+  </ul>
+</section>
+
+<section id="import" class="ch" aria-labelledby="h-import">
+  <p class="kicker">Without a bridge</p><h2 id="h-import">Import a log</h2>
+  <ol class="steps">
+    <li><span class="n">1</span><div class="body"><h4>Get the text</h4><p>NVDA: Speech Viewer, select all, copy. JAWS: the speech history window. VoiceOver: the captions panel, or a session report from someone else's bridge.</p></div></li>
+    <li><span class="n">2</span><div class="body"><h4>Drop or paste it</h4><p>Capture › Imported log. Drop the file or paste into the box.</p><p class="see"><b>You should see</b> "Recognised: NVDA Speech Viewer · 6 utterances" (or JAWS, VoiceOver, session report). <b>If it says "Plain text · 14 lines"</b>: the shape was not recognised; each line is treated as one utterance. Pick the screen reader by hand so the right profile is used.</p></div></li>
+    <li><span class="n">3</span><div class="body"><h4>Compare</h4><p>Same two columns as live, without the clock. Timestamps, if the log has them, turn on the live-region timeline.</p></div></li>
+  </ol>
+  <p>The log stays in the tab. It is not stored and not sent.</p>
+</section>
+
+<section id="report" class="ch" aria-labelledby="h-report">
+  <p class="kicker">When the mirror is wrong</p><h2 id="h-report">Report a divergence</h2>
+  <ol class="steps">
+    <li><span class="n">1</span><div class="body"><h4>Click "Report divergence" on the row</h4><p>Appears under any row marked differs.</p></div></li>
+    <li><span class="n">2</span><div class="body"><h4>Review what will be sent</h4><p>A sheet lists exactly what goes in the issue: the mirror's row, the screen reader's row, profile, source, versions of the engine, browser and screen reader, the element's selector, and the smallest HTML around it (about 20 lines). Page URL and anything else are left out unless you add them. Edit any line.</p></div></li>
+    <li><span class="n">3</span><div class="body"><h4>Send</h4><p>Opens a pre-filled GitHub issue in a new tab. Nothing leaves the machine until you press Submit there. Known divergences are listed on <a href="Docs - Divergences.dc.html">Divergences</a>; the sheet tells you if yours is already there.</p></div></li>
+  </ol>
+</section>
+
+<nav class="pn" aria-label="Previous and next"><a href="Docs - Reading the output.dc.html"><span>Previous</span><span>Reading the output</span></a><a href="Docs - CI.dc.html" style="text-align:right"><span>Next</span><span>Continuous integration</span></a></nav>
+</main>
+</div>
+<dc-import name="SiteFooter" hint-size="100%,320px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;auto&quot;,&quot;coral&quot;,&quot;coral-light&quot;],&quot;default&quot;:&quot;auto&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Theme&quot;},&quot;width&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[320,768,1280],&quot;default&quot;:1280,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Layout&quot;}}">
+class Component extends DCLogic {
+  state = { themeOverride: (() => { try { return localStorage.getItem('srm-theme') || null; } catch (e) { return null; } })() };
+  themeNow() { const o = this.state.themeOverride; if (o) return o; const p = this.props.theme ?? 'auto'; if (p !== 'auto') return p; return (typeof matchMedia !== 'undefined' && matchMedia('(prefers-color-scheme: light)').matches) ? 'coral-light' : 'coral'; }
+  renderVals() { const t = this.themeNow(); const light = /light/.test(t); return { themeClass: 't-' + t, isLightNow: light, themeBtnLabel: light ? 'Switch to dark theme' : 'Switch to light theme', toggleTheme: () => { const next = light ? 'coral' : 'coral-light'; try { localStorage.setItem('srm-theme', next); } catch (e) {} this.setState({ themeOverride: next }); }, widthPx: (this.props.width ?? 1280) + 'px' }; }
+}
+</script>
+</body>
+</html>

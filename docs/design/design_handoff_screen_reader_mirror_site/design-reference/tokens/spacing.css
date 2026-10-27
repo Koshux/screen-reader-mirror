@@ -1,0 +1,8 @@
+:root{
+  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:20px; --space-6:28px; --space-7:40px; --space-8:48px; --space-9:64px;
+  --gutter:28px; --gutter-narrow:16px;       /* page side padding; narrow under 640px */
+  --radius-sm:6px; --radius-md:8px; --radius-lg:12px; --radius-xl:14px; --radius-pill:999px;
+  --hit:44px; --control:40px; --control-sm:32px;   /* minimum tap target; default control; compact control */
+  --bp-narrow:640px; --bp-stack:1023px; --bp-wide:1201px; /* mobile · panes stack · three panes side by side */
+  --pane-h:clamp(420px,60vh,600px); --pane-h-narrow:clamp(300px,52vh,420px);
+}

@@ -60,6 +60,37 @@ Create only the folders you have content for. Empty folders are not committed.
    announcements, heading structure, landmark structure.
 6. The acceptance checklist from the brief, filled in.
 
+## Received handoffs
+
+### Site, docs, and surfaces (2026-10-27)
+
+[`design_handoff_screen_reader_mirror_site/`](./design_handoff_screen_reader_mirror_site/README.md)
+is a Claude Design export covering the public website, the twelve docs pages, the install paths,
+the bookmarklet and extension storyboards, and the NVDA testing flow. It keeps the export's own
+layout instead of the `handoff/` tree above: its `README.md` is the entry point, and
+`design-reference/` holds `.dc.html` references (open them from inside that folder),
+`docs.css` as the source of every value, and an earlier token export under
+`design-reference/handoff/`. The `.dc.html` files load React from unpkg to render locally; that is
+for viewing only, and nothing ships from them.
+
+It is built out in Phase C of [../project/v1-scope.md](../project/v1-scope.md), after the engine
+work. The design intake checks it against the six requirements above before any spec references
+it. What it has and what it still needs, as received:
+
+1. Tokens with light and dark values: present (`design-reference/handoff/tokens/tokens.json`,
+   `docs.css`), with 7:1 text pairs stated. The intake confirms every interactive pair is
+   recorded too.
+2. Components and states: in `docs.css` and `design-reference/components/core/`; keyboard
+   behaviour is written for some components, not all.
+3. Every state of every screen: HTML references, not PNG exports; the 18 error and empty states
+   are on "Reading the output". The extension's permission and restricted states need checking.
+4. Copy deck: `design-reference/handoff/shared/copy.md` plus final copy in the pages.
+5. `notes.md` with accessibility annotations: only for the demo page so far.
+6. The brief's acceptance checklist, filled in: not included yet.
+
+The handoff also marks what was not in the repo when it was drawn (the NVDA bridge, the capture
+API, most CLI flags) as Proposed. Those need their own journeys and specs.
+
 ## How implementers use it
 
 Tokens become CSS custom properties. Components are plain HTML and TypeScript, no framework,

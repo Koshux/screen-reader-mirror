@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<style>
+body{margin:0;background:#0f1114}
+.sf{--bg:#15181c;--surface:#1d2126;--surface-2:#252a31;--text:#e6e9ee;--muted:#aeb5c0;--border:#2d333b;--border-strong:#4e5663;--link:#ff9b85;--primary:#ff9b85;--on-primary:#2a0e07;--accent-soft:#3a2622;--flag-bg:#3b3410;--flag-text:#efe08a;font-family:system-ui,-apple-system,'Segoe UI',Roboto,Ubuntu,Cantarell,sans-serif;color:var(--text);font-size:14px;line-height:1.45}
+.sf *{box-sizing:border-box}
+.sf a{color:var(--link)}
+.sf .mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+.sf .frame{position:relative;flex:none;display:flex;flex-direction:column;gap:14px}
+.sf .cap{display:flex;gap:12px;align-items:flex-start;max-width:520px}
+.sf .cap .n{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:999px;background:var(--primary);color:var(--on-primary);font-size:13px;font-weight:700;flex:none}
+.sf .cap h3{margin:0;font-size:17px;font-weight:600}
+.sf .cap p{margin:2px 0 0;color:var(--muted);font-size:14px;text-wrap:pretty}
+.sf .cap a{font-family:ui-monospace,Menlo,monospace;font-size:12px;text-decoration:none;margin-left:8px;color:var(--muted)}
+.sf .win{border:1px solid var(--border-strong);border-radius:10px;overflow:hidden;background:#202124;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+.sf .tabs{height:38px;flex:none;display:flex;align-items:flex-end;gap:8px;padding:0 12px;background:#202124;color:#e8eaed;font-size:12px}
+.sf .tabs .dots{display:inline-flex;gap:6px;align-self:center}.sf .tabs .dots i{width:11px;height:11px;border-radius:99px;background:#5f6368}
+.sf .tabs .tab{margin-left:8px;padding:8px 14px;background:#35363a;border-radius:8px 8px 0 0}
+.sf .addr{height:38px;flex:none;display:flex;align-items:center;gap:10px;padding:0 12px;background:#35363a;color:#e8eaed;font-size:12px}
+.sf .addr .url{flex:1;background:#202124;border-radius:99px;padding:6px 14px;color:#bdc1c6}
+.sf .bar{height:30px;flex:none;display:flex;align-items:center;gap:14px;padding:0 14px;background:#35363a;border-top:1px solid #45474b;color:#bdc1c6;font-size:12px}
+.sf .bm{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:6px}
+.sf .sr{display:inline-grid;place-items:center;width:18px;height:18px;border:1.5px solid #ff9b85;color:#ff9b85;border-radius:5px;font-family:ui-monospace,Menlo,monospace;font-size:8px;font-weight:600;background:#15181c;flex:none}
+.sf .body{flex:1;min-height:0;position:relative;display:flex}
+.sf .b{white-space:nowrap;min-height:36px;padding:0 12px;border:1px solid var(--border-strong);border-radius:8px;background:var(--bg);color:var(--text);font:inherit;font-size:13px;display:inline-flex;align-items:center;gap:7px}
+.sf .b-f{background:var(--primary);border-color:var(--primary);color:var(--on-primary);font-weight:600}
+.sf .sw{display:inline-flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;min-height:32px}
+.sf .sw i{width:30px;height:18px;border-radius:999px;background:var(--border-strong);position:relative;display:inline-block;flex:none}
+.sf .sw i::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:999px;background:var(--bg)}
+.sf .sw.on i{background:var(--primary)}.sf .sw.on i::after{left:14px;background:var(--on-primary)}
+.sf h2{margin:0;font-size:34px;font-weight:700;letter-spacing:-0.03em;line-height:1.05}
+.sf .intro{margin:6px 0 0;color:var(--muted);font-size:16px;max-width:60ch;text-wrap:pretty}
+.sf .cursor{position:absolute;width:22px;height:22px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5))}
+</style>
+</helmet>
+<div class="sf" style="padding:64px 56px 96px;display:flex;flex-direction:column;gap:96px">
+
+<section id="bookmarklet" style="display:flex;flex-direction:column;gap:32px">
+  <div><p style="margin:0 0 8px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--link)">Surface A</p><h2>Bookmarklet</h2><p class="intro">Nothing to install. One drag from the landing page, then one click on any page you can open. It injects the same engine as the package and draws a panel over the page.</p></div>
+  <div style="display:flex;gap:48px;align-items:flex-start">
+
+    <div class="frame" id="a1">
+      <div class="cap"><span class="n">1</span><div><h3>Install: drag once<a href="#a1">a1</a></h3><p>On the landing page's Getting started, drag "Mirror this page" into the bookmarks bar. The bar highlights as a drop target.</p></div></div>
+      <div class="win" style="width:900px;height:560px">
+        <div class="tabs"><span class="dots"><i></i><i></i><i></i></span><span class="tab">screen-reader-mirror</span></div>
+        <div class="addr"><span style="opacity:.6">←  →  ↻</span><span class="url mono">screen-reader-mirror.dev</span></div>
+        <div class="bar"><span class="bm">Docs</span><span class="bm">GOV.UK</span><span class="bm" style="border:1.5px dashed #ff9b85;background:rgba(255,155,133,.12);color:#ff9b85;padding:2px 10px"><span class="sr">sr</span>Mirror this page</span><span style="opacity:.5">▸ drop here</span></div>
+        <div class="body" style="background:var(--surface);flex-direction:column;padding:36px 48px;gap:18px;color:var(--text)">
+          <p style="margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--link)">Getting started</p>
+          <p style="margin:0;font-size:34px;font-weight:700;letter-spacing:-0.03em;line-height:1">Run it on your own pages.</p>
+          <div style="display:flex;align-items:center;gap:12px;margin-top:12px"><span class="cap"><span class="n">1</span></span><span style="font-size:19px;font-weight:600">Bookmarklet</span></div>
+          <p style="margin:0;color:var(--muted);max-width:50ch">Nothing to install. Mirror any page you can open, including this one.</p>
+          <span class="b b-f" style="align-self:flex-start;min-height:44px;padding:0 16px;opacity:.45"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path></svg>Mirror this page</span>
+          <p style="margin:0;color:var(--muted)">Drag the button to your bookmarks bar, then click it on any page.</p>
+          <span class="b b-f" style="position:absolute;left:560px;top:14px;min-height:44px;padding:0 16px;box-shadow:0 14px 30px rgba(0,0,0,.5);transform:rotate(-4deg)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path></svg>Mirror this page</span>
+          <svg style="position:absolute;left:120px;top:0;width:320px;height:260px;overflow:visible" fill="none" stroke="var(--link)" stroke-width="2" stroke-dasharray="3 7" stroke-linecap="round"><path d="M40 236C140 220 330 130 440 36"></path><path d="m424 36 16-2 2 16" stroke-dasharray="0"></path></svg>
+          <svg class="cursor" style="left:672px;top:38px" viewBox="0 0 24 24"><path d="M5 3l14 9-6 1.5L10 20z" fill="#fff" stroke="#000" stroke-width="1.5" stroke-linejoin="round"></path></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame" id="a2">
+      <div class="cap"><span class="n">2</span><div><h3>Start: click it on any page<a href="#a2">a2</a></h3><p>Open the page you want to check and click the bookmark. The engine loads from the CDN, runs in the tab, and a short toast confirms it.</p></div></div>
+      <div class="win" style="width:900px;height:560px">
+        <div class="tabs"><span class="dots"><i></i><i></i><i></i></span><span class="tab">Apply for a Blue Badge</span></div>
+        <div class="addr"><span style="opacity:.6">←  →  ↻</span><span class="url mono">council.example/blue-badge</span></div>
+        <div class="bar"><span class="bm">Docs</span><span class="bm">GOV.UK</span><span class="bm" style="background:rgba(255,155,133,.18);color:#fff;outline:2px solid #ff9b85;outline-offset:-2px"><span class="sr">sr</span>Mirror this page</span></div>
+        <div class="body">
+          <dc-import name="HostPage" hint-size="100%,100%" style="flex:1"></dc-import>
+          <svg class="cursor" style="left:182px;top:-20px" viewBox="0 0 24 24"><path d="M5 3l14 9-6 1.5L10 20z" fill="#fff" stroke="#000" stroke-width="1.5" stroke-linejoin="round"></path></svg>
+          <div role="status" style="position:absolute;right:20px;bottom:20px;display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);color:var(--text);border:1px solid var(--border-strong);border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.4);font-size:13px"><span class="sr">sr</span>Mirroring council.example… <span class="mono" style="color:var(--muted)">11 items</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame" id="a3">
+      <div class="cap"><span class="n">3</span><div><h3>Use: panel over the page<a href="#a3">a3</a></h3><p>Docked right by default. Point at anything on the page and its row lights up; point at a row and the element is outlined. Spoken, Preview, Nodes and JSON, the same four views as the demo.</p></div></div>
+      <div class="win" style="width:900px;height:560px">
+        <div class="tabs"><span class="dots"><i></i><i></i><i></i></span><span class="tab">Apply for a Blue Badge</span></div>
+        <div class="addr"><span style="opacity:.6">←  →  ↻</span><span class="url mono">council.example/blue-badge</span></div>
+        <div class="bar"><span class="bm">Docs</span><span class="bm">GOV.UK</span><span class="bm"><span class="sr">sr</span>Mirror this page</span></div>
+        <div class="body">
+          <dc-import name="HostPage" hl="img" hint-size="100%,100%" style="flex:1"></dc-import>
+          <svg class="cursor" style="left:214px;top:290px" viewBox="0 0 24 24"><path d="M5 3l14 9-6 1.5L10 20z" fill="#fff" stroke="#000" stroke-width="1.5" stroke-linejoin="round"></path></svg>
+          <div style="position:absolute;top:0;right:0;bottom:0;width:380px;box-shadow:-16px 0 40px rgba(0,0,0,.35)"><dc-import name="MirrorPanel" kind="bm" view="spoken" hl="{{ seven }}" hint-size="100%,100%" style="height:100%"></dc-import></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame" id="a4">
+      <div class="cap"><span class="n">4</span><div><h3>Dock, minimise, close<a href="#a4">a4</a></h3><p>Dock to the bottom when the page is wide. Minimise leaves a pill with the counts; click it to bring the panel back. Close removes everything it added.</p></div></div>
+      <div class="win" style="width:900px;height:560px">
+        <div class="tabs"><span class="dots"><i></i><i></i><i></i></span><span class="tab">Apply for a Blue Badge</span></div>
+        <div class="addr"><span style="opacity:.6">←  →  ↻</span><span class="url mono">council.example/blue-badge</span></div>
+        <div class="bar"><span class="bm">Docs</span><span class="bm">GOV.UK</span><span class="bm"><span class="sr">sr</span>Mirror this page</span></div>
+        <div class="body" style="flex-direction:column">
+          <dc-import name="HostPage" hl="button" hint-size="100%,100%" style="flex:1;min-height:0"></dc-import>
+          <div style="height:330px;flex:none;box-shadow:0 -16px 40px rgba(0,0,0,.35);border-top:1px solid var(--border)"><dc-import name="MirrorPanel" kind="bm" view="preview" dock="bottom" hl="{{ six }}" hint-size="100%,100%" style="height:100%"></dc-import></div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;color:var(--muted);font-size:13px"><span>Minimised:</span><span style="display:inline-flex;align-items:center;gap:10px;padding:8px 12px 8px 10px;background:var(--bg);color:var(--text);border:1px solid var(--border-strong);border-radius:999px;box-shadow:0 10px 24px rgba(0,0,0,.4)"><span class="sr">sr</span><span>11 items, <span style="color:var(--flag-text)">3 flagged</span></span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--link)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"></path></svg></span></div>
+    </div>
+  </div>
+</section>
+
+<section id="extension" style="display:flex;flex-direction:column;gap:32px">
+  <div><p style="margin:0 0 8px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--link)">Surface B</p><h2>Browser extension</h2><p class="intro">For pages behind a sign-in and for apps that change as you use them. The mirror lives in the browser's own side panel, re-runs as the page changes, and can follow keyboard focus.</p></div>
+  <div style="display:flex;gap:48px;align-items:flex-start">
+
+    <div class="frame" id="b1">
+      <div class="cap"><span class="n">1</span><div><h3>Toolbar icon and popup<a href="#b1">b1</a></h3><p>After install, pin the icon. Its badge shows the flagged count for the current tab. Clicking it opens a small popup: counts, the switches that matter most, and the one button that opens the side panel.</p></div></div>
+      <div class="win" style="width:420px;height:560px;background:#35363a">
+        <div class="tabs"><span class="dots"><i></i><i></i><i></i></span><span class="tab">Apply for a Blue Badge</span></div>
+        <div class="addr"><span class="url mono">council.example/blue-badge</span><span style="position:relative;display:inline-grid;place-items:center;width:28px;height:28px;border-radius:6px;background:rgba(255,255,255,.12);outline:2px solid #ff9b85;outline-offset:-2px"><span class="sr">sr</span><span style="position:absolute;top:-6px;right:-6px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:#ff9b85;color:#2a0e07;font-size:10px;font-weight:700;display:grid;place-items:center">3</span></span></div>
+        <div class="body" style="background:#f2f2f2;justify-content:flex-end;padding:8px">
+          <div style="width:340px;align-self:flex-start;border:1px solid var(--border-strong);border-radius:12px;background:var(--bg);box-shadow:0 16px 40px rgba(0,0,0,.45);overflow:hidden;color:var(--text)">
+            <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border);background:var(--surface)"><span class="sr" style="width:22px;height:22px;font-size:9px">sr</span><span style="font-weight:600">screen-reader-mirror</span><span style="flex:1"></span><span class="mono" style="font-size:11px;color:var(--muted)">0.2</span></div>
+            <div style="padding:14px;display:flex;flex-direction:column;gap:14px">
+              <div style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600">This tab</span><span style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Apply for a Blue Badge</span><span class="mono" style="font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">council.example/blue-badge</span></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div style="padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface)"><div style="font-size:24px;font-weight:700;line-height:1.1;letter-spacing:-0.02em">11</div><div style="font-size:12px;color:var(--muted)">items spoken</div></div>
+                <div style="padding:10px 12px;border:1px dashed var(--flag-text);border-radius:10px;background:var(--flag-bg);color:var(--flag-text)"><div style="font-size:24px;font-weight:700;line-height:1.1;letter-spacing:-0.02em">3</div><div style="font-size:12px">flagged</div></div>
+              </div>
+              <span class="b b-f" style="min-height:44px;justify-content:center;font-size:14px;outline:2px solid #fff;outline-offset:3px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M15 3v18"></path></svg>Open mirror in side panel</span>
+              <div style="display:flex;flex-direction:column;gap:4px;padding-top:6px;border-top:1px solid var(--border)">
+                <label class="sw on">Follow focus<i></i></label>
+                <label class="sw">Flagged only<i></i></label>
+                <label class="sw on">Highlight on page<i></i></label>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:14px;padding:10px 14px;border-top:1px solid var(--border);font-size:12px;color:var(--muted)"><span>Shortcut <span class="mono">Alt+M</span></span><span style="flex:1"></span><a href="#" style="text-decoration:none">Settings</a></div>
+          </div>
+          <svg class="cursor" style="left:200px;top:218px" viewBox="0 0 24 24"><path d="M5 3l14 9-6 1.5L10 20z" fill="#fff" stroke="#000" stroke-width="1.5" stroke-linejoin="round"></path></svg>
+        </div>
+      </div>
+      <p style="margin:0;color:var(--muted);font-size:13px;max-width:400px">The popup never shows the list itself: it is too small to read a page in. It opens the side panel, which stays open while you browse the tab.</p>
+    </div>
+
+    <div class="frame" id="b2">
+      <div class="cap"><span class="n">2</span><div><h3>Side panel, Spoken<a href="#b2">b2</a></h3><p>The browser's side panel, so the page keeps its full width and nothing is injected into its layout. With Follow focus on, tabbing through the page moves the highlighted row.</p></div></div>
+      <div class="win" style="width:1000px;height:600px">
+        <div class="tabs"><span class="dots"><i></i><i></i><i></i></span><span class="tab">Apply for a Blue Badge</span></div>
+        <div class="addr"><span style="opacity:.6">←  →  ↻</span><span class="url mono">council.example/blue-badge</span><span style="position:relative;display:inline-grid;place-items:center;width:28px;height:28px"><span class="sr">sr</span><span style="position:absolute;top:-2px;right:-2px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:#ff9b85;color:#2a0e07;font-size:10px;font-weight:700;display:grid;place-items:center">3</span></span></div>
+        <div class="body">
+          <dc-import name="HostPage" hl="button" hint-size="100%,100%" style="flex:1"></dc-import>
+          <div style="width:380px;flex:none"><dc-import name="MirrorPanel" kind="ext" view="spoken" hl="{{ six }}" hint-size="100%,100%" style="height:100%"></dc-import></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame" id="b3">
+      <div class="cap"><span class="n">3</span><div><h3>Side panel, Preview<a href="#b3">b3</a></h3><p>The same HTML with its CSS removed, rendered inside the panel. The before is the page on the left; the after is what structure survives without styling.</p></div></div>
+      <div class="win" style="width:1000px;height:600px">
+        <div class="tabs"><span class="dots"><i></i><i></i><i></i></span><span class="tab">Apply for a Blue Badge</span></div>
+        <div class="addr"><span style="opacity:.6">←  →  ↻</span><span class="url mono">council.example/blue-badge</span><span class="sr">sr</span></div>
+        <div class="body">
+          <dc-import name="HostPage" hl="img" hint-size="100%,100%" style="flex:1"></dc-import>
+          <div style="width:380px;flex:none"><dc-import name="MirrorPanel" kind="ext" view="preview" hl="{{ seven }}" hint-size="100%,100%" style="height:100%"></dc-import></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame" id="b4">
+      <div class="cap"><span class="n">4</span><div><h3>Side panel, Nodes<a href="#b4">b4</a></h3><p>The structured view for people who want the data: position, role, name and flag per node. JSON is the same list as text, for pasting into an issue.</p></div></div>
+      <div class="win" style="width:1000px;height:600px">
+        <div class="tabs"><span class="dots"><i></i><i></i><i></i></span><span class="tab">Apply for a Blue Badge</span></div>
+        <div class="addr"><span style="opacity:.6">←  →  ↻</span><span class="url mono">council.example/blue-badge</span><span class="sr">sr</span></div>
+        <div class="body">
+          <dc-import name="HostPage" hl="h1" hint-size="100%,100%" style="flex:1"></dc-import>
+          <div style="width:380px;flex:none"><dc-import name="MirrorPanel" kind="ext" view="nodes" hl="{{ one }}" hint-size="100%,100%" style="height:100%"></dc-import></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame" id="b5">
+      <div class="cap"><span class="n">5</span><div><h3>Settings<a href="#b5">b5</a></h3><p>What the cog opens. Speech phrasing (generic, or closer to NVDA or VoiceOver wording), what gets said, what happens on the page, panel theme and text size, and the keyboard shortcuts. Bookmarklet settings are the same minus shortcuts, plus a dock position.</p></div></div>
+      <div class="win" style="width:1000px;height:600px">
+        <div class="tabs"><span class="dots"><i></i><i></i><i></i></span><span class="tab">Apply for a Blue Badge</span></div>
+        <div class="addr"><span style="opacity:.6">←  →  ↻</span><span class="url mono">council.example/blue-badge</span><span class="sr">sr</span></div>
+        <div class="body">
+          <dc-import name="HostPage" hint-size="100%,100%" style="flex:1"></dc-import>
+          <div style="width:380px;flex:none"><dc-import name="MirrorPanel" kind="ext" view="settings" hint-size="100%,100%" style="height:100%"></dc-import></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() { return { one: 1, six: 6, seven: 7 }; }
+}
+</script>
+</body>
+</html>
