@@ -1,6 +1,6 @@
 # screen-reader-mirror
 
-> See what a screen reader interprets from your UI — zero install, client-side, no data leaves the
+> See what a screen reader interprets from your UI: zero install, client-side, no data leaves the
 > machine.
 
 The shared engine behind [screen-reader-mirror](https://github.com/Koshux/screen-reader-mirror).
@@ -20,7 +20,7 @@ npm install screen-reader-mirror
 pnpm add screen-reader-mirror
 ```
 
-Or straight from a CDN — ESM, no build step, no account:
+Or straight from a CDN (ESM, no build step, no account):
 
 ```html
 <script type="module">
@@ -49,7 +49,7 @@ import { linearize } from "screen-reader-mirror";
 const nodes = linearize(document.querySelector("main")!);
 ```
 
-`nodes` is plain, serialisable data — one entry per thing a screen reader would land on, in order:
+`nodes` is plain, serialisable data, one entry per thing a screen reader would land on, in order:
 
 ```jsonc
 [
@@ -66,14 +66,14 @@ const nodes = linearize(document.querySelector("main")!);
 Reading it:
 
 - **`role`** is the computed WAI-ARIA role (explicit `role` wins; otherwise the *conditional*
-  implicit role — `<a>` is a `link` only with `href`, `<li>` is a `listitem` only inside a list,
+  implicit role: `<a>` is a `link` only with `href`, `<li>` is a `listitem` only inside a list,
   an unnamed `<section>` is not a landmark). Bare text runs are `"text"`.
 - **`name`** is the accessible name per AccName 1.2. An element whose name comes from its content
   (heading, link, cell…) carries that text in `name`; it is not read twice. Nested elements
   (the link inside a heading, the image inside a button) are still emitted after their parent.
 - **`level`** is the heading level (`<h1>`–`<h6>`, or `aria-level`; `role="heading"` defaults to 2).
-- **`flags.unnamed`** — an interactive control with no accessible name.
-  **`flags.missingAlt`** — an `<img>` with no `alt` attribute at all (`alt=""` is treated as
+- **`flags.unnamed`**: an interactive control with no accessible name.
+  **`flags.missingAlt`**: an `<img>` with no `alt` attribute at all (`alt=""` is treated as
   decorative and omitted, as a screen reader would).
 - Content hidden from assistive tech (`aria-hidden="true"`, `hidden`, `display:none`,
   `visibility:hidden`) is excluded along with its subtree.
@@ -251,7 +251,7 @@ Reading order follows **DOM order** in the composed tree, as screen readers do. 
 
 ## Guarantees
 
-- **No network calls — ever.** The engine is pure computation over the `Element` you pass in,
+- **No network calls, ever.** The engine is pure computation over the `Element` you pass in,
   enforced by lint and a commit-time hook. Safe for regulated, EU and internal pages.
 - **Tree-shakeable ESM**, `sideEffects: false`, TypeScript types included. Two runtime
   dependencies, both permissively licensed: [`dom-accessibility-api`](https://github.com/eps1lon/dom-accessibility-api)
