@@ -3,7 +3,8 @@
  * Fidelity follow-ups found while probing for SPEC-003, SPEC-004, and SPEC-005. Each case lives in
  * fixtures/probes/fidelity-followups.html, which is also compared with Chrome's accessibility tree
  * (`pnpm ax:compare`). The engine follows the W3C specifications first; where Chrome differs, the
- * test says what Chrome gives. Probed in Chrome on 2026-10-26.
+ * test says what Chrome gives, and test/browser-modes.test.ts checks it in Chrome mode
+ * (SPEC-006). Probed in Chrome on 2026-10-26.
  */
 import { describe, it, expect, afterEach } from "vitest";
 import { linearize } from "../src/index";
@@ -173,11 +174,11 @@ describe("text runs end where the layout starts a new line", () => {
 });
 
 describe("the layout-table rules read style through the getComputedStyle option", () => {
-  it("lets an injected style make a two-by-two table a data table", () => {
+  it("lets an injected style make a two-by-two table a data table in Chrome mode", () => {
     document.body.innerHTML =
       '<div id="r"><table><tr><td>A</td><td>B</td></tr><tr><td>C</td><td>D</td></tr></table></div>';
     const root = document.getElementById("r")!;
-    expect(linearize(root).map((n) => n.role)).toEqual(["text", "text", "text", "text"]);
+    expect(linearize(root, { browser: "chrome" }).map((n) => n.role)).toEqual(["text", "text", "text", "text"]);
     const bordered = (el: Element) => {
       const real = getComputedStyle(el);
       const border = el.tagName === "TD" ? "1px" : "0px";
@@ -189,7 +190,7 @@ describe("the layout-table rules read style through the getComputedStyle option"
         getPropertyValue: (p: string) => real.getPropertyValue(p),
       } as unknown as CSSStyleDeclaration;
     };
-    expect(linearize(root, { getComputedStyle: bordered }).map((n) => n.role)).toEqual([
+    expect(linearize(root, { getComputedStyle: bordered, browser: "chrome" }).map((n) => n.role)).toEqual([
       "table", "row", "cell", "cell", "row", "cell", "cell",
     ]);
   });

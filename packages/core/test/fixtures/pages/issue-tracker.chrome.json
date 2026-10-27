@@ -1,0 +1,613 @@
+[
+  {
+    "role": "link",
+    "name": "Skip to content",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "banner",
+    "name": "",
+    "ref": {
+      "tag": "header"
+    }
+  },
+  {
+    "role": "navigation",
+    "name": "Primary",
+    "ref": {
+      "tag": "nav"
+    }
+  },
+  {
+    "role": "link",
+    "name": "Tracker home",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "img",
+    "name": "Tracker home",
+    "ref": {
+      "tag": "img"
+    }
+  },
+  {
+    "role": "list",
+    "name": "",
+    "ref": {
+      "tag": "ul"
+    }
+  },
+  {
+    "role": "listitem",
+    "name": "",
+    "ref": {
+      "tag": "li"
+    }
+  },
+  {
+    "role": "link",
+    "name": "Issues",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "listitem",
+    "name": "",
+    "ref": {
+      "tag": "li"
+    }
+  },
+  {
+    "role": "link",
+    "name": "Pull requests",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "listitem",
+    "name": "",
+    "ref": {
+      "tag": "li"
+    }
+  },
+  {
+    "role": "link",
+    "name": "Discussions",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "search",
+    "name": "",
+    "ref": {
+      "tag": "form"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Search issues"
+  },
+  {
+    "role": "searchbox",
+    "name": "Search issues",
+    "ref": {
+      "tag": "input"
+    }
+  },
+  {
+    "role": "button",
+    "name": "Search",
+    "ref": {
+      "tag": "button"
+    }
+  },
+  {
+    "role": "img",
+    "name": "",
+    "ref": {
+      "tag": "img"
+    },
+    "flags": {
+      "missingAlt": true
+    }
+  },
+  {
+    "role": "main",
+    "name": "",
+    "ref": {
+      "tag": "main"
+    }
+  },
+  {
+    "role": "heading",
+    "name": "Add a dark mode to the settings page #42",
+    "ref": {
+      "tag": "h1"
+    },
+    "level": 1
+  },
+  {
+    "role": "text",
+    "name": "Open"
+  },
+  {
+    "role": "link",
+    "name": "priya",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "text",
+    "name": "opened this issue on 1 Oct 2026 · 3 comments"
+  },
+  {
+    "role": "article",
+    "name": "",
+    "ref": {
+      "tag": "article"
+    }
+  },
+  {
+    "role": "heading",
+    "name": "Description",
+    "ref": {
+      "tag": "h2"
+    },
+    "level": 2
+  },
+  {
+    "role": "text",
+    "name": "Several users asked for a dark theme. The settings page already reads the system preference, so this should mostly be CSS tokens."
+  },
+  {
+    "role": "text",
+    "name": "Acceptance:"
+  },
+  {
+    "role": "list",
+    "name": "",
+    "ref": {
+      "tag": "ul"
+    }
+  },
+  {
+    "role": "listitem",
+    "name": "",
+    "ref": {
+      "tag": "li"
+    }
+  },
+  {
+    "role": "checkbox",
+    "name": "Tokens defined for both themes",
+    "ref": {
+      "tag": "input"
+    }
+  },
+  {
+    "role": "listitem",
+    "name": "",
+    "ref": {
+      "tag": "li"
+    }
+  },
+  {
+    "role": "checkbox",
+    "name": "Contrast checked at AA",
+    "ref": {
+      "tag": "input"
+    }
+  },
+  {
+    "role": "listitem",
+    "name": "",
+    "ref": {
+      "tag": "li"
+    }
+  },
+  {
+    "role": "checkbox",
+    "name": "Screenshot added to the docs",
+    "ref": {
+      "tag": "input"
+    }
+  },
+  {
+    "role": "table",
+    "name": "Contrast results",
+    "ref": {
+      "tag": "table"
+    }
+  },
+  {
+    "role": "caption",
+    "name": "",
+    "ref": {
+      "tag": "caption"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Contrast results"
+  },
+  {
+    "role": "rowgroup",
+    "name": "",
+    "ref": {
+      "tag": "thead"
+    }
+  },
+  {
+    "role": "row",
+    "name": "",
+    "ref": {
+      "tag": "tr"
+    }
+  },
+  {
+    "role": "columnheader",
+    "name": "Token",
+    "ref": {
+      "tag": "th"
+    }
+  },
+  {
+    "role": "columnheader",
+    "name": "Light",
+    "ref": {
+      "tag": "th"
+    }
+  },
+  {
+    "role": "columnheader",
+    "name": "Dark",
+    "ref": {
+      "tag": "th"
+    }
+  },
+  {
+    "role": "row",
+    "name": "",
+    "ref": {
+      "tag": "tr"
+    }
+  },
+  {
+    "role": "rowheader",
+    "name": "text",
+    "ref": {
+      "tag": "th"
+    }
+  },
+  {
+    "role": "cell",
+    "name": "12.1",
+    "ref": {
+      "tag": "td"
+    }
+  },
+  {
+    "role": "cell",
+    "name": "13.4",
+    "ref": {
+      "tag": "td"
+    }
+  },
+  {
+    "role": "row",
+    "name": "",
+    "ref": {
+      "tag": "tr"
+    }
+  },
+  {
+    "role": "rowheader",
+    "name": "muted",
+    "ref": {
+      "tag": "th"
+    }
+  },
+  {
+    "role": "cell",
+    "name": "4.6",
+    "ref": {
+      "tag": "td"
+    }
+  },
+  {
+    "role": "cell",
+    "name": "3.9",
+    "ref": {
+      "tag": "td"
+    }
+  },
+  {
+    "role": "link",
+    "name": "3.9",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Screenshots"
+  },
+  {
+    "role": "img",
+    "name": "Settings page in the light theme",
+    "ref": {
+      "tag": "img"
+    }
+  },
+  {
+    "role": "img",
+    "name": "",
+    "ref": {
+      "tag": "img"
+    },
+    "flags": {
+      "missingAlt": true
+    }
+  },
+  {
+    "role": "complementary",
+    "name": "Issue details",
+    "ref": {
+      "tag": "aside"
+    }
+  },
+  {
+    "role": "heading",
+    "name": "Labels",
+    "ref": {
+      "tag": "h2"
+    },
+    "level": 2
+  },
+  {
+    "role": "list",
+    "name": "",
+    "ref": {
+      "tag": "ul"
+    }
+  },
+  {
+    "role": "listitem",
+    "name": "",
+    "ref": {
+      "tag": "li"
+    }
+  },
+  {
+    "role": "link",
+    "name": "enhancement",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "listitem",
+    "name": "",
+    "ref": {
+      "tag": "li"
+    }
+  },
+  {
+    "role": "link",
+    "name": "design",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "heading",
+    "name": "Assignees",
+    "ref": {
+      "tag": "h2"
+    },
+    "level": 2
+  },
+  {
+    "role": "link",
+    "name": "marc",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "img",
+    "name": "marc",
+    "ref": {
+      "tag": "img"
+    }
+  },
+  {
+    "role": "button",
+    "name": "Edit assignees",
+    "ref": {
+      "tag": "button"
+    }
+  },
+  {
+    "role": "button",
+    "name": "",
+    "ref": {
+      "tag": "button"
+    },
+    "flags": {
+      "unnamed": true
+    }
+  },
+  {
+    "role": "region",
+    "name": "3 comments",
+    "ref": {
+      "tag": "section"
+    }
+  },
+  {
+    "role": "heading",
+    "name": "3 comments",
+    "ref": {
+      "tag": "h2"
+    },
+    "level": 2
+  },
+  {
+    "role": "group",
+    "name": "",
+    "ref": {
+      "tag": "details"
+    }
+  },
+  {
+    "role": "button",
+    "name": "Show 1 hidden comment",
+    "ref": {
+      "tag": "summary"
+    }
+  },
+  {
+    "role": "article",
+    "name": "",
+    "ref": {
+      "tag": "article"
+    }
+  },
+  {
+    "role": "heading",
+    "name": "marc 2 Oct",
+    "ref": {
+      "tag": "h3"
+    },
+    "level": 3
+  },
+  {
+    "role": "link",
+    "name": "marc",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Happy to take this. Do we want a toggle, or follow the system only?"
+  },
+  {
+    "role": "button",
+    "name": "Add reaction",
+    "ref": {
+      "tag": "button"
+    }
+  },
+  {
+    "role": "text",
+    "name": "👍 2"
+  },
+  {
+    "role": "article",
+    "name": "",
+    "ref": {
+      "tag": "article"
+    }
+  },
+  {
+    "role": "heading",
+    "name": "priya 3 Oct",
+    "ref": {
+      "tag": "h3"
+    },
+    "level": 3
+  },
+  {
+    "role": "link",
+    "name": "priya",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Follow the system, with a toggle later."
+  },
+  {
+    "role": "blockquote",
+    "name": "",
+    "ref": {
+      "tag": "blockquote"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Keep the scope small."
+  },
+  {
+    "role": "form",
+    "name": "",
+    "ref": {
+      "tag": "form"
+    }
+  },
+  {
+    "role": "text",
+    "name": "Write a comment"
+  },
+  {
+    "role": "textbox",
+    "name": "Write a comment",
+    "ref": {
+      "tag": "textarea"
+    }
+  },
+  {
+    "role": "button",
+    "name": "Close issue",
+    "ref": {
+      "tag": "button"
+    }
+  },
+  {
+    "role": "button",
+    "name": "Comment",
+    "ref": {
+      "tag": "button"
+    }
+  },
+  {
+    "role": "contentinfo",
+    "name": "",
+    "ref": {
+      "tag": "footer"
+    }
+  },
+  {
+    "role": "text",
+    "name": "© 2026 Tracker ·"
+  },
+  {
+    "role": "link",
+    "name": "Terms",
+    "ref": {
+      "tag": "a"
+    }
+  },
+  {
+    "role": "text",
+    "name": "·"
+  },
+  {
+    "role": "link",
+    "name": "Privacy",
+    "ref": {
+      "tag": "a"
+    }
+  }
+]

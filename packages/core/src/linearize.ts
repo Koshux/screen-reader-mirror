@@ -1,6 +1,7 @@
 import type { InterpretationNode, LiveRegion, NodeFlags } from "./types";
 import { isHiddenFromAT, firstSummaryOf, resolveStyle, type VisibilityOptions } from "./visibility";
 import { liveRegionOf } from "./live";
+import { rulesFor, type BrowserMode } from "./browser";
 import {
   resolveRole,
   accessibleName,
@@ -9,10 +10,12 @@ import {
   isNameProhibited,
   isWidget,
   hasAuthorName,
+  hasOnlyEmptyLabels,
+  isImplicitSvgRoot,
   labelledControl,
+  rowInGrid,
   composedParent,
-  type ParentOf,
-  type StyleOf,
+  type RoleContext,
 } from "./roles";
 
 export interface LinearizeOptions extends VisibilityOptions {
@@ -21,6 +24,12 @@ export interface LinearizeOptions extends VisibilityOptions {
    * `el.shadowRoot`, which is null for a closed root, so closed content is not seen. SPEC-003 AC-9.
    */
   getShadowRoot?: (host: Element) => ShadowRoot | null | undefined;
+  /**
+   * Read the page as this browser does where it differs from the W3C specifications. Omitted,
+   * the reading follows the specifications (ADR-0005). Only "chrome" is accepted today; any other
+   * value throws a `RangeError`. SPEC-006.
+   */
+  browser?: BrowserMode;
 }
 
 const ELEMENT_NODE = 1;
@@ -59,14 +68,20 @@ const BLOCK_DISPLAYS = new Set([
 // A child of one of these is a flex or grid item, which CSS lays out as a block.
 const BLOCKIFYING_DISPLAYS = new Set(["flex", "inline-flex", "grid", "inline-grid"]);
 
-// SVG <title>/<desc>/<metadata> are name/description metadata (SVG-AAM), never rendered text.
+// SVG <title>/<desc>/<metadata> are name/description metadata (SVG-AAM), never rendered text. The
+// other tags are never rendered directly, so SVG-AAM creates no object for them or their content.
 const SVG_NS = "http://www.w3.org/2000/svg";
-const SVG_METADATA_TAGS = new Set(["title", "desc", "metadata"]);
+const SVG_SKIPPED_TAGS = new Set([
+  "title", "desc", "metadata", "defs", "clippath", "mask", "pattern", "symbol", "marker",
+  "lineargradient", "radialgradient", "filter", "script", "style",
+]);
+const SVG_TEMPLATE_TAGS = new Set(["defs", "symbol"]);
 
 /**
  * State threaded through one traversal: the output, the options, the text run in progress, the
- * number of frames met so far, the index of the frame being walked (undefined at the top), and
- * the composed parent of each element met, which role rules read through `parentOf`.
+ * number of frames met so far, the index of the frame being walked (undefined at the top), the
+ * composed parent of each element met, and the role context the rules read (SPEC-006 AC-5): its
+ * `parentOf` answers from `parents`.
  */
 interface Walk {
   out: InterpretationNode[];
@@ -75,8 +90,7 @@ interface Walk {
   frames: number;
   frame: number | undefined;
   parents: WeakMap<Element, Element>;
-  parentOf: ParentOf;
-  styleOf: StyleOf;
+  ctx: RoleContext;
 }
 
 /**
@@ -109,10 +123,15 @@ interface Walk {
  * or a `document` node flagged `unreachable` when it cannot.
  */
 export function linearize(root: Element, options: LinearizeOptions = {}): InterpretationNode[] {
+  const rules = rulesFor(options.browser);
   const parents = new WeakMap<Element, Element>();
-  const parentOf: ParentOf = (el) => parents.get(el) ?? composedParent(el);
-  const styleOf: StyleOf = (el) => resolveStyle(el, options);
-  const walk: Walk = { out: [], options, pending: "", frames: 0, frame: undefined, parents, parentOf, styleOf };
+  const ctx: RoleContext = {
+    parentOf: (el) => parents.get(el) ?? composedParent(el),
+    styleOf: (el) => resolveStyle(el, options),
+    rules,
+    grids: new WeakMap(),
+  };
+  const walk: Walk = { out: [], options, pending: "", frames: 0, frame: undefined, parents, ctx };
   emitElement(root, walk, false);
   flushText(walk);
   return walk.out;
@@ -122,7 +141,12 @@ function emitElement(el: Element, walk: Walk, textConsumed: boolean): void {
   if (isHiddenFromAT(el, walk.options)) return; // skip element AND its subtree
 
   const tag = el.tagName.toLowerCase();
-  if (el.namespaceURI === SVG_NS && SVG_METADATA_TAGS.has(tag)) return;
+  if (el.namespaceURI === SVG_NS && SVG_SKIPPED_TAGS.has(tag)) {
+    // Chrome (row 11) reads the text inside defs and symbol as content.
+    if (!(walk.ctx.rules.svgTemplateTextRead && SVG_TEMPLATE_TAGS.has(tag))) return;
+    walkChildren(el, walk, textConsumed);
+    return;
+  }
   if (tag === "br") {
     flushText(walk); // a line break ends the current text run
     return;
@@ -133,7 +157,7 @@ function emitElement(el: Element, walk: Walk, textConsumed: boolean): void {
     return;
   }
 
-  const role = resolveRole(el, walk.parentOf, walk.styleOf);
+  const role = resolveRole(el, walk.ctx);
   const live = liveRegionOf(el, role);
 
   if (tag === "iframe" && role !== null) {
@@ -163,24 +187,37 @@ function emitElement(el: Element, walk: Walk, textConsumed: boolean): void {
   if (transparent) {
     const block = endsLine(el, tag, walk);
     if (block) flushText(walk);
-    // The text of a label for a checkbox or radio is read only as the control name (Chrome drops
-    // it from the tree); the text of a label for a text field is read on its own as well.
-    walkChildren(el, walk, textConsumed || (tag === "label" && labelsToggle(el)));
+    // A label's text is read as text, after or before the control it names: no W3C text removes
+    // it. Chrome (row 8) drops the text of a label for a checkbox or radio from its tree and
+    // reads it only as the control's name.
+    const hideLabel = walk.ctx.rules.hideToggleLabelText && tag === "label" && labelsToggle(el);
+    walkChildren(el, walk, textConsumed || hideLabel);
     if (block) flushText(walk);
     return;
   }
 
   flushText(walk);
-  walk.out.push(buildNode(el, role, tag, walk, live));
+  const node = buildNode(el, role, tag, walk, live);
+  walk.out.push(node);
 
-  const consumesText = takesNameFromContent(role);
+  const consumesText = takesNameFromContent(role, walk.ctx.rules);
 
   // Leaf: nothing below is exposed.
   if (isLeaf(tag, role) || (isChildrenPresentational(role) && !consumesText)) return;
 
   // Container: fresh text context, suppressed only if this node's own name came from content.
+  const start = walk.out.length;
   walkChildren(el, walk, consumesText);
   flushText(walk);
+  const rules = walk.ctx.rules;
+  // Chrome (row 9): an svg root with nothing readable inside is an image.
+  if (rules.svgImageWhenNoContent && isImplicitSvgRoot(el, role) && walk.out.length === start) node.role = "img";
+  // Chrome (row 7) names a term from its content and still reads that content. The name is the
+  // text read inside it, which is what Chrome's name from content gives for the usual `<dt>`. A
+  // term inside an ancestor named from content reads no text of its own, so it stays unnamed.
+  if (rules.termNamedFromContent && role === "term" && node.name === "") {
+    node.name = collapseWhitespace(walk.out.slice(start).map((n) => n.name).join(" "));
+  }
 }
 
 /**
@@ -189,7 +226,10 @@ function emitElement(el: Element, walk: Walk, textConsumed: boolean): void {
  * tag decides, as before.
  */
 function endsLine(el: Element, tag: string, walk: Walk): boolean {
-  const display = walk.styleOf(el)?.display ?? "";
+  // An SVG text element is a block of text (SVG-AAM maps it like a paragraph); Chrome gives it
+  // display block, a test DOM may not.
+  if (el.namespaceURI === SVG_NS && tag === "text") return true;
+  const display = walk.ctx.styleOf(el)?.display ?? "";
   if (display === "contents") return false;
   if (BLOCK_DISPLAYS.has(display)) return true;
   if (BLOCKIFYING_DISPLAYS.has(layoutParentDisplay(el, walk))) return true;
@@ -198,8 +238,8 @@ function endsLine(el: Element, tag: string, walk: Walk): boolean {
 
 /** The display of the element's layout parent: the composed parent, skipping `display: contents`. */
 function layoutParentDisplay(el: Element, walk: Walk): string {
-  for (let p = walk.parentOf(el); p; p = walk.parentOf(p)) {
-    const display = walk.styleOf(p)?.display ?? "";
+  for (let p = walk.ctx.parentOf(el); p; p = walk.ctx.parentOf(p)) {
+    const display = walk.ctx.styleOf(p)?.display ?? "";
     if (display !== "contents") return display;
   }
   return "";
@@ -252,7 +292,7 @@ function walkChildren(el: Element, walk: Walk, textConsumed: boolean): void {
     return;
   }
   // A slot is not a parent in the accessibility tree: what it shows hangs off the slot's parent.
-  const parent = el.tagName.toLowerCase() === "slot" ? walk.parentOf(el) : el;
+  const parent = el.tagName.toLowerCase() === "slot" ? walk.ctx.parentOf(el) : el;
   for (const child of composedChildren(el, walk.options)) {
     if (child.nodeType === TEXT_NODE) {
       if (!textConsumed) walk.pending += child.textContent ?? "";
@@ -303,16 +343,27 @@ function inShadowTree(el: Element): boolean {
 
 function buildNode(el: Element, role: string, tag: string, walk: Walk, live?: LiveRegion): InterpretationNode {
   // ARIA prohibits naming some roles (caption, paragraph, ...): the node carries no name and its
-  // text reads as content instead. A table row is named by the author or not at all. A form
-  // field with no other name source takes its title, then (a text field) its placeholder, as
-  // HTML-AAM 4.1 says; the name library stops at an associated label even when it is empty.
-  let name = isNameProhibited(role) || (role === "row" && !hasAuthorName(el)) ? "" : accessibleName(el);
-  if (name === "" && isFormField(el, tag)) name = collapseWhitespace(el.getAttribute("title") ?? "");
-  if (name === "" && (tag === "input" || tag === "textarea")) {
-    name = collapseWhitespace(el.getAttribute("placeholder") ?? "");
+  // text reads as content instead. In Chrome mode a table row outside a grid is named by its
+  // author or not at all (row 3). A form field with no other name source takes its title, then
+  // (a text field) its placeholder, as HTML-AAM 4.1 says; the name library stops at an associated
+  // label even when it is empty. Chrome (row 5) leaves a field whose labels are all empty unnamed.
+  const { ctx } = walk;
+  const authorOnlyRow = role === "row" && ctx.rules.rowNamedByAuthorOnly && !hasAuthorName(el) && !rowInGrid(el, ctx);
+  let name = isNameProhibited(role) || authorOnlyRow ? "" : accessibleName(el, ctx);
+  const field = isFormField(el, tag);
+  if (field && ctx.rules.emptyLabelHasNoName && hasOnlyEmptyLabels(el, ctx)) {
+    name = "";
+  } else {
+    if (name === "" && field) name = collapseWhitespace(el.getAttribute("title") ?? "");
+    if (name === "" && (tag === "input" || tag === "textarea")) {
+      name = collapseWhitespace(el.getAttribute("placeholder") ?? "");
+    }
   }
   // HTML-AAM still names a table from its obsolete summary attribute, and so does Chrome.
   if (name === "" && tag === "table") name = collapseWhitespace(el.getAttribute("summary") ?? "");
+  // SVG-AAM 7.1 names any SVG element from its first title child; the name library does this for
+  // the svg element only. Chrome agrees.
+  if (name === "" && el.namespaceURI === SVG_NS) name = svgTitle(el);
   const ref: NonNullable<InterpretationNode["ref"]> = { tag };
   if (inShadowTree(el)) ref.shadow = true;
   if (walk.frame !== undefined) ref.frame = walk.frame;
@@ -323,6 +374,16 @@ function buildNode(el: Element, role: string, tag: string, walk: Walk, live?: Li
   if (flags) node.flags = flags;
   if (live) node.live = live;
   return node;
+}
+
+/** The text of an SVG element's first `title` child, collapsed, or "". */
+function svgTitle(el: Element): string {
+  for (const child of Array.from(el.children)) {
+    if (child.namespaceURI === SVG_NS && child.tagName.toLowerCase() === "title") {
+      return collapseWhitespace(child.textContent ?? "");
+    }
+  }
+  return "";
 }
 
 /** An input that is not a button or hidden, a select, or a textarea. */

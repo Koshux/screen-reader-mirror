@@ -92,8 +92,9 @@ end of each phase.
 
 - Every ticket above is closed through a merged PR with its log.
 - Every acceptance criterion in every spec has a passing golden fixture.
-- Real-page fixtures agree with Chrome's accessibility tree, and each known divergence is pinned
-  with a failing-by-design test and a linked issue.
+- Real-page fixtures agree with Chrome's accessibility tree in Chrome mode (`browser: "chrome"`,
+  ADR-0005), and each known divergence is pinned with a failing-by-design test and a linked
+  issue. The default reading follows the W3C specifications and has its own reviewed goldens.
 - The README describes only what the code does.
 - Each host passes its design acceptance checklist and the accessibility requirements in the
   design brief, verified with a screen reader by a person, not only by tooling.

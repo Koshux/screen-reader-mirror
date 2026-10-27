@@ -1,9 +1,10 @@
 // @vitest-environment happy-dom
 /**
- * Golden fixtures from realistic pages (#6). Each fragment under fixtures/pages has an
- * expected.json produced by running the engine inside Chrome (scripts/ax-compare.mjs
- * --write-expected) after its comparison with Chrome's own accessibility tree was reviewed and
- * every remaining difference was either fixed or pinned with a reason in the log.
+ * Golden fixtures from realistic pages (#6, SPEC-006). Each fragment under fixtures/pages has two
+ * goldens, produced by running the engine inside Chrome (scripts/ax-compare.mjs
+ * --write-expected): <name>.chrome.json in Chrome mode, which agrees with Chrome's own
+ * accessibility tree with 0 differing lines, and <name>.expected.json in the default reading,
+ * which follows the W3C specifications and whose diff a person reviews (recorded in the log).
  *
  * This test pins the engine to that output under happy-dom, so a change in the engine or in the
  * DOM implementation shows up here. Regenerate deliberately with the script, never by hand.
@@ -28,10 +29,16 @@ describe("real-page golden fixtures (#6)", () => {
   });
 
   for (const page of pages) {
-    it(`${page} matches the output reviewed against Chrome`, () => {
+    it(`${page} matches the reviewed default reading`, () => {
       document.body.innerHTML = readFileSync(join(dir, `${page}.html`), "utf8");
       const expected = JSON.parse(readFileSync(join(dir, `${page}.expected.json`), "utf8"));
       expect(linearize(document.body)).toEqual(expected);
+    });
+
+    it(`${page} in Chrome mode matches the output compared with Chrome`, () => {
+      document.body.innerHTML = readFileSync(join(dir, `${page}.html`), "utf8");
+      const expected = JSON.parse(readFileSync(join(dir, `${page}.chrome.json`), "utf8"));
+      expect(linearize(document.body, { browser: "chrome" })).toEqual(expected);
     });
   }
 });

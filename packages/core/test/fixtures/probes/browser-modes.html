@@ -1,0 +1,71 @@
+<!--
+  SPEC-006: where the W3C specifications and Chrome differ. One source for two checks:
+  - Chrome: `pnpm ax:compare packages/core/test/fixtures/probes/browser-modes.html` (Chrome mode)
+    and `--w3c` for the default reading.
+  - Unit tests: test/browser-modes.test.ts loads one case at a time by its data-case. Rows 4, 5,
+    and 6 reuse the cases in fidelity-followups.html.
+-->
+
+<div data-case="layout-table">
+  <table><tr><td>Left</td><td>Right</td></tr></table>
+</div>
+
+<div data-case="tbody">
+  <table><thead><tr><th>Item</th></tr></thead><tbody><tr><td>Tea</td></tr></tbody></table>
+</div>
+
+<div data-case="row-names">
+  <table><tr><th>Name</th><th>Age</th></tr><tr><td>Ann</td><td>3</td></tr></table>
+  <div role="grid" aria-label="Seats"><div role="row"><div role="gridcell">A1</div><div role="gridcell">A2</div></div></div>
+</div>
+
+<div data-case="term">
+  <dl><dt>Zone</dt><dd>Valletta</dd></dl>
+</div>
+
+<div data-case="toggle-labels">
+  <div><label><input type="checkbox"> Weekdays</label></div>
+  <div><label for="bm-yes">Yes</label> <input id="bm-yes" type="radio" name="bm"></div>
+  <div><label>Town <input type="text"></label></div>
+</div>
+
+<div data-case="svg">
+  <svg width="50" height="20"><title>Chart</title><rect width="10" height="10"/><text x="0" y="15">Q1</text></svg>
+  <svg width="50" height="20"><title>Logo</title><path d="M0 0L5 5"/></svg>
+  <svg width="50" height="20"><path d="M0 0L5 5"/></svg>
+  <svg width="10" height="10"></svg>
+  <svg width="50" height="20"><text x="0" y="10">One</text><text x="0" y="20">Two</text></svg>
+  <svg width="50" height="20" aria-label="Map"><g><circle r="3" cx="3" cy="3"><title>Dot</title></circle></g><g aria-label="Group"><rect width="5" height="5"/></g></svg>
+  <svg width="50" height="20"><defs><text id="bm-hidden">Template</text></defs><rect width="5" height="5" tabindex="0"/></svg>
+  <svg role="img" aria-label="Badge" width="50" height="20"><text x="0" y="15">Inner</text></svg>
+  <a href="#bm"><svg width="10" height="10"><path d="M0 0L5 5"/></svg> Home</a>
+</div>
+
+<div data-case="svg-icons">
+  <button><svg width="10" height="10"><path d="M0 0L5 5"/></svg> Save</button>
+  <button aria-label="Close"><svg width="10" height="10"><path d="M0 0L5 5"/></svg></button>
+  <h2><svg width="10" height="10"><title>Star</title><path d="M0 0L5 5"/></svg> Starred</h2>
+</div>
+
+<div data-case="th-scope">
+  <table><tr><td></td><th>Q1</th><th>Q2</th></tr><tr><th>East</th><td>5</td><td>6</td></tr></table>
+  <table>
+    <tr>
+      <td>1</td>
+      <th>Mid</th>
+      <td>2</td>
+    </tr>
+    <tr><td>3</td><td>4</td><td>5</td></tr>
+  </table>
+  <table><tr><th>A</th><th>B</th><td>1</td></tr><tr><td>2</td><td>3</td><td>4</td></tr></table>
+</div>
+
+<div data-case="th-agree">
+  <table><tr><th>Name</th><th>Age</th></tr><tr><th>Ann</th><td>3</td></tr></table>
+  <table><tr><th colspan="2">Wide</th></tr><tr><th>R</th><td>1</td></tr></table>
+</div>
+
+<div data-case="shadow-frame">
+  <div><template shadowrootmode="open"><table><tr><td>In</td><td>shadow</td></tr></table></template></div>
+  <iframe title="Framed" srcdoc="<table><tr><td>In</td><td>frame</td></tr></table>"></iframe>
+</div>

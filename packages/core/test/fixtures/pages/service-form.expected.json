@@ -327,11 +327,19 @@
     }
   },
   {
+    "role": "text",
+    "name": "Weekdays"
+  },
+  {
     "role": "checkbox",
     "name": "Weekends",
     "ref": {
       "tag": "input"
     }
+  },
+  {
+    "role": "text",
+    "name": "Weekends"
   },
   {
     "role": "group",
@@ -352,11 +360,19 @@
     }
   },
   {
+    "role": "text",
+    "name": "Yes"
+  },
+  {
     "role": "radio",
     "name": "No",
     "ref": {
       "tag": "input"
     }
+  },
+  {
+    "role": "text",
+    "name": "No"
   },
   {
     "role": "term",
