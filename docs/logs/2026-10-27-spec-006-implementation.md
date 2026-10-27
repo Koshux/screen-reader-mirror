@@ -113,7 +113,9 @@ Stage 5.5 on `git diff origin/main...HEAD`, 2026-10-27.
 ## State at end of session
 
 Branch `feat/SPEC-006-browser-matching` from `main` at f988e53, pushed; PR open, awaiting the
-operator. PR #62 (Version Packages) still open, not touched.
+operator. PR #62 (Version Packages, 0.3.1) was merged by the operator afterwards; `main` was
+merged into this branch to bring it up to date (no conflicts; the release only touched the
+version, the CHANGELOG, and the consumed `fidelity-followups` changeset).
 
 ## Hand-off notes
 
