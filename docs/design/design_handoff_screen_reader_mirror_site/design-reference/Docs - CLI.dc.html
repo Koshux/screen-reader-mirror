@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><link rel="stylesheet" href="docs.css"></helmet>
+<div class="srm {{ themeClass }}" style="width:{{ widthPx }}">
+<dc-import name="SiteHeader" is-light="{{ isLightNow }}" theme-label="{{ themeBtnLabel }}" on-toggle="{{ toggleTheme }}" hint-size="100%,64px"></dc-import>
+<div class="hero"><p class="kicker pg">Docs · CLI</p><h1>Commands, flags, exit codes</h1><p class="lead">Two commands. <span class="mono">mirror</span> reads pages; <span class="mono">listen</span> runs the bridge. Flags beyond the first table are <span class="st wip">Proposed</span> until the release that ships them.</p></div>
+<div class="wrap">
+<dc-import name="DocsNav" active="cli" hint-size="240px,520px"></dc-import>
+<main>
+
+<section id="mirror" class="ch wide" aria-labelledby="h-mirror">
+  <p class="kicker">Command</p><h2 id="h-mirror">screen-reader-mirror &lt;url | file&gt; [flags]</h2>
+  <pre style="max-width:72ch">npx screen-reader-mirror https://example.com
+npx screen-reader-mirror ./dist/index.html --json &gt; nodes.json</pre>
+  <div class="tbl c3" role="table" aria-label="Reading flags"><span class="h">Flag</span><span class="h">Does</span><span class="h">Default</span>
+    <span class="k">--source dom | ax</span><span>DOM walk in the page, or the browser's accessibility tree through CDP.</span><span class="k">dom</span>
+    <span class="k">--profile generic | nvda | jaws | voiceover</span><span>Phrasing for text output. JSON is unaffected.</span><span class="k">generic</span>
+    <span class="k">--mode read-all | tab | headings | landmarks | table | forms | live</span><span>Which list to print. See <a href="Docs - Testing with NVDA.dc.html#controls">Modes</a>.</span><span class="k">read-all</span>
+    <span class="k">--json</span><span>Print <span class="mono">InterpretationNode[]</span> instead of text.</span><span>off</span>
+    <span class="k">--wait-for &lt;selector&gt;</span><span>Wait for an element before reading.</span><span>network idle</span>
+    <span class="k">--wait &lt;ms&gt;</span><span>Extra pause after load.</span><span class="k">0</span>
+    <span class="k">--timeout &lt;ms&gt;</span><span>Give up on the page (exit 2).</span><span class="k">30000</span>
+    <span class="k">--storage-state &lt;file&gt;</span><span>Playwright storage state for pages behind login.</span><span>—</span>
+    <span class="k">--cookie name=value</span><span>Add a cookie. Repeatable.</span><span>—</span>
+    <span class="k">--pages &lt;file&gt;</span><span>One URL per line; one report and snapshot each, one exit code.</span><span>—</span>
+    <span class="k">--headed</span><span>Show the browser window. Needed for capture.</span><span>off</span>
+  </div>
+</section>
+
+<section id="check" class="ch wide" aria-labelledby="h-check">
+  <p class="kicker">Gates</p><h2 id="h-check">--check and friends</h2>
+  <div class="tbl c3" role="table" aria-label="Gate flags"><span class="h">Flag</span><span class="h">Does</span><span class="h">Default</span>
+    <span class="k">--fail-on &lt;list&gt;</span><span>Comma list of <span class="mono">unnamed</span>, <span class="mono">missingAlt</span>, <span class="mono">heading-skip</span>, <span class="mono">unreachable</span>. Any hit exits 1.</span><span>none</span>
+    <span class="k">--snapshot &lt;file | dir&gt;</span><span>Compare with the stored reading order; write it if absent. A directory with <span class="mono">--pages</span>.</span><span>—</span>
+    <span class="k">--update</span><span>Overwrite the snapshot with the current order and exit 0.</span><span>off</span>
+    <span class="k">--mask &lt;selector&gt;</span><span>Replace matching elements' names with <span class="mono">•</span> in the snapshot. Repeatable.</span><span>—</span>
+    <span class="k">--report &lt;file | dir&gt;</span><span>Write the JSON report. See <a href="Docs - CI.dc.html#report">CI › report</a>.</span><span>stdout summary</span>
+    <span class="k">--check</span><span>Shorthand for <span class="mono">--fail-on unnamed,missingAlt,heading-skip --snapshot a11y/ --report a11y/report/</span>.</span><span>off</span>
+  </div>
+</section>
+
+<section id="capture" class="ch wide" aria-labelledby="h-cap">
+  <p class="kicker">Capture</p><h2 id="h-cap">--capture, and listen</h2>
+  <div class="tbl c3" role="table" aria-label="Capture flags"><span class="h">Flag</span><span class="h">Does</span><span class="h">Default</span>
+    <span class="k">--capture bridge</span><span>Subscribe to the local bridge, print rows as the screen reader speaks, write a session report on Ctrl+C. Implies <span class="mono">--headed</span>. Exits 1 if any row differs.</span><span>off</span>
+    <span class="k">--capture &lt;log file&gt;</span><span>Compare against a saved speech log or session report instead of a live bridge.</span><span>—</span>
+    <span class="k">--port &lt;n&gt;</span><span>Bridge port, both for <span class="mono">listen</span> and <span class="mono">--capture</span>.</span><span class="k">7331</span>
+  </div>
+  <pre style="max-width:72ch">npx screen-reader-mirror listen [--port 7331]
+
+● NVDA 2025.1 detected (speech viewer stream)
+  Bridge on  ws://localhost:7331
+  Pair code  4 8 2 1
+  Subscribers 0 · Utterances 0</pre>
+  <p style="max-width:72ch"><span class="mono">listen</span> watches for NVDA (Speech Viewer stream), JAWS (speech history) and VoiceOver (captions). It prints a new pair code after three wrong attempts, and keeps waiting if no screen reader is running. Only speech text and timestamps pass through it.</p>
+</section>
+
+<section id="exit" class="ch" aria-labelledby="h-exit">
+  <p class="kicker">Exit codes</p><h2 id="h-exit">0, 1, 2</h2>
+  <div class="tbl" role="table" aria-label="Exit codes"><span class="h">Code</span><span class="h">Means</span><span class="k">0</span><span>Clean, or no gates asked for.</span><span class="k">1</span><span>A gate failed: flag, snapshot diff, or divergence.</span><span class="k">2</span><span>Could not read the page: navigation, timeout, missing browser. Not an accessibility result.</span></div>
+</section>
+
+<nav class="pn" aria-label="Previous and next"><a href="Docs - API.dc.html"><span>Previous</span><span>API</span></a><a href="Docs - Divergences.dc.html" style="text-align:right"><span>Next</span><span>Divergences</span></a></nav>
+</main>
+</div>
+<dc-import name="SiteFooter" hint-size="100%,320px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;auto&quot;,&quot;coral&quot;,&quot;coral-light&quot;],&quot;default&quot;:&quot;auto&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Theme&quot;},&quot;width&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[320,768,1280],&quot;default&quot;:1280,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Layout&quot;}}">
+class Component extends DCLogic {
+  state = { themeOverride: (() => { try { return localStorage.getItem('srm-theme') || null; } catch (e) { return null; } })() };
+  themeNow() { const o = this.state.themeOverride; if (o) return o; const p = this.props.theme ?? 'auto'; if (p !== 'auto') return p; return (typeof matchMedia !== 'undefined' && matchMedia('(prefers-color-scheme: light)').matches) ? 'coral-light' : 'coral'; }
+  renderVals() { const t = this.themeNow(); const light = /light/.test(t); return { themeClass: 't-' + t, isLightNow: light, themeBtnLabel: light ? 'Switch to dark theme' : 'Switch to light theme', toggleTheme: () => { const next = light ? 'coral' : 'coral-light'; try { localStorage.setItem('srm-theme', next); } catch (e) {} this.setState({ themeOverride: next }); }, widthPx: (this.props.width ?? 1280) + 'px' }; }
+}
+</script>
+</body>
+</html>

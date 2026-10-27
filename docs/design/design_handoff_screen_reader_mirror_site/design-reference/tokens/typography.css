@@ -1,0 +1,17 @@
+/* System UI stack on purpose: the tool renders other people's pages and must not bring a webfont. */
+:root{
+  --font-body:system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu,Cantarell,sans-serif;
+  --font-mono:ui-monospace,Menlo,Consolas,monospace;
+  --text-display:clamp(40px,6.2cqw,84px);   /* landing h1 · 700 · -0.035em · line-height .98 */
+  --text-h1:clamp(34px,5cqw,64px);          /* inner page h1 · 700 · -0.035em · line-height 1 */
+  --text-h2:clamp(26px,3cqw,36px);         /* landing section headline · 600 · -0.02em */
+  --text-h2-inner:clamp(22px,2.4cqw,28px); /* inner-page section headline · 600 · -0.015em */
+  --text-h3:20px;                          /* path / card title · 600 */
+  --text-lead:clamp(16px,1.4cqw,19px);      /* intro paragraph · muted · 1.45 */
+  --text-body:16px; --text-ui:14px; --text-small:13px; --text-caption:12.5px;
+  --text-kicker:13px;                      /* uppercase · .1em tracking · 600 · --link */
+  --text-code:13px; --text-editor:12.5px;
+  --leading-body:1.5; --leading-tight:1.02;
+  --weight-regular:400; --weight-medium:500; --weight-semibold:600; --weight-bold:700;
+}
+body{font-family:var(--font-body);font-size:var(--text-body);line-height:var(--leading-body);color:var(--text);background:var(--bg);margin:0}

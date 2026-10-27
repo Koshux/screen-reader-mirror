@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><link rel="stylesheet" href="docs.css"></helmet>
+<div class="srm {{ themeClass }}" style="width:{{ widthPx }}">
+<dc-import name="SiteHeader" is-light="{{ isLightNow }}" theme-label="{{ themeBtnLabel }}" on-toggle="{{ toggleTheme }}" hint-size="100%,64px"></dc-import>
+<div class="hero"><p class="kicker pg">Docs · Install</p><h1>Five ways in, in full</h1><p class="lead">Getting started shows the first step of each. This page has the rest: what gets installed where, what to expect, what to do when it does not work, and how to remove it.</p></div>
+<div class="wrap">
+<dc-import name="DocsNav" active="install" hint-size="240px,520px"></dc-import>
+<main>
+
+<section id="choose" class="ch wide" aria-labelledby="h-choose">
+  <p class="kicker">Which one</p><h2 id="h-choose">Pick by what you want to look at</h2>
+  <div class="tbl c4" role="table" aria-label="Choosing an install"><span class="h">Install</span><span class="h">Best for</span><span class="h">Sees</span><span class="h">Takes</span>
+    <span><a href="#bookmarklet">Bookmarklet</a></span><span>Checking any page you can open, with nothing installed. Works on a colleague's machine in a minute.</span><span>Live page, DOM walk</span><span>1 min</span>
+    <span><a href="#package">Package</a></span><span>Developers who want the list in code: dev overlays, unit tests, custom tooling.</span><span>Any DOM you pass it</span><span>2 min</span>
+    <span><a href="#extension">Browser extension</a></span><span>Day-to-day use. Side panel, badge count, settings, the real browser accessibility tree.</span><span>Live page, DOM walk or AX tree</span><span>3 min</span>
+    <span><a href="#sideload">Install it yourself</a></span><span>Locked-down machines, or verifying a release before the store has it.</span><span>Same as the extension</span><span>10 min</span>
+    <span><a href="#cli">CLI</a></span><span>CI, many pages at once, and the NVDA bridge for manual testing.</span><span>Pages via Playwright</span><span>5 min</span>
+  </div>
+  <p style="color:var(--muted);font-size:14px;max-width:72ch">None of them sends anything anywhere. The hosted demo on the landing page is a sixth way: paste HTML, no install at all.</p>
+</section>
+
+<section id="bookmarklet" class="ch" aria-labelledby="h-bm">
+  <p class="kicker">1 · Bookmarklet</p><h2 id="h-bm">One drag, then one click on any page</h2>
+  <p>A bookmarklet is a bookmark whose address is a small script. Clicking it runs the script on the page you are looking at. Ours loads the engine from a CDN, reads the page, and draws the mirror panel over it.</p>
+  <ol class="steps">
+    <li><span class="n">1</span><div class="body"><h4>Show your bookmarks bar</h4><p>Chrome and Edge: <span class="mono">Ctrl + Shift + B</span> (<span class="mono">Cmd + Shift + B</span> on a Mac). Firefox: right-click the toolbar, tick Bookmarks Toolbar. Safari: View › Show Favourites Bar.</p><p class="see"><b>You should see</b> a row of bookmarks under the address bar.</p></div></li>
+    <li><span class="n">2</span><div class="body"><h4>Drag the button</h4><p>On <a href="Getting started.dc.html#bookmarklet">Getting started</a>, press and hold "Mirror this page", drag it up to the bar, let go.</p><p class="see"><b>You should see</b> a new bookmark called Mirror this page. <b>If not</b>: right-click the button, choose "Bookmark link" or "Add to favourites". On a phone or tablet, dragging does not work; copy the link and paste it as a bookmark's address.</p></div></li>
+    <li><span class="n">3</span><div class="body"><h4>Click it on a page</h4><p>Open any page you want to check and click the bookmark once.</p><p class="see"><b>You should see</b> the panel on the right side of the page within a second or two, with the list already filled in. <b>If not</b>, see the callouts below.</p></div></li>
+  </ol>
+  <h3>When it does not run</h3>
+  <div class="callout warn"><b>"Refused to load the script" or nothing happens.</b> The page has a Content Security Policy that blocks outside scripts. Banks, government sites and many internal tools do this. The bookmarklet cannot get around it, by design. Use the <a href="#extension">extension</a>, which is allowed to run where page scripts are not.</div>
+  <ul><li><b>Browser pages</b> (<span class="mono">chrome://</span>, <span class="mono">about:</span>, the Web Store, PDFs): no script can run there. Nothing to mirror.</li><li><b>The panel appears but is empty</b>: the page rendered after the click. Click the bookmark again.</li><li><b>A page with frames</b>: same-origin frames are read; cross-origin ones show one row, "document, unreachable".</li></ul>
+  <h3>Versions</h3>
+  <p>The bookmark loads the latest release each time. A small "Update available" line appears in the panel footer when the bookmark itself (the script in the address) is older than the current one; drag the button again to replace it. To freeze on a version for a long test, use the pinned button on Getting started: its address names the version, such as <span class="mono">@0.4.1</span>, and never changes under you.</p>
+  <h3>Remove it</h3><p>Right-click the bookmark, Delete. Nothing else was installed.</p>
+</section>
+
+<section id="package" class="ch" aria-labelledby="h-pk">
+  <p class="kicker">2 · Package</p><h2 id="h-pk">The engine, in your code</h2>
+  <pre>npm install screen-reader-mirror
+<b>#</b> or
+pnpm add screen-reader-mirror</pre>
+  <p>Or with no build step at all, straight from a CDN as an ES module:</p>
+  <pre>&lt;script type="module"&gt;
+  import { linearize } from "https://cdn.jsdelivr.net/npm/screen-reader-mirror@0.4/+esm";
+  console.table(linearize(document.body));
+&lt;/script&gt;</pre>
+  <ol class="steps">
+    <li><span class="n">1</span><div class="body"><h4>Call it on an element</h4><pre>import { linearize } from "screen-reader-mirror";
+const nodes = linearize(document.querySelector("main"));</pre><p class="see"><b>You should get</b> an array of plain objects: <span class="mono">role</span>, <span class="mono">name</span>, sometimes <span class="mono">level</span>, <span class="mono">flags</span>, <span class="mono">live</span>, <span class="mono">ref</span>. See <a href="Docs - API.dc.html">API</a>.</p></div></li>
+    <li><span class="n">2</span><div class="body"><h4>Put it somewhere useful</h4><p>Three common homes: a debug-only overlay in your app that lists the nodes beside the UI; a unit test that snapshots the list (<a href="Docs - CI.dc.html#unit">CI › In a unit test</a>); a Storybook addon panel.</p></div></li>
+    <li><span class="n">3</span><div class="body"><h4>Pin and update</h4><p>Pin the minor version (<span class="mono">^0.4.0</span>). The changelog marks any change to the output shape as breaking, even in 0.x, so a snapshot will tell you before a user does.</p></div></li>
+  </ol>
+  <ul><li>TypeScript types are included. Tree-shakeable ESM, <span class="mono">sideEffects: false</span>.</li><li>Two runtime dependencies: <span class="mono">dom-accessibility-api</span> and <span class="mono">aria-query</span>. No others, no network calls.</li><li>Works in jsdom and happy-dom; pass <span class="mono">getComputedStyle</span> when yours differs from the browser's.</li></ul>
+</section>
+
+<section id="extension" class="ch" aria-labelledby="h-ex">
+  <p class="kicker">3 · Browser extension</p><h2 id="h-ex">The everyday one</h2>
+  <p>Chrome and Edge at launch; Firefox when its side panel API settles. The extension runs where bookmarklets cannot, keeps settings, shows a badge count, and can read the browser's real accessibility tree.</p>
+  <ol class="steps">
+    <li><span class="n">1</span><div class="body"><h4>Install from the store</h4><p>Open the store page, click "Add to Chrome" (or Edge), confirm.</p><p class="see"><b>You should see</b> a puzzle-piece icon light up top right, and a one-time welcome tab: three short lines on what it does, what it never does (send data), and a button to pin the icon.</p></div></li>
+    <li><span class="n">2</span><div class="body"><h4>Pin the icon</h4><p>Click the puzzle piece, find screen-reader-mirror, click the pin.</p><p class="see"><b>You should see</b> the <span class="mono">sr</span> icon in the toolbar. On pages it can read, a small number appears on it: how many rows are flagged. <b>If the icon is grey</b> with no number, the page cannot be read; see below.</p></div></li>
+    <li><span class="n">3</span><div class="body"><h4>Open the side panel</h4><p>Click the icon. The popup shows the count and two buttons: "Open side panel" and "Settings".</p><p class="see"><b>You should see</b> the panel on the right of the browser, outside the page, with Spoken, Preview and Nodes tabs. The page keeps its full width; nothing is injected into its layout.</p></div></li>
+  </ol>
+  <h3>Permissions, and when each is asked</h3>
+  <div class="tbl c3" role="table" aria-label="Permissions"><span class="h">Permission</span><span class="h">Why</span><span class="h">When</span>
+    <span class="k">activeTab</span><span>Read the page you are looking at, only after you click the icon.</span><span>Install</span>
+    <span class="k">sidePanel</span><span>Show the panel beside the page.</span><span>Install</span>
+    <span class="k">storage</span><span>Remember settings and the bridge pairing, on this computer.</span><span>Install</span>
+    <span class="k">debugger</span><span>Read the browser's own accessibility tree (the "AX tree" source). Chrome shows a yellow bar while it is on.</span><span>Only when you switch Source to AX tree, per tab, and you can say no</span>
+  </div>
+  <p>No host permission for all sites, no cookies, no history. See <a href="Docs - Privacy.dc.html">Privacy</a>.</p>
+  <h3>What the popup can say</h3>
+  <div class="cards">
+    <div class="state"><span class="t">3 flagged</span><span class="msg">7 items · 3 flagged. Open side panel.</span><span style="color:var(--muted)">The normal case. The badge shows 3.</span></div>
+    <div class="state"><span class="t">Nothing flagged</span><span class="msg">12 items · nothing flagged. Open side panel.</span><span style="color:var(--muted)">No badge. Still worth reading the order.</span></div>
+    <div class="state"><span class="t">Can't read this page</span><span class="msg">Browser pages, the Web Store and PDFs cannot be read by extensions. Try the page in a normal tab.</span><span style="color:var(--muted)">Grey icon. <span class="mono">chrome://</span>, <span class="mono">edge://</span>, store, PDF viewer, other extensions' pages.</span></div>
+    <div class="state"><span class="t">Reading…</span><span class="msg">Reading the page. Large pages take a moment.</span><span style="color:var(--muted)">Shown for anything over about half a second.</span></div>
+    <div class="state"><span class="t">Page changed</span><span class="msg">The page changed since the last read. Re-run.</span><span style="color:var(--muted)">Only when "Re-run on change" is off in <a href="Docs - Settings.dc.html">Settings</a>.</span></div>
+  </div>
+  <h3>Re-run on change</h3>
+  <p>On by default. When the page's DOM changes the panel re-reads it after things settle, keeps your place by matching rows to their elements, and strikes through rows that disappeared for one run so you can see what left. Turn it off for pages that update constantly (dashboards, chat) and use the Re-run button instead.</p>
+  <h3>Remove it</h3><p>Right-click the icon, Remove from Chrome. Settings and pairing go with it.</p>
+</section>
+
+<section id="sideload" class="ch" aria-labelledby="h-sl">
+  <p class="kicker">4 · Install it yourself</p><h2 id="h-sl">Unpacked, from a release you have checked</h2>
+  <ol class="steps">
+    <li><span class="n">1</span><div class="body"><h4>Download the release zip</h4><p>From the GitHub releases page, <span class="mono">extension-0.4.1.zip</span> and <span class="mono">SHA256SUMS</span>.</p></div></li>
+    <li><span class="n">2</span><div class="body"><h4>Check the sum</h4><pre>sha256sum -c SHA256SUMS      <b># Linux</b>
+shasum -a 256 -c SHA256SUMS  <b># macOS</b>
+certutil -hashfile extension-0.4.1.zip SHA256   <b># Windows, compare by eye</b></pre><p class="see"><b>You should see</b> "OK" beside the file name. <b>If not</b>, do not install it; download again from the releases page.</p></div></li>
+    <li><span class="n">3</span><div class="body"><h4>Load it</h4><p>Unzip. Open <span class="mono">chrome://extensions</span>, turn on Developer mode (top right), click "Load unpacked", choose the unzipped folder.</p><p class="see"><b>You should see</b> the extension card with a version number and no errors. Chrome will remind you about developer-mode extensions on each start; that is expected.</p></div></li>
+  </ol>
+  <p>Updates are manual: download the next zip, check it, Load unpacked again over the same folder.</p>
+</section>
+
+<section id="cli" class="ch" aria-labelledby="h-cli">
+  <p class="kicker">5 · CLI</p><h2 id="h-cli">For CI, for many pages, and for the NVDA bridge</h2>
+  <ol class="steps">
+    <li><span class="n">1</span><div class="body"><h4>Have Node</h4><p>Node 20 or newer. Check with <span class="mono">node --version</span>. If there is no Node, install the LTS from nodejs.org and open a new terminal.</p></div></li>
+    <li><span class="n">2</span><div class="body"><h4>Run it once</h4><pre>npx screen-reader-mirror https://example.com</pre><p class="see"><b>You should see</b> a one-off download on first run, then the reading order as a list in the terminal. <b>If it says a browser is missing</b>: <span class="mono">npx playwright install chromium</span>, once.</p></div></li>
+    <li><span class="n">3</span><div class="body"><h4>Choose what you are here for</h4><p>CI: <a href="Docs - CI.dc.html">Continuous integration</a>. Testing beside NVDA: <a href="Docs - Testing with NVDA.dc.html">Testing with NVDA</a>. Every flag: <a href="Docs - CLI.dc.html">CLI reference</a>.</p></div></li>
+  </ol>
+  <p>Install globally if you prefer: <span class="mono">npm i -g screen-reader-mirror</span>. In Docker, use the Playwright base image so the browser is already there.</p>
+</section>
+
+<nav class="pn" aria-label="Previous and next"><a href="Docs.dc.html"><span>Previous</span><span>Overview</span></a><a href="Docs - Reading the output.dc.html" style="text-align:right"><span>Next</span><span>Reading the output</span></a></nav>
+</main>
+</div>
+<dc-import name="SiteFooter" hint-size="100%,320px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;auto&quot;,&quot;coral&quot;,&quot;coral-light&quot;],&quot;default&quot;:&quot;auto&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Theme&quot;},&quot;width&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[320,768,1280],&quot;default&quot;:1280,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Layout&quot;}}">
+class Component extends DCLogic {
+  state = { themeOverride: (() => { try { return localStorage.getItem('srm-theme') || null; } catch (e) { return null; } })() };
+  themeNow() { const o = this.state.themeOverride; if (o) return o; const p = this.props.theme ?? 'auto'; if (p !== 'auto') return p; return (typeof matchMedia !== 'undefined' && matchMedia('(prefers-color-scheme: light)').matches) ? 'coral-light' : 'coral'; }
+  renderVals() { const t = this.themeNow(); const light = /light/.test(t); return { themeClass: 't-' + t, isLightNow: light, themeBtnLabel: light ? 'Switch to dark theme' : 'Switch to light theme', toggleTheme: () => { const next = light ? 'coral' : 'coral-light'; try { localStorage.setItem('srm-theme', next); } catch (e) {} this.setState({ themeOverride: next }); }, widthPx: (this.props.width ?? 1280) + 'px' }; }
+}
+</script>
+</body>
+</html>

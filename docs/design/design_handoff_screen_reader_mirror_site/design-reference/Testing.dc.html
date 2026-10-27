@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<style>
+body{margin:0;background:#0f1114}
+.sf{--bg:#15181c;--surface:#1d2126;--surface-2:#252a31;--text:#e6e9ee;--muted:#aeb5c0;--border:#2d333b;--border-strong:#4e5663;--link:#ff9b85;--primary:#ff9b85;--on-primary:#2a0e07;--accent-soft:#3a2622;--flag-bg:#3b3410;--flag-text:#efe08a;--ok-bg:#1f4d35;--ok-text:#c3ead2;--live:#7fd1b9;font-family:system-ui,-apple-system,'Segoe UI',Roboto,Ubuntu,Cantarell,sans-serif;color:var(--text);font-size:14px;line-height:1.45}
+.sf *{box-sizing:border-box}
+.sf a{color:var(--link)}
+.sf .mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+.sf .frame{position:relative;flex:none;display:flex;flex-direction:column;gap:14px}
+.sf .cap{display:flex;gap:12px;align-items:flex-start;max-width:560px}
+.sf .cap .n{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:999px;background:var(--primary);color:var(--on-primary);font-size:13px;font-weight:700;flex:none}
+.sf .cap h3{margin:0;font-size:17px;font-weight:600}
+.sf .cap p{margin:2px 0 0;color:var(--muted);font-size:14px;text-wrap:pretty}
+.sf .cap a{font-family:ui-monospace,Menlo,monospace;font-size:12px;text-decoration:none;margin-left:8px;color:var(--muted)}
+.sf .win{border:1px solid var(--border-strong);border-radius:10px;overflow:hidden;background:#202124;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+.sf .tabs{height:38px;flex:none;display:flex;align-items:flex-end;gap:8px;padding:0 12px;background:#202124;color:#e8eaed;font-size:12px}
+.sf .tabs .dots{display:inline-flex;gap:6px;align-self:center}.sf .tabs .dots i{width:11px;height:11px;border-radius:99px;background:#5f6368}
+.sf .tabs .tab{margin-left:8px;padding:8px 14px;background:#35363a;border-radius:8px 8px 0 0}
+.sf .addr{height:38px;flex:none;display:flex;align-items:center;gap:10px;padding:0 12px;background:#35363a;color:#e8eaed;font-size:12px}
+.sf .addr .url{flex:1;background:#202124;border-radius:99px;padding:6px 14px;color:#bdc1c6}
+.sf .body{flex:1;min-height:0;position:relative;display:flex}
+.sf .host{flex:1;min-width:0;background:#fff;color:#111;font-family:'Times New Roman',Times,serif;padding:22px 28px;position:relative;overflow:hidden}
+.sf .host h1{margin:0 0 8px;font-size:26px}.sf .host p{margin:0 0 10px}
+.sf .host table{border-collapse:collapse;font-size:14px}.sf .host td,.sf .host th{border:1px solid #888;padding:4px 10px;text-align:left}
+.sf .host .foc{outline:2px solid #9a2e17;outline-offset:3px;border-radius:2px}
+.sf .pnl{width:440px;flex:none;background:var(--bg);border-left:1px solid var(--border-strong);display:flex;flex-direction:column;font-size:13px}
+.sf .pnl-hd{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border);font-weight:600}
+.sf .strip{display:flex;flex-wrap:wrap;gap:6px;padding:8px 14px;border-bottom:1px solid var(--border);align-items:center}
+.sf .lbl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-right:2px}
+.sf .pill{display:inline-flex;align-items:center;gap:5px;min-height:26px;padding:0 9px;border:1px solid var(--border-strong);border-radius:999px;font-size:12px;color:var(--muted);white-space:nowrap}
+.sf .pill.on{background:var(--accent-soft);border-color:var(--link);color:var(--link);font-weight:600}
+.sf .pill.live{border-color:var(--live);color:var(--live)}
+.sf .pill kbd{font-family:ui-monospace,Menlo,monospace;font-size:10px;padding:0 4px;border:1px solid currentColor;border-radius:3px;opacity:.8}
+.sf .rows{flex:1;min-height:0;overflow:hidden;padding:8px 14px;display:flex;flex-direction:column;gap:5px}
+.sf .row{display:grid;grid-template-columns:16px minmax(0,1fr) auto;gap:8px;align-items:start;padding:4px 6px;border-radius:6px}
+.sf .row.cur{background:var(--accent-soft)}
+.sf .row .ic{width:13px;height:13px;margin-top:3px;color:var(--muted);fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.sf .row .r{color:var(--muted)}
+.sf .src{font-family:ui-monospace,Menlo,monospace;font-size:10px;padding:1px 5px;border:1px solid var(--border-strong);border-radius:4px;color:var(--muted);white-space:nowrap}
+.sf .src.ax{border-color:#8ab4f8;color:#8ab4f8}.sf .src.lv{border-color:var(--live);color:var(--live)}
+.sf .flag{display:inline-flex;align-items:center;gap:5px;padding:1px 8px;border-radius:999px;background:var(--flag-bg);color:var(--flag-text);font-size:11px;font-weight:500;white-space:nowrap}
+.sf .ok{background:var(--ok-bg);color:var(--ok-text)}
+.sf .dim{opacity:.4}
+.sf .b{white-space:nowrap;min-height:34px;padding:0 12px;border:1px solid var(--border-strong);border-radius:8px;background:var(--bg);color:var(--text);font:inherit;font-size:13px;display:inline-flex;align-items:center;gap:7px}
+.sf .b-f{background:var(--primary);border-color:var(--primary);color:var(--on-primary);font-weight:600}
+.sf .b-o{border-color:var(--link);color:var(--link);font-weight:600}
+.sf .term{background:#0b0d10;color:#cfd6df;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.6;padding:14px 16px;white-space:pre-wrap}
+.sf .foot{display:flex;align-items:center;gap:10px;padding:8px 14px;border-top:1px solid var(--border);color:var(--muted);font-size:12px}
+.sf .dotl{width:8px;height:8px;border-radius:99px;background:var(--live);box-shadow:0 0 0 3px rgba(127,209,185,.25)}
+.sf h2{margin:0;font-size:34px;font-weight:700;letter-spacing:-0.03em;line-height:1.05}
+.sf .intro{margin:6px 0 0;color:var(--muted);font-size:16px;max-width:64ch;text-wrap:pretty}
+.sf .card{width:300px;flex:none;border:1px solid var(--border);border-radius:10px;background:var(--surface);padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.sf .card h4{margin:0;font-size:14px;font-weight:600}
+.sf .card p{margin:0;color:var(--muted);font-size:13px;text-wrap:pretty}
+.sf .card .k{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--link);font-weight:600}
+.sf .pipe{display:flex;align-items:stretch;gap:0}
+.sf .stage{flex:1;border:1px solid var(--border-strong);border-radius:10px;background:var(--surface);padding:16px 18px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.sf .stage h4{margin:0;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--link)}
+.sf .stage ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.sf .stage li{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px}
+.sf .hosts{display:inline-flex;gap:3px}.sf .hosts i{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:4px;font-style:normal;font-size:9px;font-family:ui-monospace,Menlo,monospace;border:1px solid var(--border-strong);color:var(--muted)}.sf .hosts i.y{background:var(--accent-soft);border-color:var(--link);color:var(--link)}
+.sf .arrow{width:44px;flex:none;display:grid;place-items:center;color:var(--muted)}
+.sf .tl{display:grid;grid-template-columns:52px 1fr;gap:4px 12px;font-size:13px}
+.sf .tl .t{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--muted);padding-top:3px}
+.sf .tl .e{padding:4px 8px;border-radius:6px;border:1px solid var(--border)}
+</style>
+</helmet>
+<div class="sf" style="padding:64px 56px 96px;display:flex;flex-direction:column;gap:96px;width:max-content;min-width:1500px">
+
+<section id="pipeline" data-screen-label="Pipeline" style="display:flex;flex-direction:column;gap:32px">
+  <div><p style="margin:0 0 8px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--link)">Surface C</p><h2>Testing: seeing what a screen reader says</h2><p class="intro">The engine computes one interpretation. Everything else is a question of where the tree came from, how it is phrased, how you are moving through it, and what a real screen reader said at the same moment. Those four things become four visible controls, in that order, above every Spoken list.</p></div>
+  <div class="pipe" style="width:1400px">
+    <div class="stage"><h4>1 · Source</h4><p style="margin:0;color:var(--muted);font-size:13px">Where the tree comes from. The adapter.</p><ul>
+      <li>DOM walk (pure JS)<span class="hosts"><i class="y">web</i><i class="y">ext</i><i class="y">cli</i></span></li>
+      <li>Browser AX tree (CDP)<span class="hosts"><i>web</i><i class="y">ext</i><i class="y">cli</i></span></li>
+      <li>Playwright run<span class="hosts"><i>web</i><i>ext</i><i class="y">cli</i></span></li>
+      <li>Pasted HTML<span class="hosts"><i class="y">web</i><i>ext</i><i>cli</i></span></li>
+      <li>Public URL<span class="hosts"><i class="y">web</i><i>ext</i><i class="y">cli</i></span></li>
+    </ul></div>
+    <div class="arrow">→</div>
+    <div class="stage"><h4>2 · Profile</h4><p style="margin:0;color:var(--muted);font-size:13px">How the nodes are phrased.</p><ul><li>Generic</li><li>NVDA</li><li>JAWS</li><li>VoiceOver</li></ul><p style="margin:4px 0 0;color:var(--muted);font-size:12px">Same nodes, different words. Switching never re-reads the page.</p></div>
+    <div class="arrow">→</div>
+    <div class="stage"><h4>3 · Mode</h4><p style="margin:0;color:var(--muted);font-size:13px">How you move. Filters and reorders the list, and maps real keys.</p><ul><li>Read all<kbd class="pill" style="min-height:20px">↓</kbd></li><li>Tab order<kbd class="pill" style="min-height:20px">Tab</kbd></li><li>Headings<kbd class="pill" style="min-height:20px">H 1–6</kbd></li><li>Landmarks<kbd class="pill" style="min-height:20px">D</kbd></li><li>Table cells<kbd class="pill" style="min-height:20px">Ctrl Alt ←→↑↓</kbd></li><li>Forms mode<kbd class="pill" style="min-height:20px">Enter / Esc</kbd></li><li>Live regions<kbd class="pill" style="min-height:20px">time</kbd></li></ul></div>
+    <div class="arrow">→</div>
+    <div class="stage" style="border-color:var(--live)"><h4 style="color:var(--live)">4 · Capture</h4><p style="margin:0;color:var(--muted);font-size:13px">What a real screen reader said. Optional, side by side.</p><ul><li>Live bridge<span class="hosts"><i class="y">web</i><i class="y">ext</i><i class="y">cli</i></span></li><li>Imported log<span class="hosts"><i class="y">web</i><i class="y">ext</i><i class="y">cli</i></span></li></ul><p style="margin:4px 0 0;color:var(--muted);font-size:12px">Rows align to engine rows by order and text. Disagreements are flagged, never hidden. The bridge reaches every host, including the bookmarklet, because localhost is a secure origin.</p></div>
+  </div>
+</section>
+
+<section id="setup" data-screen-label="Set up" style="display:flex;flex-direction:column;gap:32px">
+  <div><p style="margin:0 0 8px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--link)">Journey C0</p><h2>Set up, step by step</h2><p class="intro">You need three things on one Windows computer: NVDA (the screen reader), Node (to run the bridge), and the mirror in whatever form you like. Each step says what to type, what you should see, and what to do if you do not see it. Fifteen minutes the first time.</p></div>
+  <div style="display:flex;gap:20px;align-items:stretch;width:max-content">
+
+    <div class="card" style="width:360px;gap:12px"><div style="display:flex;align-items:center;gap:10px"><span class="cap"><span class="n">1</span></span><h4 style="font-size:16px">Install NVDA</h4></div>
+      <p>NVDA is the free screen reader this is built around. Get it from <span class="mono">nvaccess.org/download</span>. Run the installer, keep the defaults, let it start.</p>
+      <div class="term" style="border-radius:8px;font-size:12px">NVDA starts talking. Press  <span style="color:#fff">Insert + N</span>  to open its menu, then  <span style="color:#fff">Tools › Speech Viewer</span>. A small window shows every word it says as text.</div>
+      <p><b>You should see</b> the Speech Viewer window fill with text as you move around. Leave it open; the bridge reads from it.</p>
+      <p><b>If not</b>: NVDA may be muted. <span class="mono">Insert + S</span> cycles speech mode; pick "talk". Or check the sound output.</p>
+    </div>
+
+    <div class="card" style="width:360px;gap:12px"><div style="display:flex;align-items:center;gap:10px"><span class="cap"><span class="n">2</span></span><h4 style="font-size:16px">Install Node</h4></div>
+      <p>Node runs the bridge. Get the LTS version from <span class="mono">nodejs.org</span>, run the installer, keep the defaults. Then open a terminal: press <span class="mono">Windows</span>, type <span class="mono">terminal</span>, Enter.</p>
+      <div class="term" style="border-radius:8px;font-size:12px">&gt; node --version
+<span style="color:#fff">v22.11.0</span></div>
+      <p><b>You should see</b> a version starting with v20 or higher.</p>
+      <p><b>If not</b>: close the terminal and open a new one; the installer only reaches new windows. Still nothing: restart the computer.</p>
+    </div>
+
+    <div class="card" style="width:360px;gap:12px"><div style="display:flex;align-items:center;gap:10px"><span class="cap"><span class="n">3</span></span><h4 style="font-size:16px">Start the bridge</h4></div>
+      <p>In that same terminal, type one line. The first run downloads the tool; later runs are instant. Leave this window open the whole time you test.</p>
+      <div class="term" style="border-radius:8px;font-size:12px">&gt; npx screen-reader-mirror listen
+
+<span style="color:var(--live)">●</span> NVDA 2025.1 detected
+  Bridge on  <span style="color:#fff">ws://localhost:7331</span>
+  Pair code  <span style="color:#fff;letter-spacing:.2em">4 8 2 1</span></div>
+      <p><b>You should see</b> the green dot, NVDA's version and a four-digit pair code. Write the code down.</p>
+      <p><b>If not</b>: "no screen reader found" means NVDA is not running or Speech Viewer is closed; fix that and the line updates by itself. "EADDRINUSE" means 7331 is taken; add <span class="mono">--port 7332</span>.</p>
+    </div>
+
+    <div class="card" style="width:360px;gap:12px"><div style="display:flex;align-items:center;gap:10px"><span class="cap"><span class="n">4</span></span><h4 style="font-size:16px">Open the mirror and pair</h4></div>
+      <p>Pick one. They all ask for the same code once.</p>
+      <ul style="margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted)">
+        <li><b style="color:var(--text)">Bookmarklet</b>: open the page you want to test, click the "Mirror this page" bookmark. See <a href="#d1">d1</a>.</li>
+        <li><b style="color:var(--text)">Extension</b>: click the <span class="sr" style="display:inline-grid;place-items:center;width:16px;height:16px;border:1.5px solid #ff9b85;color:#ff9b85;border-radius:4px;font-family:ui-monospace,Menlo,monospace;font-size:7px;font-weight:600;vertical-align:-3px">sr</span> icon, then "Open side panel". See <a href="#d3">d3</a>.</li>
+        <li><b style="color:var(--text)">CLI</b>: a second terminal, <span class="mono">npx screen-reader-mirror &lt;url&gt; --capture bridge --headed</span>. See <a href="#d4">d4</a>.</li>
+        <li><b style="color:var(--text)">Package</b>: for developers writing code. See <a href="#d2">d2</a>.</li>
+      </ul>
+      <p><b>You should see</b> "Bridge found on this machine" and four boxes for the code (<a href="#c2">c2</a>). Type it. The Capture pill turns green and says <b style="color:var(--live)">NVDA · live</b>.</p>
+      <p><b>If not</b>: no "Bridge found" means the terminal from step 3 closed, or the port changed; the panel has a field for the port. Wrong code three times: the terminal prints a new one.</p>
+    </div>
+
+    <div class="card" style="width:360px;gap:12px;border-color:var(--live)"><div style="display:flex;align-items:center;gap:10px"><span class="cap"><span class="n">5</span></span><h4 style="font-size:16px">Press keys, read both columns</h4></div>
+      <p>Click once inside the web page so NVDA is reading it, then press <span class="mono">↓</span> to move one item at a time. The left column is what the mirror expected. The right column fills with what NVDA actually said.</p>
+      <div style="display:flex;flex-direction:column;gap:4px;font-size:13px"><span><span class="flag ok">match</span> the same thing. Good.</span><span><span class="flag">differs</span> two different strings. Read both; report it with the button if the mirror is wrong.</span><span><span class="flag" style="background:var(--surface-2);color:var(--muted)">extra</span> NVDA said something the mirror has no row for ("clickable"). Normal.</span><span><span style="color:var(--muted);font-style:italic">not reached yet</span> you have not got that far. Keep pressing.</span></div>
+      <p><b>Try next</b>: press <span class="mono">H</span> to jump between headings and switch Mode to Headings (<a href="#c4">c4</a>); press <span class="mono">Tab</span> and switch to Tab order (<a href="#c5">c5</a>).</p>
+      <p><b>When done</b>: Ctrl+C in the bridge terminal. Nothing was sent anywhere; the pairing is remembered for next time.</p>
+    </div>
+
+  </div>
+  <div style="display:flex;gap:16px;flex-wrap:wrap;max-width:1500px">
+    <div class="card" style="width:360px"><span class="k">Mac</span><h4>VoiceOver instead of NVDA</h4><p>Skip step 1; VoiceOver is built in (<span class="mono">Cmd + F5</span>). The bridge reads its captions panel. Steps 2 to 5 are the same; the Profile pill says VoiceOver and there is no forms mode.</p></div>
+    <div class="card" style="width:360px"><span class="k">No bridge</span><h4>Just want to look?</h4><p>Skip steps 2 to 4. Open the mirror on any page; the left column works alone. Add NVDA later when you want to check the mirror against the real thing.</p></div>
+    <div class="card" style="width:360px"><span class="k">Two computers</span><h4>Tester here, developer there</h4><p>The bridge only talks to the same machine. The tester saves the session report (step 5, Ctrl+C) and sends the JSON; the developer imports it as a log (<a href="#c12">c12</a>).</p></div>
+  </div>
+</section>
+
+<section id="capture" data-screen-label="Live capture" style="display:flex;flex-direction:column;gap:32px">
+  <div><p style="margin:0 0 8px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--link)">Journey C1</p><h2>Live capture through the bridge</h2><p class="intro">The CLI runs a small local bridge that listens to a running screen reader (NVDA's speech output on Windows, VoiceOver's spoken text on macOS) and republishes each utterance on localhost. The extension side panel and the CLI report subscribe. Nothing leaves the machine.</p></div>
+  <div style="display:flex;gap:48px;align-items:flex-start">
+
+    <div class="frame" id="c1">
+      <div class="cap"><span class="n">1</span><div><h3>Start the bridge<a href="#c1">c1</a></h3><p>One command. It detects the screen reader, prints the port and waits. Without a screen reader running it says so and keeps waiting.</p></div></div>
+      <div class="win" style="width:720px;height:380px">
+        <div class="tabs"><span class="dots"><i></i><i></i><i></i></span><span class="tab mono">Terminal</span></div>
+        <div class="term" style="flex:1">$ npx screen-reader-mirror listen
+
+<span style="color:var(--live)">●</span> NVDA 2025.1 detected (speech viewer stream)
+  Bridge on  <span style="color:#fff">ws://localhost:7331</span>
+  Pair code  <span style="color:#fff;letter-spacing:.2em">4 8 2 1</span>
+
+  Subscribers  0
+  Utterances   0
+
+<span style="color:var(--muted)">Waiting for a panel or a run to subscribe. Ctrl+C to stop.
+</span><span style="color:var(--muted)">Nothing is sent off this machine.</span></div>
+      </div>
+    </div>
+
+    <div class="frame" id="c2">
+      <div class="cap"><span class="n">2</span><div><h3>Panel pairs with the bridge<a href="#c2">c2</a></h3><p>In the side panel, Capture shows "Bridge found on this machine". Enter the pair code once. The pill turns live and a fourth column appears in the strip.</p></div></div>
+      <div class="win" style="width:1000px;height:600px">
+        <div class="tabs"><span class="dots"><i></i><i></i><i></i></span><span class="tab">Orders · Example app</span></div>
+        <div class="addr"><span style="opacity:.6">←  →  ↻</span><span class="url mono">app.example.com/orders</span><span class="sr" style="display:inline-grid;place-items:center;width:18px;height:18px;border:1.5px solid #ff9b85;color:#ff9b85;border-radius:5px;font-family:ui-monospace,Menlo,monospace;font-size:8px;font-weight:600;background:#15181c">sr</span></div>
+        <div class="body">
+          <div class="host dim"><h1>Orders</h1><p>3 open, 1 overdue</p><p><b>Recent</b></p><table><tr><th>Order</th><th>Status</th><th>Due</th></tr><tr><td>#1041</td><td>Open</td><td>Fri</td></tr><tr><td>#1038</td><td>Overdue</td><td>Mon</td></tr></table></div>
+          <div class="pnl">
+            <div class="pnl-hd"><span class="sr" style="display:inline-grid;place-items:center;width:18px;height:18px;border:1.5px solid #ff9b85;color:#ff9b85;border-radius:5px;font-family:ui-monospace,Menlo,monospace;font-size:8px;font-weight:600">sr</span>Mirror<span style="flex:1"></span><span class="pill">Spoken</span><span class="pill">Preview</span><span class="pill">Nodes</span></div>
+            <div class="strip"><span class="lbl">Source</span><span class="pill on">DOM walk</span><span class="pill">AX tree</span><span class="lbl" style="margin-left:8px">Profile</span><span class="pill on">NVDA</span></div>
+            <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px;padding:28px 24px">
+              <div style="display:flex;align-items:center;gap:10px"><span class="dotl"></span><span style="font-weight:600;font-size:15px">Bridge found on this machine</span></div>
+              <p style="margin:0;color:var(--muted)">A screen-reader-mirror bridge is listening on localhost:7331 with NVDA 2025.1. Enter the pair code it printed to show what NVDA says beside the mirror.</p>
+              <div style="display:flex;gap:8px"><span class="mono" style="display:inline-grid;place-items:center;width:44px;height:48px;border:1px solid var(--border-strong);border-radius:8px;font-size:20px">4</span><span class="mono" style="display:inline-grid;place-items:center;width:44px;height:48px;border:1px solid var(--border-strong);border-radius:8px;font-size:20px">8</span><span class="mono" style="display:inline-grid;place-items:center;width:44px;height:48px;border:1px solid var(--link);border-radius:8px;font-size:20px">2</span><span class="mono" style="display:inline-grid;place-items:center;width:44px;height:48px;border:1px solid var(--border-strong);border-radius:8px;font-size:20px;color:var(--muted)">_</span></div>
+              <div style="display:flex;gap:8px;align-items:center"><span class="b b-f">Pair</span><span class="b">Not now</span><span style="flex:1"></span><a href="#" style="font-size:12px">Import a log instead</a></div>
+              <p style="margin:0;color:var(--muted);font-size:12px">Utterances stay on this machine. The pairing is remembered for this browser profile.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame" id="c3">
+      <div class="cap"><span class="n">3</span><div><h3>Side by side<a href="#c3">c3</a></h3><p>Left: what the engine says the screen reader will say. Right: what NVDA actually said, arriving as you move. Rows align by order; a row that differs gets a flag with the two strings, and a row only one side has is left empty on the other.</p></div></div>
+      <div class="win" style="width:1100px;height:640px">
+        <div class="tabs"><span class="dots"><i></i><i></i><i></i></span><span class="tab">Orders · Example app</span></div>
+        <div class="addr"><span style="opacity:.6">←  →  ↻</span><span class="url mono">app.example.com/orders</span></div>
+        <div class="body">
+          <div class="host dim" style="flex:0 0 300px"><h1>Orders</h1><p>3 open, 1 overdue</p><p><b>Recent</b></p><p><span class="foc" style="display:inline-block;width:24px;height:20px;border:2px outset #767676;background:#efefef"></span></p><table><tr><th>Order</th><th>Status</th></tr><tr><td>#1041</td><td>Open</td></tr></table></div>
+          <div class="pnl" style="width:auto;flex:1">
+            <div class="pnl-hd"><span class="sr" style="display:inline-grid;place-items:center;width:18px;height:18px;border:1.5px solid #ff9b85;color:#ff9b85;border-radius:5px;font-family:ui-monospace,Menlo,monospace;font-size:8px;font-weight:600">sr</span>Mirror<span style="flex:1"></span><span class="pill on">Spoken</span><span class="pill">Preview</span><span class="pill">Nodes</span></div>
+            <div class="strip"><span class="lbl">Source</span><span class="pill on">DOM walk</span><span class="pill">AX tree</span><span class="lbl" style="margin-left:8px">Profile</span><span class="pill on">NVDA</span><span class="lbl" style="margin-left:8px">Mode</span><span class="pill on">Read all</span><span class="lbl" style="margin-left:8px">Capture</span><span class="pill live"><span class="dotl" style="box-shadow:none;width:6px;height:6px"></span>NVDA · live</span></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0">
+              <div class="rows" style="border-right:1px solid var(--border)"><span class="lbl" style="padding:4px 6px">Mirror says <span class="src">dom</span></span>
+                <div class="row"><svg class="ic" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span class="r">main landmark</span><span></span></div>
+                <div class="row"><svg class="ic" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span>heading level 1, Orders</span><span></span></div>
+                <div class="row"><svg class="ic" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span>3 open, 1 overdue</span><span></span></div>
+                <div class="row"><svg class="ic" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span>Recent</span><span></span></div>
+                <div class="row cur"><svg class="ic" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span><span class="r">button</span></span><span class="flag">unnamed</span></div>
+                <div class="row"><svg class="ic" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span><span class="r">graphic</span> chart.png</span><span class="flag">no alt</span></div>
+                <div class="row"><svg class="ic" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span><span class="r">table</span> with 2 rows and 2 columns</span><span></span></div>
+              </div>
+              <div class="rows"><span class="lbl" style="padding:4px 6px;color:var(--live)">NVDA said <span class="src lv">live</span></span>
+                <div class="row"><svg class="ic" viewBox="0 0 24 24" style="color:var(--live)"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span class="r">main landmark</span><span class="flag ok">match</span></div>
+                <div class="row"><svg class="ic" viewBox="0 0 24 24" style="color:var(--live)"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span>Orders heading level 1</span><span class="flag ok">match</span></div>
+                <div class="row"><svg class="ic" viewBox="0 0 24 24" style="color:var(--live)"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span>3 open, 1 overdue</span><span class="flag ok">match</span></div>
+                <div class="row"><svg class="ic" viewBox="0 0 24 24" style="color:var(--live)"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span>Recent</span><span class="flag ok">match</span></div>
+                <div class="row cur"><svg class="ic" viewBox="0 0 24 24" style="color:var(--live)"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span>menu button</span><span class="flag">differs</span></div>
+                <div class="row"><svg class="ic" viewBox="0 0 24 24" style="color:var(--live)"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span>graphic chart</span><span class="flag">differs</span></div>
+                <div class="row dim"><span></span><span style="color:var(--muted);font-style:italic">not reached yet</span><span></span></div>
+              </div>
+            </div>
+            <div style="padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:10px;align-items:center;font-size:12.5px"><span class="flag">differs</span><span>Mirror: <span class="mono">button</span> · NVDA: <span class="mono">menu button</span>. NVDA reads <span class="mono">aria-haspopup</span>; the engine does not yet.</span><span style="flex:1"></span><span class="b b-o" style="min-height:30px;font-size:12px">Report divergence</span></div>
+            <div class="foot"><span class="dotl"></span>NVDA 2025.1 via bridge · 6 utterances · 2 differ<span style="flex:1"></span><span>Alignment: by order, then text</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section id="installs" data-screen-label="Capture per install" style="display:flex;flex-direction:column;gap:32px">
+  <div><p style="margin:0 0 8px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--link)">Journey C4</p><h2>NVDA beside the DOM walk, on every install</h2><p class="intro">The DOM walk is the source every host has, and NVDA is the screen reader most testers run. So the pairing that matters most is DOM walk + NVDA through the bridge, and it must work the same way whether the mirror arrived as a bookmarklet, a package, an extension or the CLI. One bridge, one pair code, one side-by-side layout. Only the frame around it changes.</p></div>
+  <div style="display:flex;gap:48px;align-items:flex-start;flex-wrap:wrap">
+
+    <div class="frame" id="d1">
+      <div class="cap"><span class="n">1</span><div><h3>Bookmarklet<a href="#d1">d1</a></h3><p>The panel over the page gains the Capture pill. It connects to <span class="mono">ws://localhost:7331</span> from the page; localhost counts as secure, so an https page is allowed to. Pair once per browser profile. The page is dimmed, the panel splits into two columns.</p></div></div>
+      <div class="win" style="width:1000px;height:600px">
+        <div class="tabs"><span class="dots"><i></i><i></i><i></i></span><span class="tab">Orders · Example app</span></div>
+        <div class="addr"><span style="opacity:.6">←  →  ↻</span><span class="url mono">app.example.com/orders</span></div>
+        <div class="bar" style="height:30px;flex:none;display:flex;align-items:center;gap:14px;padding:0 14px;background:#35363a;border-top:1px solid #45474b;color:#bdc1c6;font-size:12px"><span>Docs</span><span>GOV.UK</span><span style="display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:6px;background:rgba(255,155,133,.12);color:#ff9b85"><span class="sr" style="display:inline-grid;place-items:center;width:18px;height:18px;border:1.5px solid #ff9b85;color:#ff9b85;border-radius:5px;font-family:ui-monospace,Menlo,monospace;font-size:8px;font-weight:600;background:#15181c">sr</span>Mirror this page</span></div>
+        <div class="body">
+          <div class="host dim" style="flex:1"><h1>Orders</h1><p>3 open, 1 overdue</p><p><b>Recent</b></p><p><span class="foc" style="display:inline-block;width:24px;height:20px;border:2px outset #767676;background:#efefef"></span></p></div>
+          <div class="pnl" style="width:620px;box-shadow:-12px 0 30px rgba(0,0,0,.35)">
+            <div class="pnl-hd"><span class="sr" style="display:inline-grid;place-items:center;width:18px;height:18px;border:1.5px solid #ff9b85;color:#ff9b85;border-radius:5px;font-family:ui-monospace,Menlo,monospace;font-size:8px;font-weight:600">sr</span>Mirror<span style="flex:1"></span><span class="pill on">Spoken</span><span class="pill">Preview</span><span class="pill">Nodes</span><span class="pill" style="min-width:26px;justify-content:center">×</span></div>
+            <div class="strip"><span class="lbl">Source</span><span class="pill on">DOM walk</span><span class="lbl" style="margin-left:8px">Profile</span><span class="pill on">NVDA</span><span class="lbl" style="margin-left:8px">Mode</span><span class="pill on">Read all</span><span class="lbl" style="margin-left:8px">Capture</span><span class="pill live"><span class="dotl" style="box-shadow:none;width:6px;height:6px"></span>NVDA · live</span></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0">
+              <div class="rows" style="border-right:1px solid var(--border)"><span class="lbl" style="padding:4px 6px">Mirror says <span class="src">dom</span></span>
+                <div class="row"><svg class="ic" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span class="r">main landmark</span><span></span></div>
+                <div class="row"><svg class="ic" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span>heading level 1, Orders</span><span></span></div>
+                <div class="row"><svg class="ic" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span>3 open, 1 overdue</span><span></span></div>
+                <div class="row"><svg class="ic" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span>Recent</span><span></span></div>
+                <div class="row cur"><svg class="ic" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span class="r">button</span><span class="flag">unnamed</span></div>
+              </div>
+              <div class="rows"><span class="lbl" style="padding:4px 6px;color:var(--live)">NVDA said <span class="src lv">live</span></span>
+                <div class="row"><svg class="ic" viewBox="0 0 24 24" style="color:var(--live)"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span class="r">main landmark</span><span class="flag ok">match</span></div>
+                <div class="row"><svg class="ic" viewBox="0 0 24 24" style="color:var(--live)"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span>Orders heading level 1</span><span class="flag ok">match</span></div>
+                <div class="row"><svg class="ic" viewBox="0 0 24 24" style="color:var(--live)"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span>3 open, 1 overdue</span><span class="flag ok">match</span></div>
+                <div class="row"><svg class="ic" viewBox="0 0 24 24" style="color:var(--live)"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span>Recent</span><span class="flag ok">match</span></div>
+                <div class="row cur"><svg class="ic" viewBox="0 0 24 24" style="color:var(--live)"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span>menu button</span><span class="flag">differs</span></div>
+              </div>
+            </div>
+            <div class="foot"><span class="dotl"></span>NVDA 2025.1 · bridge localhost:7331<span style="flex:1"></span><span>Press keys in NVDA; the right column follows</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame" id="d2">
+      <div class="cap"><span class="n">2</span><div><h3>Package<a href="#d2">d2</a></h3><p>No panel to show. The package exposes <span class="mono">capture()</span> next to <span class="mono">linearize()</span>: subscribe to the bridge, get utterances, align them yourself or use <span class="mono">compare()</span>. A dev overlay for the app's own debug build takes four lines.</p></div></div>
+      <div class="win" style="width:760px;height:600px">
+        <div class="tabs"><span class="dots"><i></i><i></i><i></i></span><span class="tab mono">a11y-overlay.ts</span><span class="tab mono" style="background:#202124;color:#9aa0a6">console</span></div>
+        <div class="term" style="flex:1"><span style="color:var(--muted)">// debug build only
+</span><span style="color:var(--link)">import</span> { linearize, capture, compare } <span style="color:var(--link)">from</span> "screen-reader-mirror";
+
+<span style="color:var(--link)">const</span> nodes  = linearize(document.body);          <span style="color:var(--muted)">// DOM walk
+</span><span style="color:var(--link)">const</span> bridge = <span style="color:var(--link)">await</span> capture.connect({ pair: "4821" });  <span style="color:var(--muted)">// ws://localhost:7331</span>
+
+bridge.on("utterance", (u) =&gt; {
+  <span style="color:var(--link)">const</span> { row, verdict } = compare(nodes, u);     <span style="color:var(--muted)">// match | differs | extra</span>
+  console.log(verdict, row?.role, row?.name, "←", u.text);
+});
+
+<span style="color:var(--muted)">──────────── console ────────────
+</span><span style="color:var(--live)">●</span> bridge connected · NVDA 2025.1
+<span style="color:var(--ok-text)">match</span>   main ""                 ← main landmark
+<span style="color:var(--ok-text)">match</span>   heading "Orders" 1      ← Orders heading level 1
+<span style="color:var(--ok-text)">match</span>   text "3 open, 1 overdue" ← 3 open, 1 overdue
+<span style="color:var(--flag-text)">differs</span> button ""               ← menu button
+<span style="color:var(--muted)">extra</span>   —                       ← clickable</div>
+      </div>
+    </div>
+
+    <div class="frame" id="d3">
+      <div class="cap"><span class="n">3</span><div><h3>Extension<a href="#d3">d3</a></h3><p>The side panel already has the layout (<a href="#c3">c3</a>). The settings sheet gets a Capture section: auto-connect when a bridge is found, the pairing, the screen reader detected, and what the bridge may see. Default source stays DOM walk; AX tree is opt-in beside it.</p></div></div>
+      <div class="win" style="width:1000px;height:600px">
+        <div class="tabs"><span class="dots"><i></i><i></i><i></i></span><span class="tab">Orders · Example app</span></div>
+        <div class="addr"><span style="opacity:.6">←  →  ↻</span><span class="url mono">app.example.com/orders</span></div>
+        <div class="body">
+          <div class="host dim"><h1>Orders</h1><p>3 open, 1 overdue</p></div>
+          <div class="pnl">
+            <div class="pnl-hd"><span style="color:var(--muted)">‹</span>Settings<span style="flex:1"></span><span class="pill" style="min-width:26px;justify-content:center">×</span></div>
+            <div style="flex:1;overflow:hidden;padding:6px 14px 14px;display:flex;flex-direction:column;gap:16px">
+              <div style="display:flex;flex-direction:column;gap:2px"><span class="lbl" style="padding:8px 0">Source</span><div style="display:flex;justify-content:space-between;align-items:center;min-height:32px"><span>Default</span><span style="display:inline-flex;border:1px solid var(--border-strong);border-radius:8px;overflow:hidden"><span style="padding:3px 10px;background:var(--accent-soft);color:var(--link);font-weight:600">DOM walk</span><span style="padding:3px 10px;color:var(--muted);border-left:1px solid var(--border-strong)">AX tree</span></span></div><div style="font-size:12px;color:var(--muted)">AX tree asks for the debugger permission per tab.</div></div>
+              <div style="display:flex;flex-direction:column;gap:2px;padding:12px 14px;border:1px solid var(--live);border-radius:10px"><span class="lbl" style="padding:0 0 8px;color:var(--live)">Capture</span>
+                <div style="display:flex;justify-content:space-between;align-items:center;min-height:32px"><span>Connect to a bridge when one is found</span><span style="width:30px;height:18px;border-radius:999px;background:var(--live);position:relative;display:inline-block"><span style="position:absolute;top:2px;left:14px;width:14px;height:14px;border-radius:999px;background:#0f1114"></span></span></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;min-height:32px"><span>Bridge</span><span class="mono" style="font-size:12px;color:var(--muted)">localhost:7331</span></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;min-height:32px"><span>Paired</span><span style="display:inline-flex;gap:6px;align-items:center"><span class="pill live"><span class="dotl" style="box-shadow:none;width:6px;height:6px"></span>NVDA 2025.1</span><span class="pill">Forget</span></span></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;min-height:32px"><span>Follow NVDA's keys in Mode</span><span style="width:30px;height:18px;border-radius:999px;background:var(--live);position:relative;display:inline-block"><span style="position:absolute;top:2px;left:14px;width:14px;height:14px;border-radius:999px;background:#0f1114"></span></span></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;min-height:32px"><span>Also show utterances with no row</span><span style="width:30px;height:18px;border-radius:999px;background:var(--border-strong);position:relative;display:inline-block"><span style="position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:999px;background:var(--bg)"></span></span></div>
+                <div style="font-size:12px;color:var(--muted);margin-top:6px">The bridge sends speech text and timestamps only. It never sees the page URL or DOM. Everything stays on this machine.</div></div>
+              <div style="display:flex;flex-direction:column;gap:2px"><span class="lbl" style="padding:8px 0">Speech</span><div style="display:flex;justify-content:space-between;align-items:center;min-height:32px"><span>Phrasing</span><span style="display:inline-flex;border:1px solid var(--border-strong);border-radius:8px;overflow:hidden"><span style="padding:3px 10px;color:var(--muted)">Generic</span><span style="padding:3px 10px;background:var(--accent-soft);color:var(--link);font-weight:600;border-left:1px solid var(--border-strong)">NVDA</span><span style="padding:3px 10px;color:var(--muted);border-left:1px solid var(--border-strong)">JAWS</span><span style="padding:3px 10px;color:var(--muted);border-left:1px solid var(--border-strong)">VoiceOver</span></span></div><div style="font-size:12px;color:var(--muted)">Set to NVDA automatically when NVDA is paired.</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame" id="d4">
+      <div class="cap"><span class="n">4</span><div><h3>CLI, interactive<a href="#d4">d4</a></h3><p>Without <span class="mono">--check</span> the CLI is a tester's tool. It opens the page in a headed browser, connects to the bridge, and prints rows as NVDA speaks them. Ctrl+C ends the session and writes the report. The report opens in any surface.</p></div></div>
+      <div class="win" style="width:760px;height:600px">
+        <div class="tabs"><span class="dots"><i></i><i></i><i></i></span><span class="tab mono">Terminal</span></div>
+        <div class="term" style="flex:1">$ npx screen-reader-mirror https://app.example.com/orders \
+    --source dom --profile nvda --capture bridge --headed
+
+<span style="color:var(--live)">●</span> bridge localhost:7331 · NVDA 2025.1 · paired
+  page   app.example.com/orders · 7 nodes (dom)
+  <span style="color:var(--muted)">Move through the page with NVDA. Rows print as it speaks. Ctrl+C to finish.</span>
+
+  00:01.2  <span style="color:var(--ok-text)">match</span>   main landmark
+  00:02.0  <span style="color:var(--ok-text)">match</span>   heading level 1, Orders
+  00:02.9  <span style="color:var(--ok-text)">match</span>   3 open, 1 overdue
+  00:03.6  <span style="color:var(--ok-text)">match</span>   Recent
+  00:04.4  <span style="color:var(--flag-text)">differ</span>  button                ← menu button
+           main &gt; div.toolbar &gt; button:nth-child(1)
+  00:05.1  <span style="color:var(--muted)">extra</span>   —                     ← clickable
+  00:05.9  <span style="color:var(--flag-text)">differ</span>  graphic chart.png     ← graphic chart
+  <span style="color:var(--muted)">▌
+
+</span><span style="color:var(--muted)">^C</span>
+  6 of 7 reached · 4 match · 2 differ · 1 extra
+  report → mirror-session-2026-10-27.json</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section id="modes" data-screen-label="Modes" style="display:flex;flex-direction:column;gap:32px">
+  <div><p style="margin:0 0 8px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--link)">Journey C2</p><h2>Modes: the manual testing mechanisms</h2><p class="intro">A tester does not read a page top to bottom. They press H, Tab, D, or arrow through a table. Each mode filters the same list to what that key would land on, shows the key, and when Capture is live, listens for the same keys so the right column fills as you press them for real.</p></div>
+  <div style="display:flex;gap:48px;align-items:flex-start;flex-wrap:wrap">
+
+    <div class="frame" id="c4">
+      <div class="cap"><span class="n">4</span><div><h3>Headings and landmarks<a href="#c4">c4</a></h3><p>Headings mode lists only headings with their levels, indented by level, and names the skipped level. Landmarks is the same for regions. The number keys narrow further.</p></div></div>
+      <div class="win" style="width:520px;height:560px">
+        <div class="pnl" style="width:auto;flex:1;border-left:0">
+          <div class="pnl-hd">Mirror<span style="flex:1"></span><span class="pill on">Spoken</span><span class="pill">Nodes</span></div>
+          <div class="strip"><span class="lbl">Mode</span><span class="pill">Read all</span><span class="pill">Tab</span><span class="pill on">Headings <kbd>H</kbd></span><span class="pill">Landmarks <kbd>D</kbd></span><span class="pill">Table</span><span class="pill">Forms</span><span class="pill">Live</span></div>
+          <div class="strip" style="gap:4px"><span class="lbl">Level</span><span class="pill on" style="min-height:22px;padding:0 7px">All</span><span class="pill" style="min-height:22px;padding:0 7px">1</span><span class="pill" style="min-height:22px;padding:0 7px">2</span><span class="pill" style="min-height:22px;padding:0 7px">3</span><span class="pill dim" style="min-height:22px;padding:0 7px">4</span><span class="pill dim" style="min-height:22px;padding:0 7px">5</span><span class="pill dim" style="min-height:22px;padding:0 7px">6</span></div>
+          <div class="rows">
+            <div class="row"><span class="mono" style="font-size:11px;color:var(--muted)">H1</span><span>Orders</span><span></span></div>
+            <div class="row" style="padding-left:22px"><span class="mono" style="font-size:11px;color:var(--muted)">H2</span><span>Recent</span><span></span></div>
+            <div class="row" style="padding-left:38px"><span class="mono" style="font-size:11px;color:var(--muted)">H3</span><span>This week</span><span></span></div>
+            <div class="row cur" style="padding-left:70px"><span class="mono" style="font-size:11px;color:var(--muted)">H5</span><span>Shipping</span><span class="flag">skips H4</span></div>
+            <div class="row" style="padding-left:22px"><span class="mono" style="font-size:11px;color:var(--muted)">H2</span><span>Archive</span><span></span></div>
+            <div class="row dim"><span class="mono" style="font-size:11px">—</span><span>Recent orders <span class="r">(styled span, not a heading)</span></span><span class="flag">not in H</span></div>
+          </div>
+          <div class="foot">5 headings · 1 level skipped · 1 look-alike<span style="flex:1"></span><span>Press <kbd class="pill" style="min-height:20px">H</kbd> on the page to step</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame" id="c5">
+      <div class="cap"><span class="n">5</span><div><h3>Tab order<a href="#c5">c5</a></h3><p>Only focusable elements, in sequence, with the tab stop drawn on the host page. Where visual order and tab order disagree the row says so. Unnamed controls keep their flag.</p></div></div>
+      <div class="win" style="width:900px;height:560px">
+        <div class="body">
+          <div class="host"><h1 class="dim">Orders</h1><p class="dim">3 open, 1 overdue</p><p style="display:flex;gap:14px;align-items:center"><span style="position:relative;display:inline-block;width:28px;height:24px;border:2px outset #767676;background:#efefef"><span style="position:absolute;top:-10px;left:-10px;width:18px;height:18px;border-radius:50%;background:#9a2e17;color:#fff;font-size:10px;display:grid;place-items:center;font-weight:700;font-family:system-ui">1</span></span><span style="position:relative;display:inline-block"><input value="Search orders" style="font:inherit;padding:2px 6px;border:1px solid #767676"><span style="position:absolute;top:-10px;left:-10px;width:18px;height:18px;border-radius:50%;background:#9a2e17;color:#fff;font-size:10px;display:grid;place-items:center;font-weight:700;font-family:system-ui">3</span></span></p><p><a href="#" class="foc" style="color:#00e;position:relative">Details<span style="position:absolute;top:-14px;left:-14px;width:18px;height:18px;border-radius:50%;background:#9a2e17;color:#fff;font-size:10px;display:grid;place-items:center;font-weight:700;font-family:system-ui">2</span></a></p><p class="dim">Export <span style="text-decoration:underline;color:#00e">as CSV</span> (div with onclick)</p></div>
+          <div class="pnl">
+            <div class="pnl-hd">Mirror<span style="flex:1"></span><span class="pill on">Spoken</span></div>
+            <div class="strip"><span class="lbl">Mode</span><span class="pill">Read all</span><span class="pill on">Tab <kbd>Tab</kbd></span><span class="pill">Headings</span><span class="pill">Landmarks</span><span class="pill">Table</span><span class="pill">Forms</span></div>
+            <div class="rows">
+              <div class="row"><span class="mono" style="font-size:11px;color:var(--muted)">1</span><span><span class="r">button</span></span><span class="flag">unnamed</span></div>
+              <div class="row cur"><span class="mono" style="font-size:11px;color:var(--muted)">2</span><span><span class="r">link</span> Details</span><span class="flag">before 3 visually</span></div>
+              <div class="row"><span class="mono" style="font-size:11px;color:var(--muted)">3</span><span><span class="r">edit</span> Search orders</span><span></span></div>
+              <div class="row dim"><span class="mono" style="font-size:11px">—</span><span>as CSV <span class="r">(clickable div)</span></span><span class="flag">not focusable</span></div>
+            </div>
+            <div class="foot">3 stops · 1 unreachable by keyboard<span style="flex:1"></span><span><kbd class="pill" style="min-height:20px">Tab</kbd> / <kbd class="pill" style="min-height:20px">Shift Tab</kbd> steps</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame" id="c6">
+      <div class="cap"><span class="n">6</span><div><h3>Table cell navigation<a href="#c6">c6</a></h3><p>Arrowing through cells. Each move speaks the header for the axis that changed, then the cell. The grid on the right mirrors the real table so you see the position the speech refers to. Layout tables and header-less tables are called out.</p></div></div>
+      <div class="win" style="width:900px;height:560px">
+        <div class="body">
+          <div class="host"><h1 class="dim">Orders</h1><table><tr><th>Order</th><th style="background:#fde4dc">Status</th><th>Due</th></tr><tr><td style="background:#fde4dc">#1041</td><td class="foc">Open</td><td>Fri</td></tr><tr><td>#1038</td><td>Overdue</td><td>Mon</td></tr><tr><td>#1032</td><td>Open</td><td>Tue</td></tr></table><p style="margin-top:18px" class="dim">Totals</p><div class="dim" style="display:grid;grid-template-columns:repeat(3,80px);gap:4px"><span>Open</span><span>2</span><span></span><span>Overdue</span><span>1</span><span></span></div></div>
+          <div class="pnl">
+            <div class="pnl-hd">Mirror<span style="flex:1"></span><span class="pill on">Spoken</span></div>
+            <div class="strip"><span class="lbl">Mode</span><span class="pill">Read all</span><span class="pill">Tab</span><span class="pill">Headings</span><span class="pill">Landmarks</span><span class="pill on">Table <kbd>Ctrl Alt ←→↑↓</kbd></span><span class="pill">Forms</span></div>
+            <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;gap:14px;align-items:flex-start">
+              <div style="display:grid;grid-template-columns:repeat(3,58px);gap:3px;font-size:11px" class="mono"><span style="padding:4px;background:var(--surface-2);color:var(--muted)">Order</span><span style="padding:4px;background:var(--accent-soft);color:var(--link)">Status</span><span style="padding:4px;background:var(--surface-2);color:var(--muted)">Due</span><span style="padding:4px;background:var(--accent-soft);color:var(--link)">#1041</span><span style="padding:4px;border:1.5px solid var(--link);border-radius:3px">Open</span><span style="padding:4px;border:1px solid var(--border)">Fri</span><span style="padding:4px;border:1px solid var(--border)">#1038</span><span style="padding:4px;border:1px solid var(--border)">Overdue</span><span style="padding:4px;border:1px solid var(--border)">Mon</span><span style="padding:4px;border:1px solid var(--border)">#1032</span><span style="padding:4px;border:1px solid var(--border)">Open</span><span style="padding:4px;border:1px solid var(--border)">Tue</span></div>
+              <div style="font-size:12.5px;color:var(--muted)">Table 1 of 2<br>Row 2, column 2<br>Row header: #1041<br>Column header: Status</div>
+            </div>
+            <div class="rows">
+              <div class="row"><span class="mono" style="font-size:11px;color:var(--muted)">→</span><span><span class="r">Status column 2,</span> Open</span><span class="flag ok">headers</span></div>
+              <div class="row cur"><span class="mono" style="font-size:11px;color:var(--muted)">↓</span><span><span class="r">row 3,</span> Overdue</span><span></span></div>
+              <div class="row"><span class="mono" style="font-size:11px;color:var(--muted)">→</span><span><span class="r">Due column 3,</span> Mon</span><span></span></div>
+              <div class="row dim" style="margin-top:8px"><span class="mono" style="font-size:11px">T2</span><span>Totals <span class="r">(grid of divs)</span></span><span class="flag">not a table</span></div>
+            </div>
+            <div class="foot">Table 1: 4 rows × 3 cols, headers on row 1<span style="flex:1"></span><span>Steps follow the real keys</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame" id="c7">
+      <div class="cap"><span class="n">7</span><div><h3>Forms mode<a href="#c7">c7</a></h3><p>Landing on an input switches NVDA and JAWS from browse to forms mode: letter keys type instead of navigate. The panel shows the switch, what is said on entry (label, type, value, description), and what Esc would say.</p></div></div>
+      <div class="win" style="width:900px;height:520px">
+        <div class="body">
+          <div class="host"><h1 class="dim">Orders</h1><p class="dim">Filter</p><p><label for="dt" style="display:block">Due before</label><input id="dt" value="2026-11-01" class="foc" style="font:inherit;padding:2px 6px;border:1px solid #767676"> <span style="color:#555;font-size:13px">YYYY-MM-DD</span></p><p><label style="display:block">Status</label><select style="font:inherit"><option>Any</option></select></p><p><input type="checkbox"> Include archived</p></div>
+          <div class="pnl">
+            <div class="pnl-hd">Mirror<span style="flex:1"></span><span class="pill on">Spoken</span></div>
+            <div class="strip"><span class="lbl">Mode</span><span class="pill">Read all</span><span class="pill">Tab</span><span class="pill">Headings</span><span class="pill">Table</span><span class="pill on">Forms <kbd>Enter</kbd> <kbd>Esc</kbd></span><span class="lbl" style="margin-left:8px">Profile</span><span class="pill on">NVDA</span></div>
+            <div style="padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;font-size:12.5px"><span class="pill" style="border-color:var(--text);color:var(--text)">Browse</span><span style="color:var(--muted)">→</span><span class="pill on">Focus mode</span><span style="color:var(--muted)">entered on focus · <span class="mono">input</span></span></div>
+            <div class="rows">
+              <div class="row cur"><svg class="ic" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span>Due before <span class="r">edit</span> 2026-11-01 <span class="r">has autocomplete</span></span><span class="flag">hint not linked</span></div>
+              <div class="row"><svg class="ic" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span><span class="r">sound:</span> focus mode</span><span></span></div>
+              <div class="row dim"><svg class="ic" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span>Status <span class="r">combo box</span> Any <span class="r">collapsed</span></span><span></span></div>
+              <div class="row dim"><svg class="ic" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span>Include archived <span class="r">check box not checked</span></span><span></span></div>
+            </div>
+            <div style="padding:10px 14px;border-top:1px solid var(--border);font-size:12.5px"><span class="flag">hint not linked</span> "YYYY-MM-DD" is beside the field but not its <span class="mono">aria-describedby</span>. In focus mode it is never read.</div>
+            <div class="foot">VoiceOver has no forms mode; this row hides under that profile.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame" id="c8">
+      <div class="cap"><span class="n">8</span><div><h3>Live regions over time<a href="#c8">c8</a></h3><p>The one mode with a clock. The engine knows how each region is set up; the capture knows what was actually announced and when. Plotted together, the common failure shows itself: a region inserted with its message, announced by nobody.</p></div></div>
+      <div class="win" style="width:900px;height:560px">
+        <div class="body">
+          <div class="host dim"><h1>Orders</h1><p>3 open, 1 overdue</p><p style="padding:6px 10px;border:1px solid #9a2e17;display:inline-block">Order #1041 marked paid</p><p><span style="display:inline-block;width:24px;height:20px;border:2px outset #767676;background:#efefef"></span> Mark paid</p></div>
+          <div class="pnl">
+            <div class="pnl-hd">Mirror<span style="flex:1"></span><span class="pill on">Spoken</span></div>
+            <div class="strip"><span class="lbl">Mode</span><span class="pill">Read all</span><span class="pill">Tab</span><span class="pill">Table</span><span class="pill">Forms</span><span class="pill on">Live regions</span><span class="lbl" style="margin-left:8px">Capture</span><span class="pill live"><span class="dotl" style="box-shadow:none;width:6px;height:6px"></span>NVDA</span></div>
+            <div style="padding:10px 14px;border-bottom:1px solid var(--border);font-size:12.5px;display:flex;flex-direction:column;gap:6px"><div style="display:flex;justify-content:space-between;gap:10px"><span><span class="r">status</span> · polite · atomic</span><span class="src">#toast</span></div><div style="display:flex;justify-content:space-between;gap:10px"><span><span class="r">alert</span> · assertive</span><span class="src">#errors</span></div><div style="display:flex;justify-content:space-between;gap:10px;color:var(--muted)"><span><span class="r">generic</span> aria-live=polite · empty</span><span class="src">#count</span></div></div>
+            <div class="rows"><span class="lbl" style="padding:2px 6px">Timeline</span>
+              <div class="tl">
+                <span class="t">00:00.0</span><span class="e" style="border-color:var(--border-strong)">click <span class="r">Mark paid</span></span>
+                <span class="t">00:00.1</span><span class="e">DOM: <span class="mono">#toast</span> inserted <em>with</em> its text</span>
+                <span class="t">00:00.1</span><span class="e" style="border-color:var(--live);color:var(--live)">NVDA: <span style="font-style:italic;color:var(--muted)">(silence)</span></span>
+                <span class="t">00:00.4</span><span class="e">DOM: <span class="mono">#count</span> text → "2 open"</span>
+                <span class="t">00:00.6</span><span class="e" style="border-color:var(--live);color:var(--live)">NVDA: 2 open</span>
+              </div>
+              <div style="margin-top:8px;padding:8px 10px;border:1px dashed var(--flag-text);border-radius:6px;font-size:12.5px"><span class="flag">not announced</span> <span class="mono">#toast</span> existed only after the click. Screen readers announce changes to a region, not its arrival. Render it empty on load and set its text afterwards.</div>
+            </div>
+            <div class="foot">3 regions · 2 changes · 1 announced<span style="flex:1"></span><span class="b" style="min-height:28px;font-size:12px">Record 10 s</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section id="sources" data-screen-label="Sources" style="display:flex;flex-direction:column;gap:32px">
+  <div><p style="margin:0 0 8px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--link)">Journey C3</p><h2>Sources: switching adapters</h2><p class="intro">The Source control shows only what the current host can do. Switching re-reads the page through the other adapter and marks every row that changed, so DOM-walk and AX-tree disagreements become a list instead of a feeling.</p></div>
+  <div style="display:flex;gap:48px;align-items:flex-start;flex-wrap:wrap">
+
+    <div class="frame" id="c9">
+      <div class="cap"><span class="n">9</span><div><h3>AX tree needs permission<a href="#c9">c9</a></h3><p>In the extension the real tree comes through the debugger API. Chrome shows its own "is debugging this browser" bar, so the panel explains it before asking, and offers to stay on the DOM walk.</p></div></div>
+      <div class="win" style="width:1000px;height:560px">
+        <div class="tabs"><span class="dots"><i></i><i></i><i></i></span><span class="tab">Orders · Example app</span></div>
+        <div class="addr"><span style="opacity:.6">←  →  ↻</span><span class="url mono">app.example.com/orders</span></div>
+        <div style="height:32px;flex:none;display:flex;align-items:center;gap:10px;padding:0 14px;background:#fde4dc;color:#2a0e07;font-size:12px;opacity:.5">"screen-reader-mirror" started debugging this browser<span style="flex:1"></span><span style="border:1px solid #2a0e07;padding:2px 8px;border-radius:4px">Cancel</span></div>
+        <div class="body">
+          <div class="host dim"><h1>Orders</h1><p>3 open, 1 overdue</p></div>
+          <div class="pnl">
+            <div class="pnl-hd">Mirror<span style="flex:1"></span><span class="pill on">Spoken</span></div>
+            <div class="strip"><span class="lbl">Source</span><span class="pill on">DOM walk</span><span class="pill" style="border-color:var(--link);color:var(--link)">AX tree…</span></div>
+            <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:12px;padding:24px"><span style="font-weight:600;font-size:15px">Read the browser's own accessibility tree?</span><p style="margin:0;color:var(--muted)">This uses the debugger permission. Chrome shows a bar at the top of the window while it is on, and the page may run slightly slower. It is the most faithful source: the same tree NVDA, JAWS and VoiceOver read. Nothing is sent anywhere.</p><div style="display:flex;gap:8px"><span class="b b-f">Allow for this tab</span><span class="b">Stay on DOM walk</span></div><p style="margin:0;color:var(--muted);font-size:12px">Turns off when the tab closes or you switch back.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame" id="c10">
+      <div class="cap"><span class="n">10</span><div><h3>DOM walk vs AX tree<a href="#c10">c10</a></h3><p>After switching, rows keep a small source tag and rows that changed carry both readings. Here the AX tree exposes a label the pure-JS path missed, and drops a presentational table.</p></div></div>
+      <div class="win" style="width:520px;height:560px">
+        <div class="pnl" style="width:auto;flex:1;border-left:0">
+          <div class="pnl-hd">Mirror<span style="flex:1"></span><span class="pill on">Spoken</span><span class="pill">Nodes</span></div>
+          <div class="strip"><span class="lbl">Source</span><span class="pill">DOM walk</span><span class="pill on" style="border-color:#8ab4f8;color:#8ab4f8;background:rgba(138,180,248,.12)">AX tree</span><span class="pill" style="margin-left:auto">Show changes only</span></div>
+          <div class="rows">
+            <div class="row"><svg class="ic" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span class="r">main landmark</span><span class="src ax">ax</span></div>
+            <div class="row"><svg class="ic" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span>heading level 1, Orders</span><span class="src ax">ax</span></div>
+            <div class="row cur" style="display:flex;flex-direction:column;gap:4px;align-items:stretch"><div style="display:grid;grid-template-columns:16px 1fr auto;gap:8px"><svg class="ic" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span><span class="r">button</span> Actions</span><span class="src ax">ax</span></div><div style="display:grid;grid-template-columns:16px 1fr auto;gap:8px;color:var(--muted);text-decoration:line-through"><span></span><span><span class="r">button</span></span><span class="src">dom</span></div><div style="margin-left:24px;font-size:12px;color:var(--muted)">Named through a closed shadow root the DOM walk cannot see.</div></div>
+            <div class="row"><svg class="ic" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span><span class="r">graphic</span> chart.png</span><span class="flag">no alt</span></div>
+            <div class="row" style="display:flex;flex-direction:column;gap:4px;align-items:stretch;background:var(--surface)"><div style="display:grid;grid-template-columns:16px 1fr auto;gap:8px;color:var(--muted);text-decoration:line-through"><span></span><span><span class="r">table</span> with 1 row and 3 columns</span><span class="src">dom</span></div><div style="margin-left:24px;font-size:12px;color:var(--muted)">Chrome treats this single-row table as layout. Not announced.</div></div>
+            <div class="row"><svg class="ic" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4z"></path></svg><span><span class="r">link</span> Details</span><span class="src ax">ax</span></div>
+          </div>
+          <div class="foot">7 → 6 items · 2 changed<span style="flex:1"></span><a href="#" style="text-decoration:none">Copy diff</a></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame" id="c11">
+      <div class="cap"><span class="n">11</span><div><h3>CLI run with capture<a href="#c11">c11</a></h3><p>The same comparison without a browser window. Playwright drives the page, the bridge collects speech, and the report lists every divergence with a selector. Exit code 1 when any row differs, so it gates CI.</p></div></div>
+      <div class="win" style="width:760px;height:560px">
+        <div class="tabs"><span class="dots"><i></i><i></i><i></i></span><span class="tab mono">Terminal</span></div>
+        <div class="term" style="flex:1">$ npx screen-reader-mirror https://app.example.com/orders \
+    --source ax --profile nvda --mode read-all --capture bridge
+
+<span style="color:var(--live)">●</span> bridge localhost:7331 · NVDA 2025.1
+  page   app.example.com/orders · 7 nodes (ax)
+  mode   read-all · 7 steps · 6 utterances
+
+  <span style="color:var(--ok-text)">match</span>  main landmark
+  <span style="color:var(--ok-text)">match</span>  heading level 1, Orders
+  <span style="color:var(--ok-text)">match</span>  3 open, 1 overdue
+  <span style="color:var(--ok-text)">match</span>  Recent
+  <span style="color:var(--flag-text)">differ</span> button                 ← NVDA: menu button
+         main &gt; div.toolbar &gt; button:nth-child(1)
+  <span style="color:var(--flag-text)">differ</span> graphic chart.png      ← NVDA: graphic chart
+         main &gt; img
+  <span style="color:var(--muted)">none</span>   table with 2 rows…     ← not reached in 10 s
+
+  2 differ, 1 unreached · report → mirror-report.json
+  exit 1</div>
+      </div>
+    </div>
+
+    <div class="frame" id="c12">
+      <div class="cap"><span class="n">12</span><div><h3>Import a log<a href="#c12">c12</a></h3><p>No bridge, or a tester on another machine: paste or drop the speech log. NVDA's Speech Viewer, JAWS's history, and VoiceOver captions are recognised by shape; anything else is treated as one utterance per line.</p></div></div>
+      <div class="win" style="width:520px;height:560px">
+        <div class="pnl" style="width:auto;flex:1;border-left:0">
+          <div class="pnl-hd">Mirror<span style="flex:1"></span><span class="pill on">Spoken</span></div>
+          <div class="strip"><span class="lbl">Capture</span><span class="pill">Bridge</span><span class="pill on">Imported log</span></div>
+          <div style="padding:14px;display:flex;flex-direction:column;gap:10px;flex:1">
+            <div style="flex:1;border:1px dashed var(--border-strong);border-radius:8px;padding:12px" class="mono"><div style="font-size:11px;color:var(--muted);font-family:system-ui,sans-serif;margin-bottom:8px">Drop a log, or paste below</div><div style="font-size:12px;line-height:1.7;color:var(--muted)">main landmark<br>Orders  heading  level 1<br>3 open, 1 overdue<br>Recent<br>menu button<br>graphic  chart<br><span class="dim">…</span></div></div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:12.5px"><span class="flag ok">Recognised: NVDA Speech Viewer</span><span style="color:var(--muted)">6 utterances</span><span style="flex:1"></span><span class="b b-f" style="min-height:30px;font-size:12px">Compare</span></div>
+            <div style="font-size:12px;color:var(--muted)">Which screen reader and version? <span class="pill" style="min-height:22px">NVDA 2025.1</span> <span class="pill" style="min-height:22px">Change</span></div>
+            <div style="font-size:12px;color:var(--muted)">The log stays in this tab. It is not stored or sent.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section id="edges" data-screen-label="Edge cases" style="display:flex;flex-direction:column;gap:24px">
+  <div><p style="margin:0 0 8px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--link)">Edge cases</p><h2>States the storyboard must cover before it becomes clickable</h2></div>
+  <div style="display:flex;gap:16px;flex-wrap:wrap;width:1300px">
+    <div class="card"><span class="k">Bridge</span><h4>No screen reader running</h4><p>Bridge starts, prints "no screen reader found, waiting" and polls. Panel Capture pill reads "Bridge found · no speech yet". Nothing is flagged until the first utterance arrives.</p></div>
+    <div class="card"><span class="k">Bridge</span><h4>Bridge not found</h4><p>Capture pill shows "Not connected" with the one-line command to start it and the import-a-log fallback. Never a blank column.</p></div>
+    <div class="card"><span class="k">Bridge</span><h4>Wrong pair code · stale pairing</h4><p>Three attempts, then the bridge prints a fresh code. A remembered pairing that fails once is dropped and asked again.</p></div>
+    <div class="card"><span class="k">Alignment</span><h4>More utterances than rows</h4><p>NVDA says "clickable" or "visited" extra. Extra utterances attach to the nearest row as a sub-line marked "also said", not as a divergence.</p></div>
+    <div class="card"><span class="k">Alignment</span><h4>Fewer utterances than rows</h4><p>The tester did not get that far. Unreached rows dim with "not reached yet"; the footer counts them separately from "differs".</p></div>
+    <div class="card"><span class="k">Alignment</span><h4>Order differs</h4><p>Same strings, different sequence (CSS order, focus trap). Both columns keep their own order; a connector line crosses, and the row gets "order differs".</p></div>
+    <div class="card"><span class="k">Mode</span><h4>Mode key pressed while the page has focus</h4><p>In Capture, the panel listens to the bridge, not the keyboard: the real key moves the real screen reader, and the panel follows what was spoken. Without Capture, keys are mapped by the panel.</p></div>
+    <div class="card"><span class="k">Mode</span><h4>Profile without the mode</h4><p>VoiceOver has no forms mode, JAWS has no "D" for landmarks by default. The pill stays visible but disabled with the reason, so the list does not silently mean something else.</p></div>
+    <div class="card"><span class="k">Source</span><h4>Debugger permission refused</h4><p>Stay on DOM walk; the AX pill shows "needs permission" on hover. Rows that are known to differ between the paths (closed shadow roots, layout tables) get a faint "verify with AX tree" note.</p></div>
+    <div class="card"><span class="k">Source</span><h4>Cross-origin frame</h4><p>One row, "document · unreachable". In Capture the real screen reader does read it, so the right column fills where the left is empty, marked "inside frame", not "differs".</p></div>
+    <div class="card"><span class="k">Source</span><h4>Page re-renders mid-session</h4><p>Re-run on change is on by default. The list keeps row identity by ref, so the live column stays attached; rows that vanished strike through for one run.</p></div>
+    <div class="card"><span class="k">Log</span><h4>Unrecognised log shape</h4><p>Treated as one utterance per line, shown as "Plain text · 14 lines" with a prompt to pick the screen reader. Timestamps, if present, enable the live-region timeline.</p></div>
+    <div class="card"><span class="k">Privacy</span><h4>What the bridge sees</h4><p>Only speech text and timestamps. No page URL, no DOM. Pairing and port are local. The settings sheet states this next to the Capture toggle.</p></div>
+    <div class="card"><span class="k">Reporting</span><h4>Report divergence</h4><p>Pre-fills an issue: engine row, screen reader row, profile, source, versions, the selector and the minimal HTML around it. The user reviews before anything leaves the machine.</p></div>
+  </div>
+</section>
+
+</div>
+</x-dc>
+</body>
+</html>

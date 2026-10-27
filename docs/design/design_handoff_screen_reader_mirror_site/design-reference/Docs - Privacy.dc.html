@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><link rel="stylesheet" href="docs.css"></helmet>
+<div class="srm {{ themeClass }}" style="width:{{ widthPx }}">
+<dc-import name="SiteHeader" is-light="{{ isLightNow }}" theme-label="{{ themeBtnLabel }}" on-toggle="{{ toggleTheme }}" hint-size="100%,64px"></dc-import>
+<div class="hero"><p class="kicker pg">Docs · Privacy</p><h1>Nothing leaves the machine</h1><p class="lead">The engine makes no network calls. Every host keeps that promise in its own way. This page says what each one stores, what it can see, and what it never does.</p></div>
+<div class="wrap">
+<dc-import name="DocsNav" active="privacy" hint-size="240px,520px"></dc-import>
+<main>
+
+<section id="engine" class="ch" aria-labelledby="h-engine">
+  <p class="kicker">Engine</p><h2 id="h-engine">Pure computation</h2>
+  <ul><li><span class="mono">linearize()</span> is a function over the element you pass it. No fetch, no XHR, no WebSocket, no image beacons. Enforced by a lint rule and a commit hook that fail the build if any network API appears in <span class="mono">packages/core</span>.</li><li>Two dependencies, both permissively licensed and both pure: <span class="mono">dom-accessibility-api</span>, <span class="mono">aria-query</span>.</li><li>The output contains no live DOM references, so it can cross a boundary without carrying a page with it.</li></ul>
+</section>
+
+<section id="hosts" class="ch wide" aria-labelledby="h-hosts">
+  <p class="kicker">Hosts</p><h2 id="h-hosts">What each one stores and sees</h2>
+  <div class="tbl c4" role="table" aria-label="Per host"><span class="h">Host</span><span class="h">Sees</span><span class="h">Stores locally</span><span class="h">Network</span>
+    <span>Hosted demo</span><span>The HTML you paste, rendered in a sandboxed frame in your browser.</span><span>Theme.</span><span>Loads the page itself and its engine. A typed URL is fetched by your browser, directly.</span>
+    <span>Bookmarklet</span><span>The page you clicked it on.</span><span>Settings, bridge pairing, dock position (in that site's localStorage).</span><span>Loads the engine from a CDN once per page. Bridge on localhost only.</span>
+    <span>Extension</span><span>The active tab, after you click the icon. With AX tree on, that tab's accessibility tree through the debugger API.</span><span>Settings, pairing. <span class="mono">chrome.storage.local</span>, never <span class="mono">sync</span>.</span><span>None. Bridge on localhost only. No update pings beyond the store's own.</span>
+    <span>CLI</span><span>Pages it is told to open, with the cookies or storage state you give it.</span><span>Reports and snapshots where you point it.</span><span>Opens the pages you name. Bridge on localhost only.</span>
+    <span>Bridge</span><span>Speech text and timestamps from the screen reader.</span><span>Nothing. Pair code lives in memory.</span><span>Listens on localhost. Refuses non-loopback connections.</span>
+  </div>
+</section>
+
+<section id="permissions" class="ch" aria-labelledby="h-perm">
+  <p class="kicker">Extension permissions</p><h2 id="h-perm">Four, and when each is asked</h2>
+  <div class="tbl c3" role="table" aria-label="Permissions"><span class="h">Permission</span><span class="h">Why</span><span class="h">Asked</span>
+    <span class="k">activeTab</span><span>Read the current tab after a click on the icon. Not all sites, not in the background.</span><span>Install</span>
+    <span class="k">sidePanel</span><span>Show the panel beside the page.</span><span>Install</span>
+    <span class="k">storage</span><span>Settings and pairing on this computer.</span><span>Install</span>
+    <span class="k">debugger</span><span>Read the browser's accessibility tree. Chrome shows a bar while on. Turned off when the tab closes or you switch back.</span><span>First AX tree use, per tab; refusable</span>
+  </div>
+</section>
+
+<section id="never" class="ch" aria-labelledby="h-never">
+  <p class="kicker">Never</p><h2 id="h-never">What none of this does</h2>
+  <ul><li>No analytics, no telemetry, no crash reporting, no cookies on this site.</li><li>No account, no API key, no sign-in anywhere.</li><li>The divergence report opens a GitHub issue you review and submit yourself; the page URL is off by default.</li><li>Logs you import stay in the tab and are gone when it closes.</li></ul>
+  <p>Safe for regulated, EU and internal pages. If something here stops being true, it is a bug; please report it.</p>
+</section>
+
+<nav class="pn" aria-label="Previous and next"><a href="Docs - Divergences.dc.html"><span>Previous</span><span>Divergences</span></a><a href="Docs - Contributing.dc.html" style="text-align:right"><span>Next</span><span>Contributing</span></a></nav>
+</main>
+</div>
+<dc-import name="SiteFooter" hint-size="100%,320px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;auto&quot;,&quot;coral&quot;,&quot;coral-light&quot;],&quot;default&quot;:&quot;auto&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Theme&quot;},&quot;width&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[320,768,1280],&quot;default&quot;:1280,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Layout&quot;}}">
+class Component extends DCLogic {
+  state = { themeOverride: (() => { try { return localStorage.getItem('srm-theme') || null; } catch (e) { return null; } })() };
+  themeNow() { const o = this.state.themeOverride; if (o) return o; const p = this.props.theme ?? 'auto'; if (p !== 'auto') return p; return (typeof matchMedia !== 'undefined' && matchMedia('(prefers-color-scheme: light)').matches) ? 'coral-light' : 'coral'; }
+  renderVals() { const t = this.themeNow(); const light = /light/.test(t); return { themeClass: 't-' + t, isLightNow: light, themeBtnLabel: light ? 'Switch to dark theme' : 'Switch to light theme', toggleTheme: () => { const next = light ? 'coral' : 'coral-light'; try { localStorage.setItem('srm-theme', next); } catch (e) {} this.setState({ themeOverride: next }); }, widthPx: (this.props.width ?? 1280) + 'px' }; }
+}
+</script>
+</body>
+</html>

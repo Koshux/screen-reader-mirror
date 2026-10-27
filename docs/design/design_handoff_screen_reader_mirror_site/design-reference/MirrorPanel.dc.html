@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+.mp{--bg:#15181c;--surface:#1d2126;--surface-2:#252a31;--text:#e6e9ee;--muted:#aeb5c0;--border:#2d333b;--border-strong:#4e5663;--link:#ff9b85;--primary:#ff9b85;--on-primary:#2a0e07;--accent-soft:#3a2622;--flag-bg:#3b3410;--flag-text:#efe08a;--focus:#ff9b85;font-family:system-ui,-apple-system,'Segoe UI',Roboto,Ubuntu,Cantarell,sans-serif;color:var(--text);font-size:14px;line-height:1.45;background:var(--bg)}
+.mp *{box-sizing:border-box}
+.mp .b{white-space:nowrap;min-height:34px;padding:0 10px;border:1px solid var(--border-strong);border-radius:8px;background:var(--bg);color:var(--text);font:inherit;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.mp .b-g{border-color:transparent;background:transparent;color:var(--link);padding:0 6px;min-width:32px;justify-content:center}
+.mp .seg{display:inline-flex;border:1px solid var(--border-strong);border-radius:8px;overflow:hidden;background:var(--bg)}
+.mp .seg span{display:inline-flex;align-items:center;min-height:30px;padding:0 9px;font-size:12.5px;border-right:1px solid var(--border-strong)}
+.mp .seg span:last-child{border-right:0}
+.mp .seg .on{background:var(--accent-soft);color:var(--link);font-weight:600}
+.mp .mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+.mp .row{display:grid;grid-template-columns:minmax(0,1fr);gap:4px;padding:6px 10px;border-radius:8px}
+.mp .row.hl{outline:2px solid var(--focus);outline-offset:-2px;background:var(--surface-2)}
+.mp .say{display:flex;gap:8px;align-items:flex-start;min-width:0}
+.mp .say svg{flex:none;margin-top:4px;color:var(--muted)}
+.mp .say>span{overflow-wrap:break-word;min-width:0}
+.mp .rem{display:flex;gap:6px;align-items:flex-start;margin-left:21px;padding:3px 8px;border:1px dashed var(--flag-text);border-radius:8px;background:var(--flag-bg);color:var(--flag-text);font-size:12px;line-height:1.35;font-style:italic;text-wrap:pretty}
+.mp .rem svg{flex:none;margin-top:2px}
+.mp .sw{display:inline-flex;align-items:center;gap:8px;font-size:13px;cursor:pointer}
+.mp .sw i{width:30px;height:18px;border-radius:999px;background:var(--border-strong);position:relative;display:inline-block;flex:none}
+.mp .sw i::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:999px;background:var(--bg)}
+.mp .sw.on i{background:var(--primary)}.mp .sw.on i::after{left:14px;background:var(--on-primary)}
+.mp .lbl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.mp .srow{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:36px}
+.mp .nd{display:grid;grid-template-columns:2em 7em minmax(0,1fr);gap:8px;padding:6px 10px;border-bottom:1px solid var(--border);font-size:13px;align-items:baseline}
+</style>
+</helmet>
+<div class="mp" style="height:100%;display:flex;flex-direction:column;border-left:1px solid var(--border)">
+  <div style="display:flex;align-items:center;gap:10px;padding:8px 10px 8px 14px;border-bottom:1px solid var(--border);background:var(--surface);min-height:48px">
+    <sc-if value="{{ vSettings }}" hint-placeholder-val="{{ false }}"><button class="b b-g" aria-label="Back"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><path d="m11 18-6-6 6-6"></path></svg></button><span style="font-weight:600">Settings</span></sc-if>
+    <sc-if value="{{ notSettings }}" hint-placeholder-val="{{ true }}">
+      <span aria-hidden="true" style="display:inline-grid;place-items:center;width:22px;height:22px;border:1.5px solid var(--link);color:var(--link);border-radius:6px;font-family:ui-monospace,Menlo,monospace;font-size:9px;font-weight:600;flex:none">sr</span>
+      <span style="font-weight:600">Mirror</span>
+      <span style="color:var(--muted);font-size:12px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ sub }}</span>
+    </sc-if>
+    <span style="flex:1"></span>
+    <sc-if value="{{ notSettings }}" hint-placeholder-val="{{ true }}">
+      <button class="b b-g" aria-label="Run again" title="Run again"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"></path><path d="M21 3v6h-6"></path></svg></button>
+      <button class="b b-g" aria-label="Settings" title="Settings"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"></path></svg></button>
+      <sc-if value="{{ isBm }}" hint-placeholder-val="{{ true }}">
+        <button class="b b-g" aria-label="{{ dockLabel }}" title="{{ dockLabel }}"><sc-if value="{{ dockRight }}" hint-placeholder-val="{{ true }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M3 15h18"></path></svg></sc-if><sc-if value="{{ dockBottom }}" hint-placeholder-val="{{ false }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M15 3v18"></path></svg></sc-if></button>
+        <button class="b b-g" aria-label="Minimise" title="Minimise"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"></path></svg></button>
+        <button class="b b-g" aria-label="Close" title="Close"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
+      </sc-if>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{ notSettings }}" hint-placeholder-val="{{ true }}">
+  <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:8px 12px;border-bottom:1px solid var(--border)">
+    <span class="seg"><span class="{{ segSpoken }}">Spoken</span><span class="{{ segPreview }}">Preview</span><span class="{{ segNodes }}">Nodes</span><span class="{{ segJson }}">JSON</span></span>
+    <span style="flex:1"></span>
+    <label class="sw on"><i></i>{{ followLabel }}</label>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ vSpoken }}" hint-placeholder-val="{{ true }}">
+  <div style="display:flex;align-items:center;gap:10px;padding:6px 12px;border-bottom:1px solid var(--border);font-size:12px;color:var(--muted)"><span style="display:inline-flex;align-items:center;gap:5px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7"></path></svg>spoken</span><span style="display:inline-flex;align-items:center;gap:5px;padding:0 6px;border:1px dashed var(--flag-text);border-radius:6px;background:var(--flag-bg);color:var(--flag-text);font-style:italic">note, not spoken</span></div>
+  <ol style="list-style:none;margin:0;padding:8px;flex:1;overflow:auto;display:flex;flex-direction:column;gap:1px">
+    <sc-for list="{{ rows }}" as="r" hint-placeholder-count="11">
+      <li class="row {{ r.cls }}"><span class="say"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7"></path></svg><span>{{ r.name }}<span style="color:var(--muted)">{{ r.role }}</span></span></span><sc-if value="{{ r.hasRem }}" hint-placeholder-val="{{ false }}"><span class="rem"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4M12 17h.01"></path></svg><span>{{ r.rem }}</span></span></sc-if></li>
+    </sc-for>
+  </ol>
+  </sc-if>
+
+  <sc-if value="{{ vPreview }}" hint-placeholder-val="{{ false }}">
+  <div style="padding:6px 12px;border-bottom:1px solid var(--border);font-size:12px;color:var(--muted)">The same HTML with its CSS removed. {{ followLabel }} highlights here too.</div>
+  <div style="flex:1;overflow:auto;background:#fff;color:#000;font-family:'Times New Roman',Times,serif;font-size:16px;line-height:normal;padding:8px">
+    <h1 style="margin:21px 0;font-size:32px;font-weight:700">Apply for a Blue Badge</h1>
+    <p style="margin:16px 0">Use this service if you live in England.</p>
+    <div>Your details Full name <span style="display:inline-block;width:150px;height:21px;border:2px inset #767676;vertical-align:middle;background:#fff"></span></div>
+    <div style="margin-top:6px"><span style="display:inline-block;width:24px;height:21px;border:2px outset #767676;background:#efefef;vertical-align:middle;outline:{{ pvBtnOutline }};outline-offset:3px"></span> <span style="display:inline-flex;vertical-align:middle;outline:{{ pvImgOutline }};outline-offset:3px"><svg width="16" height="16" viewBox="0 0 16 16"><path d="M2 2h9l3 3v9H2z" fill="#fff" stroke="#888"></path><path d="M4 11l3-4 2 3 1-1 2 2H4z" fill="#8ab"></path></svg></span></div>
+    <div style="margin-top:4px"><div>Fee</div><div>£10</div></div>
+    <div style="margin-top:4px"><a href="#" style="color:#0000ee;text-decoration:underline">Continue</a></div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ vNodes }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:1;overflow:auto">
+    <div class="nd lbl" style="border-bottom-color:var(--border-strong)"><span>#</span><span>Role</span><span>Name</span></div>
+    <sc-for list="{{ rows }}" as="r" hint-placeholder-count="11">
+      <div class="nd {{ r.cls }}"><span style="color:var(--muted)">{{ r.pos }}</span><span class="mono" style="color:var(--muted)">{{ r.nodeRole }}</span><span style="display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline;overflow-wrap:break-word;min-width:0">{{ r.nodeName }}<sc-if value="{{ r.hasRem }}" hint-placeholder-val="{{ false }}"><span style="padding:0 6px;border:1px dashed var(--flag-text);border-radius:6px;background:var(--flag-bg);color:var(--flag-text);font-size:11px;font-style:italic">{{ r.flag }}</span></sc-if></span></div>
+    </sc-for>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ vSettings }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:1;overflow:auto;padding:4px 14px 14px;display:flex;flex-direction:column;gap:18px">
+    <section style="display:flex;flex-direction:column;gap:4px">
+      <span class="lbl" style="padding:8px 0">Speech</span>
+      <div class="srow"><span>Phrasing</span><span class="seg"><span class="on">Generic</span><span>NVDA</span><span>VoiceOver</span></span></div>
+      <label class="sw on srow">Say landmarks<i></i></label>
+      <label class="sw on srow">Say heading levels<i></i></label>
+      <label class="sw srow">Say list and table sizes<i></i></label>
+    </section>
+    <section style="display:flex;flex-direction:column;gap:4px">
+      <span class="lbl" style="padding:8px 0">On the page</span>
+      <label class="sw on srow">Highlight the element under the row<i></i></label>
+      <label class="sw on srow">{{ followLabel }}<i></i></label>
+      <label class="sw on srow">Run again when the page changes<i></i></label>
+    </section>
+    <section style="display:flex;flex-direction:column;gap:4px">
+      <span class="lbl" style="padding:8px 0">Panel</span>
+      <div class="srow"><span>Theme</span><span class="seg"><span class="on">Auto</span><span>Dark</span><span>Light</span></span></div>
+      <div class="srow"><span>Text size</span><span class="seg"><span>S</span><span class="on">M</span><span>L</span></span></div>
+      <label class="sw on srow">Animations<i></i></label>
+      <sc-if value="{{ isBm }}" hint-placeholder-val="{{ true }}"><div class="srow"><span>Dock</span><span class="seg"><span class="on">Right</span><span>Bottom</span><span>Left</span></span></div></sc-if>
+    </section>
+    <sc-if value="{{ isExt }}" hint-placeholder-val="{{ false }}">
+    <section style="display:flex;flex-direction:column;gap:4px">
+      <span class="lbl" style="padding:8px 0">Shortcuts</span>
+      <div class="srow"><span>Open or close the mirror</span><span class="mono" style="font-size:12px;padding:2px 7px;border:1px solid var(--border-strong);border-radius:6px">Alt+M</span></div>
+      <div class="srow"><span>Flagged only</span><span class="mono" style="font-size:12px;padding:2px 7px;border:1px solid var(--border-strong);border-radius:6px">Alt+Shift+M</span></div>
+      <a href="#" style="color:var(--link);font-size:13px;min-height:32px;display:inline-flex;align-items:center">Change in browser shortcuts</a>
+    </section>
+    </sc-if>
+    <p style="margin:0;padding-top:12px;border-top:1px solid var(--border);font-size:12.5px;color:var(--muted)">Runs in this tab only. Nothing is sent anywhere. <a href="#" style="color:var(--link)">About</a> · <a href="#" style="color:var(--link)">Report a divergence</a> · 0.2</p>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ notSettings }}" hint-placeholder-val="{{ true }}">
+  <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px;padding:8px 12px;border-top:1px solid var(--border);background:var(--surface);font-size:13px;color:var(--muted)">
+    <span>11 items, 3 flagged.</span>
+    <label class="sw" style="color:var(--text)"><input type="checkbox" style="width:15px;height:15px;margin:0;accent-color:var(--primary)">Flagged only</label>
+    <span style="flex:1"></span>
+    <button class="b" style="min-height:32px">Copy<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg></button>
+  </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:400,&quot;height&quot;:620},&quot;view&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;spoken&quot;,&quot;preview&quot;,&quot;nodes&quot;,&quot;settings&quot;],&quot;default&quot;:&quot;spoken&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;kind&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;bm&quot;,&quot;ext&quot;],&quot;default&quot;:&quot;bm&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;hl&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:-1,&quot;min&quot;:-1,&quot;max&quot;:10,&quot;tsType&quot;:&quot;number&quot;},&quot;dock&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;right&quot;,&quot;bottom&quot;],&quot;default&quot;:&quot;right&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;url&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props, view = p.view || 'spoken', kind = p.kind || 'bm', hl = p.hl ?? -1, dock = p.dock || 'right';
+    const R = (name, role, flagKey) => ({ name, role, flagKey });
+    const REM = { unnamed: 'No accessible name. Only the role is spoken.', missingAlt: 'Missing alt. The file name is spoken instead.' };
+    const FLAG = { unnamed: 'No accessible name', missingAlt: 'Missing alt' };
+    const base = [R('', 'main landmark'), R('Apply for a Blue Badge', 'heading level 1'), R('Use this service if you live in England.', ''), R('Your details', ''), R('Full name', ''), R('', 'edit text', 'unnamed'), R('', 'button', 'unnamed'), R('badge.png', 'image', 'missingAlt'), R('Fee', ''), R('£10', ''), R('Continue', 'link')];
+    const NODE = ['main', 'heading 1', 'text', 'text', 'text', 'textbox', 'button', 'img', 'text', 'text', 'link'];
+    const rows = base.map((r, i) => ({ pos: i + 1, name: r.name, role: r.name && r.role ? ', ' + r.role : r.role, hasRem: !!r.flagKey, rem: r.flagKey ? REM[r.flagKey] : '', flag: r.flagKey ? FLAG[r.flagKey] : '', cls: i === hl ? 'hl' : '', nodeRole: NODE[i], nodeName: r.flagKey === 'missingAlt' ? '' : r.name }));
+    const isBm = kind === 'bm';
+    return {
+      rows, isBm, isExt: !isBm, sub: p.url || (isBm ? 'council.example/blue-badge' : 'this tab · live'),
+      followLabel: isBm ? 'Follow pointer' : 'Follow focus',
+      vSpoken: view === 'spoken', vPreview: view === 'preview', vNodes: view === 'nodes', vSettings: view === 'settings', notSettings: view !== 'settings',
+      segSpoken: view === 'spoken' ? 'on' : '', segPreview: view === 'preview' ? 'on' : '', segNodes: view === 'nodes' ? 'on' : '', segJson: view === 'json' ? 'on' : '',
+      dockRight: dock === 'right', dockBottom: dock === 'bottom', dockLabel: dock === 'right' ? 'Dock to bottom' : 'Dock to side',
+      pvBtnOutline: hl === 6 ? '2px solid #ff6b4a' : 'none', pvImgOutline: hl === 7 ? '2px solid #ff6b4a' : 'none',
+    };
+  }
+}
+</script>
+</body>
+</html>

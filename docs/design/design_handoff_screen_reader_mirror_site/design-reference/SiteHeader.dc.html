@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><link rel="stylesheet" href="docs.css"></helmet>
+<header class="site" id="top">
+  <a href="Demo page - Concept.dc.html" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);min-height:44px"><span aria-hidden="true" style="display:inline-grid;place-items:center;width:24px;height:24px;border:1.5px solid var(--link);color:var(--link);border-radius:6px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10px;font-weight:600">sr</span><span style="font-weight:600;font-size:17px;white-space:nowrap">screen-reader-mirror</span></a>
+  <span style="flex:1"></span>
+  <nav aria-label="Pages" style="display:flex;gap:4px;align-items:center">
+    <span class="pglinks" style="display:flex;gap:4px;align-items:center"><a class="lnk" href="Getting started.dc.html">Getting started</a><a class="lnk" href="Docs.dc.html">Docs</a><a class="lnk" href="About.dc.html">About</a><button type="button" class="b b-g" style="min-width:40px;padding:0 10px;justify-content:center" aria-label="{{ themeLabel }}" onClick="{{ onToggle }}"><sc-if value="{{ isLight }}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg></sc-if><sc-if value="{{ isDark }}" hint-placeholder-val="{{ true }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg></sc-if></button><a class="b b-p" href="Demo page - Concept.dc.html" style="margin-left:8px">Open the demo</a></span>
+    <details class="navmenu more" style="position:relative;display:none"><summary class="b b-g" style="list-style:none;min-width:40px;min-height:40px;padding:0 10px;justify-content:center;color:var(--link);border-color:transparent" aria-label="Project links"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></summary><div style="position:absolute;left:12px;right:12px;top:calc(100% - 4px);z-index:6;padding:8px;display:flex;flex-direction:column;gap:2px;background:var(--bg);border:1px solid var(--border-strong);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.25)"><a class="lnk" href="Getting started.dc.html">Getting started</a><a class="lnk" href="Docs.dc.html">Docs</a><a class="lnk" href="About.dc.html">About</a><a class="lnk" href="Compared.dc.html">Compared</a><a class="lnk" href="Demo page - Concept.dc.html" style="color:var(--link);font-weight:600">Open the demo</a><button type="button" class="lnk" style="background:none;border:0;font:inherit;cursor:pointer;text-align:left" onClick="{{ onToggle }}">{{ themeLabel }}</button></div></details>
+  </nav>
+</header>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:64},&quot;isLight&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;themeLabel&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Switch to light theme&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;onToggle&quot;:{&quot;editor&quot;:null,&quot;default&quot;:null,&quot;tsType&quot;:&quot;() =&gt; void&quot;}}">
+class Component extends DCLogic {
+  renderVals() { const l = !!this.props.isLight; return { isLight: l, isDark: !l, themeLabel: this.props.themeLabel ?? 'Switch theme', onToggle: this.props.onToggle ?? (() => {}) }; }
+}
+</script>
+</body>
+</html>

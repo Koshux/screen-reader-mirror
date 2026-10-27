@@ -1,0 +1,34 @@
+/* screen-reader-mirror · colour tokens. Slate ground, coral accent. Dark by default, light by OS preference or .theme-light. All text pairs meet 7:1 on their ground. */
+:root{
+  color-scheme:dark;
+  --bg:#15181c; --surface:#1d2126; --surface-2:#252a31;
+  --text:#e6e9ee; --muted:#aeb5c0;
+  --border:#2d333b; --border-strong:#4e5663;
+  --link:#ff9b85; --primary:#ff9b85; --on-primary:#2a0e07; --accent-soft:#3a2622; --focus:#ff9b85;
+  --flag-bg:#3b3410; --flag-text:#efe08a;       /* notes from the mirror, never speech */
+  --ok-bg:#1f4d35; --ok-text:#c3ead2;           /* copied / done */
+  --str:#d6d1c2; --cmt:#8a919c;                 /* code: strings, comments; tags use --link */
+  --host-outline:#ff6b4a;                       /* element highlight drawn on a host page */
+  --shadow-sm:0 1px 2px rgba(0,0,0,.25); --shadow-md:0 8px 24px rgba(0,0,0,.25); --shadow-lg:0 20px 60px rgba(0,0,0,.45);
+}
+.theme-light{
+  color-scheme:light;
+  --bg:#f7f8fa; --surface:#eef0f3; --surface-2:#e3e6ea;
+  --text:#171a1f; --muted:#4a505a;
+  --border:#d5d9df; --border-strong:#99a0ab;
+  --link:#9a2e17; --primary:#9a2e17; --on-primary:#ffffff; --accent-soft:#fde4dc; --focus:#9a2e17;
+  --flag-bg:#fff1b8; --flag-text:#5a4a00;
+  --ok-bg:#d6f0e0; --ok-text:#0d4a2b;
+  --str:#5a4a2a; --cmt:#6b7079;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.08); --shadow-md:0 8px 24px rgba(0,0,0,.12); --shadow-lg:0 20px 60px rgba(0,0,0,.18);
+}
+@media (prefers-color-scheme:light){
+  .theme-auto{
+    color-scheme:light;
+    --bg:#f7f8fa; --surface:#eef0f3; --surface-2:#e3e6ea; --text:#171a1f; --muted:#4a505a; --border:#d5d9df; --border-strong:#99a0ab;
+    --link:#9a2e17; --primary:#9a2e17; --on-primary:#ffffff; --accent-soft:#fde4dc; --focus:#9a2e17;
+    --flag-bg:#fff1b8; --flag-text:#5a4a00; --ok-bg:#d6f0e0; --ok-text:#0d4a2b; --str:#5a4a2a; --cmt:#6b7079;
+  }
+}
+/* Fallback theme kept from exploration: graphite and ochre (Theme A). Opt in with .theme-ochre. */
+.theme-ochre{--bg:#1a1917;--surface:#232220;--surface-2:#2c2a26;--text:#efeae0;--muted:#b9b2a3;--border:#34312b;--border-strong:#5a554b;--link:#e2b45a;--primary:#e2b45a;--on-primary:#1a1200;--accent-soft:#3a3020;--flag-bg:#163a3a;--flag-text:#a9e7e1;--focus:#e2b45a;--str:#c9c3b2;--cmt:#8d877a}

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><link rel="stylesheet" href="docs.css"></helmet>
+<div class="srm {{ themeClass }}" style="width:{{ widthPx }}">
+<dc-import name="SiteHeader" is-light="{{ isLightNow }}" theme-label="{{ themeBtnLabel }}" on-toggle="{{ toggleTheme }}" hint-size="100%,64px"></dc-import>
+<div class="hero"><p class="kicker pg">Docs · Continuous integration</p><h1>The same engine, with nobody at the keyboard</h1><p class="lead">Manual testing compares the mirror with a screen reader. CI has no screen reader and no person, so it checks the engine's output against two things that need neither: rules and a snapshot.</p></div>
+<div class="wrap">
+<dc-import name="DocsNav" active="ci" hint-size="240px,520px"></dc-import>
+<main>
+
+<section id="gates" class="ch" aria-labelledby="h-gates">
+  <p class="kicker">What CI checks</p><h2 id="h-gates">Two gates</h2>
+  <ul><li><b>Flags</b>: fail when any node carries <span class="mono">unnamed</span> or <span class="mono">missingAlt</span>, or when heading levels skip. No setup; catches the common mistakes on every build.</li><li><b>Snapshot</b>: commit the reading order like a test snapshot. Fail when it changes. Catches the quiet regressions: a heading that became a styled span, a button that lost its label, a landmark that vanished.</li></ul>
+  <p>Three places to run them: a unit test, the CLI in a workflow, or inside an existing Playwright suite.</p>
+</section>
+
+<section id="unit" class="ch" aria-labelledby="h-unit">
+  <p class="kicker">1 · Unit test</p><h2 id="h-unit">In jsdom, next to your component tests</h2>
+  <pre>import { linearize } from "screen-reader-mirror";
+
+test("orders page reads in order", () =&gt; {
+  render(&lt;Orders /&gt;);
+  const nodes = linearize(screen.getByRole("main"));
+  expect(nodes.map(n =&gt; [n.role, n.name, n.level])).toMatchSnapshot();
+  expect(nodes.filter(n =&gt; n.flags?.unnamed)).toEqual([]);
+});</pre>
+  <p>The result is plain data, so <span class="mono">toMatchSnapshot</span> works unchanged. Styles do not load in jsdom, so <span class="mono">display:none</span> set by a stylesheet is not seen; keep visibility checks for the browser run or pass <span class="mono">options.getComputedStyle</span>.</p>
+</section>
+
+<section id="cli" class="ch" aria-labelledby="h-cli">
+  <p class="kicker">2 · CLI in a workflow</p><h2 id="h-cli">After the preview deploys</h2>
+  <ol class="steps">
+    <li><span class="n">1</span><div class="body"><h4>First run writes the snapshot</h4><pre>npx screen-reader-mirror https://preview.example.com/orders \
+  --source ax --fail-on unnamed,missingAlt,heading-skip \
+  --snapshot a11y/orders.json</pre><p class="see"><b>You should see</b> "no snapshot, wrote a11y/orders.json" and exit 0. Commit the file. From now on it is the known-good order.</p></div></li>
+    <li><span class="n">2</span><div class="body"><h4>A pull request that changes the order fails</h4><pre>✗ snapshot a11y/orders.json: 1 removed, 1 added
+  - 3  heading "Recent" level 2        main &gt; h2
+  + 3  text    "Recent"
+✗ flags: 1 unnamed
+  5  button ""                          main &gt; div.toolbar &gt; button:nth-child(1)
+exit 1</pre><p class="see">The check on the PR goes red. The diff is the review: an <span class="mono">h2</span> became a div, and a button lost its label.</p></div></li>
+    <li><span class="n">3</span><div class="body"><h4>Fix it, or update on purpose</h4><p>Fix the markup and push; the check goes green. If the change was intended, run with <span class="mono">--update</span>, commit the new snapshot, and the PR shows before and after. Never fix and update in the same commit; one or the other, so the history says which it was.</p></div></li>
+  </ol>
+  <h3>Names that change every build</h3>
+  <p>Dates, counts, user names. Mask them so the row still counts without its text: <span class="mono">--mask ".order-date, [data-live]"</span>. Masked names appear as <span class="mono">•</span> in the snapshot.</p>
+  <h3>Pages that need more</h3>
+  <ul><li><b>Behind login</b>: <span class="mono">--storage-state auth.json</span> from a Playwright setup step, or <span class="mono">--cookie name=value</span>. Neither is written to the report.</li><li><b>Loads late</b>: the walk runs at network idle by default. <span class="mono">--wait-for "main"</span> waits for an element; <span class="mono">--wait 2000</span> adds a pause. Unloaded frames read as empty documents.</li><li><b>Many pages</b>: <span class="mono">--pages a11y/pages.txt</span>, one URL per line. One snapshot and one report per page, one exit code for the run.</li><li><b>Source</b>: <span class="mono">--source ax</span> is the recommended default on Chromium runners; <span class="mono">--source dom</span> matches the bookmarklet.</li></ul>
+</section>
+
+<section id="workflow" class="ch" aria-labelledby="h-wf">
+  <p class="kicker">A complete workflow</p><h2 id="h-wf">GitHub Actions</h2>
+  <pre><b>#</b> .github/workflows/a11y.yml
+name: Reading order
+on: [pull_request]
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npx playwright install chromium
+      - run: npx screen-reader-mirror --pages a11y/pages.txt \
+            --source ax --wait-for "main" \
+            --fail-on unnamed,missingAlt,heading-skip \
+            --snapshot a11y/snapshots/ --report a11y/report/
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with: { name: mirror-report, path: a11y/report/ }</pre>
+  <p>Any CI works the same way: Node, a Chromium, one command, exit code.</p>
+</section>
+
+<section id="report" class="ch" aria-labelledby="h-report">
+  <p class="kicker">Reading a failure</p><h2 id="h-report">The report, and opening it in a surface</h2>
+  <pre>{
+  "page": "https://preview.example.com/orders",
+  "engine": "screen-reader-mirror 0.4.1", "browser": "chromium 131", "source": "ax",
+  "nodes": [ { "role": "main", "name": "" }, { "role": "heading", "name": "Orders", "level": 1 }, … ],
+  "diff": {
+    "removed": [ { "at": 3, "role": "heading", "name": "Recent", "level": 2, "selector": "main &gt; h2" } ],
+    "added":   [ { "at": 3, "role": "text",    "name": "Recent" } ],
+    "changed": []
+  },
+  "flags": [ { "at": 5, "role": "button", "flag": "unnamed", "selector": "main &gt; div.toolbar &gt; button:nth-child(1)" } ],
+  "verdict": "fail", "reasons": ["snapshot: 1 removed, 1 added", "flags: 1 unnamed"]
+}</pre>
+  <ol class="steps">
+    <li><span class="n">1</span><div class="body"><h4>Download the artifact</h4><p>On the failed run, Artifacts › mirror-report. Unzip.</p></div></li>
+    <li><span class="n">2</span><div class="body"><h4>Open it in the demo</h4><p>On the <a href="Demo page - Concept.dc.html#demo">demo</a>, drop <span class="mono">orders.json</span> on the paste box. The Nodes view shows the list with removed rows struck through and added rows marked; the Preview is empty because a report has no HTML.</p></div></li>
+    <li><span class="n">3</span><div class="body"><h4>Or open it in the extension</h4><p>On the preview page itself, side panel › Capture › Imported log, drop the report. Rows line up against the live page so you can click a removed row and see where it was.</p></div></li>
+  </ol>
+</section>
+
+<section id="exit" class="ch" aria-labelledby="h-exit">
+  <p class="kicker">Exit codes</p><h2 id="h-exit">What the number means</h2>
+  <div class="tbl" role="table" aria-label="Exit codes"><span class="h">Code</span><span class="h">Means</span><span class="k">0</span><span>Every gate passed, or none were asked for.</span><span class="k">1</span><span>A gate failed: a flag in <span class="mono">--fail-on</span>, a snapshot diff, or a divergence with <span class="mono">--capture</span>.</span><span class="k">2</span><span>The page could not be read: navigation failed, timed out, or the browser is missing. Not an accessibility result.</span></div>
+</section>
+
+<section id="not" class="ch" aria-labelledby="h-not">
+  <p class="kicker">Limits</p><h2 id="h-not">What CI cannot do</h2>
+  <p>Capture needs a screen reader, and a screen reader needs a desktop session with a person at it. <span class="mono">--capture</span> is for a tester's machine (<a href="Docs - Testing with NVDA.dc.html">Testing with NVDA</a>). CI tells you the structure changed or a rule fired; it cannot tell you what NVDA said. Keep the two apart and the results stay honest.</p>
+</section>
+
+<nav class="pn" aria-label="Previous and next"><a href="Docs - Testing with NVDA.dc.html"><span>Previous</span><span>Testing with NVDA</span></a><a href="Docs - Settings.dc.html" style="text-align:right"><span>Next</span><span>Settings</span></a></nav>
+</main>
+</div>
+<dc-import name="SiteFooter" hint-size="100%,320px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;auto&quot;,&quot;coral&quot;,&quot;coral-light&quot;],&quot;default&quot;:&quot;auto&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Theme&quot;},&quot;width&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[320,768,1280],&quot;default&quot;:1280,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Layout&quot;}}">
+class Component extends DCLogic {
+  state = { themeOverride: (() => { try { return localStorage.getItem('srm-theme') || null; } catch (e) { return null; } })() };
+  themeNow() { const o = this.state.themeOverride; if (o) return o; const p = this.props.theme ?? 'auto'; if (p !== 'auto') return p; return (typeof matchMedia !== 'undefined' && matchMedia('(prefers-color-scheme: light)').matches) ? 'coral-light' : 'coral'; }
+  renderVals() { const t = this.themeNow(); const light = /light/.test(t); return { themeClass: 't-' + t, isLightNow: light, themeBtnLabel: light ? 'Switch to dark theme' : 'Switch to light theme', toggleTheme: () => { const next = light ? 'coral' : 'coral-light'; try { localStorage.setItem('srm-theme', next); } catch (e) {} this.setState({ themeOverride: next }); }, widthPx: (this.props.width ?? 1280) + 'px' }; }
+}
+</script>
+</body>
+</html>

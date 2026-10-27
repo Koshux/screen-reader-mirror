@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.t-light{--bg:#ffffff;--surface:#f3f3f8;--surface-2:#e9e9f2;--text:#1a1a24;--muted:#4c4c5e;--border:#d6d6e2;--border-strong:#9c9cb4;--link:#4338a8;--accent-soft:#e6e3fa;--flag-bg:#fbe6d6;--flag-text:#7a2e10;--focus:#4338a8;color-scheme:light}
+.t-dark{--bg:#161826;--surface:#1d2032;--surface-2:#232740;--text:#e9e9ed;--muted:#b3b4c4;--border:#2c3048;--border-strong:#4d5272;--link:#b5abf0;--accent-soft:#2a2a4d;--flag-bg:#3b2514;--flag-text:#fcd3b6;--focus:#b5abf0;color-scheme:dark}
+.t-ochre{--bg:#1a1917;--surface:#232220;--surface-2:#2c2a26;--text:#efeae0;--muted:#b9b2a3;--border:#34312b;--border-strong:#5a554b;--link:#e2b45a;--accent-soft:#3a3020;--flag-bg:#163a3a;--flag-text:#a9e7e1;--focus:#e2b45a;color-scheme:dark}
+.t-green{--bg:#0f1f1a;--surface:#15291f;--surface-2:#1b3328;--text:#e8efe9;--muted:#a9bdb1;--border:#24392f;--border-strong:#436353;--link:#7fd3a6;--accent-soft:#1c3a2d;--flag-bg:#3b2a12;--flag-text:#f7d58f;--focus:#7fd3a6;color-scheme:dark}
+.t-coral{--bg:#15181c;--surface:#1d2126;--surface-2:#252a31;--text:#e6e9ee;--muted:#aeb5c0;--border:#2d333b;--border-strong:#4e5663;--link:#ff9b85;--accent-soft:#3a2622;--flag-bg:#3b3410;--flag-text:#efe08a;--focus:#ff9b85;color-scheme:dark}
+.t-coral-light{--bg:#f7f8fa;--surface:#eef0f3;--surface-2:#e3e6ea;--text:#171a1f;--muted:#4a505a;--border:#d5d9df;--border-strong:#99a0ab;--link:#9a2e17;--accent-soft:#fde4dc;--flag-bg:#fff1b8;--flag-text:#5a4a00;--focus:#9a2e17;color-scheme:light}
+.t-auto{--bg:#15181c;--surface:#1d2126;--surface-2:#252a31;--text:#e6e9ee;--muted:#aeb5c0;--border:#2d333b;--border-strong:#4e5663;--link:#ff9b85;--accent-soft:#3a2622;--flag-bg:#3b3410;--flag-text:#efe08a;--focus:#ff9b85;color-scheme:dark}
+@media (prefers-color-scheme:light){.t-auto{--bg:#f7f8fa;--surface:#eef0f3;--surface-2:#e3e6ea;--text:#171a1f;--muted:#4a505a;--border:#d5d9df;--border-strong:#99a0ab;--link:#9a2e17;--accent-soft:#fde4dc;--flag-bg:#fff1b8;--flag-text:#5a4a00;--focus:#9a2e17;color-scheme:light}}
+.t-paper{--bg:#f6f3ec;--surface:#ece8de;--surface-2:#e2ddd1;--text:#1b1b1f;--muted:#4f4e55;--border:#d8d2c4;--border-strong:#a39d8f;--link:#0b4f4c;--accent-soft:#d6e6e1;--flag-bg:#f3dccb;--flag-text:#6e2a0c;--focus:#0b4f4c;color-scheme:light}
+.srm{container:srm / inline-size}
+.srm *:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.srm a{color:var(--link)}
+.srm .lnk{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 6px;text-decoration:none;color:var(--text);font-size:15px;border-radius:8px}.srm .lnk:hover{color:var(--link)}
+.srm .b{min-height:40px;padding:0 14px;border:1px solid var(--border-strong);border-radius:8px;background:transparent;color:var(--text);font:inherit;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}.srm .b:hover{background:var(--surface)}
+.srm .b-p{border-color:var(--link);color:var(--link);font-weight:600}.srm .b-p:hover{background:var(--accent-soft)}.srm .b-g{border-color:transparent;color:var(--link);padding:0 8px}.srm .b-g:hover{background:var(--accent-soft)}
+.srm .sec{scroll-margin-top:60px;padding:40px 28px;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:40px;align-items:start}
+.srm .sec>.text{position:sticky;top:64px}
+@container srm (max-width:1100px){.srm .sec{grid-template-columns:1fr;gap:28px}.srm .sec>.text{position:static}}
+.srm .sec>.vis{align-self:center}
+.srm .sec>.hd{display:contents}
+.srm .hd .sub{margin-top:8px}
+.srm .sec>.text{min-width:0}
+.srm .sec>.vis{min-width:0}
+.srm .toc{position:sticky;top:0;z-index:3;display:flex;flex-wrap:wrap;gap:4px;overflow:visible;padding:8px 28px;background:var(--bg);border-bottom:1px solid var(--border)}
+.srm .toclinks{flex-wrap:wrap;min-width:0}
+.srm .toc a{flex:none;display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 12px;border-radius:999px;text-decoration:none;color:var(--muted);font-size:14px}.srm .toc a:hover{color:var(--text);background:var(--surface)}
+.srm .sel{min-height:40px;width:100%;padding:0 32px 0 12px;border:1px solid var(--border-strong);border-radius:8px;background:var(--bg);color:var(--text);font:inherit;font-size:14px;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 10px center}
+.srm .sel option{background:var(--surface);color:var(--text)}
+.srm .jump{display:none}
+.srm .toc{align-items:center}
+.srm .tocbrand{display:none!important}.srm.stuck .tocbrand{display:inline-flex!important}
+@container srm (max-width:640px){.srm .tocname,.srm .tocsep{display:none}.srm .tocbrand{padding-right:8px}.srm .jump{flex:1;min-width:0}}
+@container srm (max-width:640px){.srm .toclinks{display:none!important}.srm .jump{display:block}.srm .toc{padding:8px 16px}}
+.srm .toc .n{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:999px;background:var(--accent-soft);color:var(--link);font-size:11px;font-weight:600}
+.srm .shot{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--bg);box-shadow:0 12px 40px rgba(0,0,0,.18)}
+.srm .kicker{margin:0;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;display:flex;align-items:center;gap:10px}
+.srm .kicker.pg{font-size:13px;letter-spacing:.1em;color:var(--link)}
+.srm h2{margin:8px 0 0;font-size:clamp(22px,2.4cqw,28px);line-height:1.15;font-weight:600;letter-spacing:-0.015em;text-wrap:pretty}
+.srm .sub{margin:0;max-width:60ch;color:var(--muted);font-size:16px;text-wrap:pretty}
+.srm .list{list-style:none;margin:22px 0 0;padding:0;border-bottom:1px solid var(--border)}
+.srm .list li{display:grid;grid-template-columns:150px minmax(0,1fr);gap:4px 14px;padding:12px 0;border-top:1px solid var(--border)}
+.srm .list .k{font-weight:600;font-size:15px}.srm .list .v{color:var(--muted);font-size:15px;text-wrap:pretty}
+.srm .mini{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface);font-size:13px}
+.srm .mini-hd{padding:6px 10px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
+.srm .mini-hd svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.srm .mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+.srm .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--link);border-radius:6px;padding:2px 8px;font-size:12px;color:var(--link)}
+.srm .flag{display:inline-flex;align-items:center;gap:5px;padding:1px 8px;border-radius:999px;background:var(--flag-bg);color:var(--flag-text);font-size:11.5px;font-weight:500}
+.srm .arrow{display:grid;place-items:center;color:var(--muted)}
+.srm .diagram{display:grid;gap:12px;align-items:stretch}
+@container (max-width:1180px){.srm #how .diagram{grid-template-columns:1fr!important}.srm #how .arrow svg{transform:rotate(90deg)}}
+@container (max-width:860px){.srm .sec{grid-template-columns:1fr;gap:24px;padding:32px 24px}.srm .list li{grid-template-columns:1fr}.srm .diagram{grid-template-columns:1fr!important}.srm .arrow svg{transform:rotate(90deg)}.srm h2{font-size:24px}}
+.srm .fr{container-type:inline-size;width:100%}
+.srm .win{border:1px solid var(--border-strong);border-radius:10px;overflow:hidden;background:#202124;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.35);height:520px}
+.srm .tabs{height:36px;flex:none;display:flex;align-items:flex-end;gap:8px;padding:0 12px;background:#202124;color:#e8eaed;font-size:12px}
+.srm .tabs .dots{display:inline-flex;gap:6px;align-self:center}.srm .tabs .dots i{width:10px;height:10px;border-radius:99px;background:#5f6368}
+.srm .tabs .tab{margin-left:8px;padding:8px 14px;background:#35363a;border-radius:8px 8px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%}
+.srm .addr{height:36px;flex:none;display:flex;align-items:center;gap:10px;padding:0 12px;background:#35363a;color:#e8eaed;font-size:12px}
+.srm .addr .url{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:#202124;border-radius:99px;padding:6px 14px;color:#bdc1c6}
+.srm .bar{height:30px;flex:none;display:flex;align-items:center;gap:14px;padding:0 14px;background:#35363a;border-top:1px solid #45474b;color:#bdc1c6;font-size:12px;overflow:hidden}
+.srm .bm{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:6px;white-space:nowrap}
+.srm .sr{display:inline-grid;place-items:center;width:18px;height:18px;border:1.5px solid #ff9b85;color:#ff9b85;border-radius:5px;font-family:ui-monospace,Menlo,monospace;font-size:8px;font-weight:600;background:#15181c;flex:none}
+.srm .body{flex:1;min-height:0;position:relative;display:flex}
+.srm .hostwrap{flex:1;min-width:0}
+.srm .panelwrap{width:min(380px,58%);flex:none}
+.srm .vis{container-type:inline-size}
+@container (max-width:560px){.srm .fr .hostwrap{display:none}.srm .fr .panelwrap{width:100%!important}.srm .fr .win{height:560px}.srm .fr.hostonly{display:none}}
+.srm .bf{white-space:nowrap;min-height:44px;padding:0 16px;border:1px solid var(--link);border-radius:8px;background:var(--link);color:var(--bg);font:inherit;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+.srm .code{display:flex;align-items:center;gap:8px;min-width:0}
+.srm .code code{flex:1;min-width:0;overflow-wrap:anywhere;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);font-size:13px}
+.srm .b-ok{background:var(--flag-bg)!important;border-color:var(--flag-bg)!important;color:var(--flag-text)!important}
+.srm .steps{list-style:none;margin:22px 0 0;padding:0;display:flex;flex-direction:column;gap:14px}
+.srm .steps li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start}
+.srm .steps .n{display:inline-grid;place-items:center;min-width:28px;height:28px;padding:0 8px;border-radius:999px;border:1px solid var(--border-strong);background:transparent;color:var(--text);font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.srm .steps b{display:block;font-weight:600}.srm .steps span.v{color:var(--muted);font-size:15px;text-wrap:pretty}
+.srm .sw{display:inline-flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;min-height:32px}
+.srm .sw i{width:30px;height:18px;border-radius:999px;background:#4e5663;position:relative;display:inline-block;flex:none}
+.srm .sw i::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:999px;background:#15181c}
+.srm .sw.on i{background:#ff9b85}.srm .sw.on i::after{left:14px;background:#2a0e07}
+
+.srm footer a:hover{color:var(--link)!important}
+@container srm (max-width:1000px){.srm .fgrid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:24px 24px!important}.srm .fgrid>:first-child{grid-column:1/-1;max-width:none!important;display:grid!important;grid-template-columns:auto minmax(0,1fr);gap:4px 24px;align-items:baseline}.srm .fgrid>:first-child>a{grid-row:1/span 2}.srm .fgrid>:first-child p{margin:0}.srm footer{padding:32px 28px 24px!important;gap:20px!important}}
+@container srm (max-width:640px){.srm footer{padding-left:16px!important;padding-right:16px!important}}
+
+@container srm (max-width:640px){.srm footer{padding:24px 16px 16px!important;gap:16px!important;font-size:13px!important}.srm .fgrid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:14px 12px!important}.srm .fgrid>:first-child{grid-column:1/-1}.srm .fgrid>:first-child p{display:none}.srm .fgrid a{min-height:26px!important;font-size:12.5px}.srm .fbar{padding-top:10px!important;gap:4px 12px!important}.srm .fbar .fver{display:none}}
+@container srm (max-width:640px){.srm .pglinks{display:none!important}.srm .navmenu{display:block!important;position:static!important}.srm header{position:relative;flex-wrap:nowrap!important;padding:10px 16px!important}.srm header>a>span:last-child{font-size:15px!important}}
+.srm .more summary::-webkit-details-marker{display:none}
+@media (prefers-reduced-motion:reduce){.srm *{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+</style>
+</helmet>
+<div class="srm {{ themeClass }} {{ stuckClass }}" style="width:{{ widthPx }};max-width:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,'Segoe UI',Roboto,Ubuntu,Cantarell,sans-serif;font-size:16px;line-height:1.5;display:flex;flex-direction:column;min-height:100%">
+
+<header id="top" ref="{{ headerRef }}" style="display:flex;align-items:center;flex-wrap:wrap;gap:8px 20px;padding:10px 28px;border-bottom:1px solid var(--border)">
+  <a href="Demo page - Concept.dc.html" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);min-height:44px"><span aria-hidden="true" style="display:inline-grid;place-items:center;width:24px;height:24px;border:1.5px solid var(--link);color:var(--link);border-radius:6px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10px;font-weight:600">sr</span><span style="font-weight:600;font-size:17px;white-space:nowrap">screen-reader-mirror</span></a>
+  <span style="flex:1"></span>
+  <nav aria-label="Pages" style="display:flex;gap:4px;align-items:center"><span class="pglinks" style="display:flex;gap:4px;align-items:center"><a class="lnk" href="Docs.dc.html">Docs</a><a class="lnk" href="About.dc.html">About</a><a class="lnk" href="Compared.dc.html">Compared</a><button type="button" class="b b-g" style="min-width:40px;padding:0 10px;justify-content:center" aria-label="{{ themeBtnLabel }}" onClick="{{ toggleTheme }}"><sc-if value="{{ isLightNow }}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg></sc-if><sc-if value="{{ isDarkNow }}" hint-placeholder-val="{{ true }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg></sc-if></button><a class="b b-p" href="Demo page - Concept.dc.html" style="margin-left:8px;text-decoration:none">Open the demo</a></span><details class="navmenu more" style="position:relative;display:none"><summary class="b b-g" style="list-style:none;min-width:40px;min-height:40px;padding:0 10px;justify-content:center;color:var(--link);border-color:transparent" aria-label="Project links"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></summary><div class="menu" style="position:absolute;left:12px;right:12px;top:calc(100% - 4px);z-index:6;padding:8px;display:flex;flex-direction:column;gap:2px;background:var(--bg);border:1px solid var(--border-strong);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.25)"><a class="lnk" style="min-height:44px;padding:0 10px;justify-content:flex-start" href="About.dc.html">About</a><a class="lnk" style="min-height:44px;padding:0 10px;justify-content:flex-start" href="Compared.dc.html">Compared</a><a class="lnk" style="min-height:44px;padding:0 10px;justify-content:flex-start;color:var(--link);font-weight:600" href="Demo page - Concept.dc.html">Open the demo</a><button type="button" class="b b-g" style="justify-content:flex-start;min-height:44px;padding:0 10px;color:var(--text);margin-top:6px;border-top:1px solid var(--border);border-radius:0" onClick="{{ toggleTheme }}">{{ themeBtnLabel }}</button></div></details></nav>
+</header>
+
+
+<div style="padding:44px 28px 32px;display:flex;flex-direction:column;gap:14px">
+  <p class="kicker pg" style="display:block">Getting started</p>
+  <h1 style="margin:0;font-size:clamp(34px,5cqw,64px);line-height:1;font-weight:700;letter-spacing:-0.035em;text-wrap:balance;max-width:18ch">Run the mirror on your own pages</h1>
+  <p style="margin:0;max-width:56ch;color:var(--muted);font-size:clamp(16px,1.4cqw,19px);line-height:1.45;text-wrap:pretty">Four ways in. The bookmarklet needs nothing installed, the package goes in your build and tests, the extension comes from a store, or as a signed download you install yourself, for pages behind a sign-in. All three run the same engine and show the same four views as the <a href="Demo page - Concept.dc.html#demo">demo</a>. Nothing leaves your browser.</p>
+</div>
+
+<nav class="toc" aria-label="Sections"><a href="Demo page - Concept.dc.html" class="tocbrand" style="flex:none;display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 10px 0 2px;margin-right:6px;border-right:1px solid var(--border);text-decoration:none;color:var(--text);font-size:14px"><span aria-hidden="true" style="display:inline-grid;place-items:center;width:22px;height:22px;border:1.5px solid var(--link);color:var(--link);border-radius:6px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:9px;font-weight:600">sr</span><span class="tocname" style="font-weight:600;white-space:nowrap">screen-reader-mirror</span><span style="color:var(--muted);white-space:nowrap"><span class="tocsep">· </span>Getting started</span></a><span class="toclinks" style="display:flex;gap:4px"><a href="#bookmarklet"><span class="n" style="background:transparent;border:1px solid var(--border-strong);color:var(--link)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path></svg></span>Bookmarklet</a><a href="#package"><span class="n" style="background:transparent;border:1px solid var(--border-strong);color:var(--link)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><path d="m3.3 7 8.7 5 8.7-5"></path><path d="M12 22V12"></path></svg></span>Package</a><a href="#extension"><span class="n" style="background:transparent;border:1px solid var(--border-strong);color:var(--link)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="14" rx="1"></rect><rect width="7" height="7" x="3" y="14" rx="1"></rect></svg></span>Extension</a><a href="#sideload"><span class="n" style="background:transparent;border:1px solid var(--border-strong);color:var(--link)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path><path d="M12 15V3"></path></svg></span>Install yourself</a><a href="#reading"><span class="n" style="background:transparent;border:1px solid var(--border-strong);color:var(--link)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M3 6h.01"></path><path d="M3 12h.01"></path><path d="M3 18h.01"></path></svg></span>Reading output</a></span><label class="jump" style="width:100%"><span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Jump to section</span><select class="sel" onChange="{{ jump }}" value=""><option value="">Jump to section</option><option value="#bookmarklet">Bookmarklet</option><option value="#package">Package</option><option value="#extension">Extension</option><option value="#sideload">Install it yourself</option><option value="#reading">Reading the output</option></select></label></nav>
+
+<section id="bookmarklet" class="sec" aria-labelledby="bm-h">
+  <div class="text"><p class="kicker"><span class="n sec-ico" aria-hidden="true" style="display:inline-grid;place-items:center;width:28px;height:28px;border-radius:999px;border:1px solid var(--link);color:var(--link)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path></svg></span>Bookmarklet</p><h2 id="bm-h">Nothing to install</h2><p class="sub">One drag, then one click on any page you can open. It loads the engine from the CDN into the tab and draws a panel over the page.</p>
+  <ol class="steps">
+    <li><span class="n">1</span><div><b>Drag this to your bookmarks bar</b><div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:8px"><a href="#" draggable="true" class="bf"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path></svg>Mirror this page</a><button type="button" class="b {{ cpBm.cls }}" aria-label="Copy bookmarklet code" onClick="{{ copyBm }}"><sc-if value="{{ cpBm.done }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></sc-if>{{ cpBm.label }}</button></div><span class="v" style="display:block;margin-top:6px">No bookmarks bar? Copy the code and paste it as the address of a new bookmark.</span></div></li>
+    <li><span class="n">2</span><div><b>Open a page and click the bookmark</b><span class="v">A toast confirms the run. Works on local builds, staging behind a VPN, and pages you are signed in to.</span></div></li>
+    <li><span class="n">3</span><div><b>Point, read, fix</b><span class="v">Point at the page and the row lights up; point at a row and the element is outlined. Switch between Spoken, Preview, Nodes and JSON.</span></div></li>
+    <li><span class="n">4</span><div><b>Dock, minimise, close</b><span class="v">Dock to the bottom on wide pages. Minimise leaves a pill with the counts. Close removes everything it added.</span></div></li>
+  </ol></div>
+  <div class="vis" style="display:flex;flex-direction:column;gap:28px">
+    <div class="fr hostonly"><div class="win"><div class="tabs"><span class="dots"><i></i><i></i><i></i></span><span class="tab">Apply for a Blue Badge</span></div>
+<div class="addr"><span style="opacity:.6">←  →  ↻</span><span class="url mono">council.example/blue-badge</span></div>
+<div class="bar"><span class="bm">Docs</span><span class="bm">GOV.UK</span><span class="bm" style="background:rgba(255,155,133,.18);color:#fff;outline:2px solid #ff9b85;outline-offset:-2px"><span class="sr">sr</span>Mirror this page</span></div><div class="body"><div class="hostwrap"><dc-import name="HostPage" hl="" hint-size="100%,100%" style="height:100%"></dc-import></div><svg aria-hidden="true" style="position:absolute;left:150px;top:-18px;width:22px;height:22px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5))" viewBox="0 0 24 24"><path d="M5 3l14 9-6 1.5L10 20z" fill="#fff" stroke="#000" stroke-width="1.5" stroke-linejoin="round"></path></svg><div role="presentation" style="position:absolute;right:16px;bottom:16px;display:flex;align-items:center;gap:10px;padding:10px 14px;background:#15181c;color:#e6e9ee;border:1px solid #4e5663;border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.4);font-size:13px"><span class="sr">sr</span>Mirroring council.example… <span class="mono" style="color:#aeb5c0">11 items</span></div></div></div></div>
+    <div class="fr"><div class="win"><div class="tabs"><span class="dots"><i></i><i></i><i></i></span><span class="tab">Apply for a Blue Badge</span></div>
+<div class="addr"><span style="opacity:.6">←  →  ↻</span><span class="url mono">council.example/blue-badge</span></div>
+<div class="bar"><span class="bm">Docs</span><span class="bm">GOV.UK</span><span class="bm" style=""><span class="sr">sr</span>Mirror this page</span></div><div class="body"><div class="hostwrap"><dc-import name="HostPage" hl="img" hint-size="100%,100%" style="height:100%"></dc-import></div><div class="panelwrap" style="box-shadow:-16px 0 40px rgba(0,0,0,.3)"><dc-import name="MirrorPanel" kind="bm" view="spoken" hl="{{ seven }}" hint-size="100%,100%" style="height:100%"></dc-import></div><svg aria-hidden="true" style="position:absolute;left:190px;top:250px;width:22px;height:22px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5))" viewBox="0 0 24 24"><path d="M5 3l14 9-6 1.5L10 20z" fill="#fff" stroke="#000" stroke-width="1.5" stroke-linejoin="round"></path></svg></div></div></div>
+  </div>
+</section>
+
+<section id="package" class="sec" aria-labelledby="pk-h" style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="text"><p class="kicker"><span class="n sec-ico" aria-hidden="true" style="display:inline-grid;place-items:center;width:28px;height:28px;border-radius:999px;border:1px solid var(--link);color:var(--link)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><path d="m3.3 7 8.7 5 8.7-5"></path><path d="M12 22V12"></path></svg></span>Package</p><h2 id="pk-h">In your build and your tests</h2><p class="sub">The same engine as a function. Give it a DOM node, get the reading order back as data: role, name, level and flags per item, in order.</p>
+  <ol class="steps">
+    <li><span class="n">1</span><div><b>Install</b><div class="code" style="margin-top:8px"><code class="mono">npm install screen-reader-mirror</code><button type="button" class="b {{ cpNpm.cls }}" aria-label="Copy npm command" onClick="{{ copyNpm }}"><sc-if value="{{ cpNpm.done }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></sc-if>{{ cpNpm.label }}</button></div><div class="code" style="margin-top:8px"><code class="mono">import { linearize } from "https://cdn.jsdelivr.net/npm/screen-reader-mirror@0.2/+esm"</code><button type="button" class="b {{ cpCdn.cls }}" aria-label="Copy CDN import" onClick="{{ copyCdn }}"><sc-if value="{{ cpCdn.done }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></sc-if>{{ cpCdn.label }}</button></div></div></li>
+    <li><span class="n">2</span><div><b>Run it</b><span class="v">Three lines in the console, a script, or a test.</span></div></li>
+    <li><span class="n">3</span><div><b>Fail the build on flags</b><span class="v">Assert that nothing is flagged, or snapshot the list so a changed reading order shows up in review.</span></div></li>
+  </ol></div>
+  <div class="vis" style="display:flex;flex-direction:column;gap:16px;min-width:0">
+    <div class="mini" style="background:var(--bg)"><div class="mini-hd"><svg viewBox="0 0 24 24"><path d="M4 17l6-6-6-6"></path><path d="M12 19h8"></path></svg>Quick start<span style="flex:1"></span><button type="button" style="min-height:28px;font-size:12px" class="b {{ cpQs.cls }}" aria-label="Copy quick start" onClick="{{ copyQs }}"><sc-if value="{{ cpQs.done }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></sc-if>{{ cpQs.label }}</button></div>
+      <pre class="mono" style="margin:0;padding:12px 14px;font-size:13px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--text)"><span style="color:var(--link)">import</span> { linearize } <span style="color:var(--link)">from</span> <span style="color:var(--muted)">"screen-reader-mirror"</span>;
+<span style="color:var(--muted)">// role, name, level, flags, in reading order</span>
+<span style="color:var(--link)">const</span> items = linearize(document.body);
+console.table(items.filter(i =&gt; i.flags));</pre></div>
+    <div class="mini" style="background:var(--bg)"><div class="mini-hd"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"></path></svg>In a test<span style="flex:1"></span><button type="button" style="min-height:28px;font-size:12px" class="b {{ cpTest.cls }}" aria-label="Copy test example" onClick="{{ copyTest }}"><sc-if value="{{ cpTest.done }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></sc-if>{{ cpTest.label }}</button></div>
+      <pre class="mono" style="margin:0;padding:12px 14px;font-size:13px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--text)"><span style="color:var(--link)">import</span> { linearize } <span style="color:var(--link)">from</span> <span style="color:var(--muted)">"screen-reader-mirror"</span>;
+
+test(<span style="color:var(--muted)">"the form reads in order with nothing unnamed"</span>, () =&gt; {
+  render(&lt;BlueBadgeForm /&gt;);
+  <span style="color:var(--link)">const</span> items = linearize(document.body);
+  expect(items.filter(i =&gt; i.flags)).toEqual([]);
+  expect(items.map(i =&gt; i.name)).toMatchSnapshot();
+});</pre></div>
+    <div class="mini" style="background:var(--bg)"><div class="mini-hd"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>What comes back</div>
+      <pre class="mono" style="margin:0;padding:12px 14px;font-size:12.5px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--muted)">[ { role: <span style="color:var(--text)">"heading"</span>, name: <span style="color:var(--text)">"Apply for a Blue Badge"</span>, level: 1 },
+  { role: <span style="color:var(--text)">"textbox"</span>, name: <span style="color:var(--text)">""</span>, flags: { unnamed: true } },
+  { role: <span style="color:var(--text)">"img"</span>, name: <span style="color:var(--text)">""</span>, flags: { missingAlt: true } },
+  { role: <span style="color:var(--text)">"link"</span>, name: <span style="color:var(--text)">"Continue"</span> } ]</pre></div>
+  </div>
+</section>
+
+<section id="extension" class="sec" aria-labelledby="ex-h">
+  <div class="text"><p class="kicker"><span class="n sec-ico" aria-hidden="true" style="display:inline-grid;place-items:center;width:28px;height:28px;border-radius:999px;border:1px solid var(--link);color:var(--link)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="14" rx="1"></rect><rect width="7" height="7" x="3" y="14" rx="1"></rect></svg></span>Browser extension</p><h2 id="ex-h">For signed-in pages and live apps</h2><p class="sub">The mirror in the browser's own side panel. Nothing is injected into the page layout, it re-runs as the page changes, and it can follow keyboard focus.</p>
+  <ol class="steps">
+    <li><span class="n">1</span><div><b>Install and pin</b><div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px"><a href="#" class="b b-p" style="text-decoration:none">Chrome and Edge</a><a href="#" class="b b-p" style="text-decoration:none">Firefox</a></div><span class="v" style="display:block;margin-top:6px">From the stores, or <a href="#sideload">install the signed build yourself</a> if your organisation blocks store extensions. The toolbar badge shows the flagged count for the current tab.</span></div></li>
+    <li><span class="n">2</span><div><b>Open the popup</b><span class="v">Counts for this tab, the three switches that matter most, and one button that opens the side panel. The popup never holds the list; it is too small to read a page in.</span></div></li>
+    <li><span class="n">3</span><div><b>Work in the side panel</b><span class="v">Spoken, Preview, Nodes, JSON. Follow focus moves the highlighted row as you tab through the page. <span class="mono">Alt+M</span> opens and closes it.</span></div></li>
+    <li><span class="n">4</span><div><b>Settings</b><span class="v">Speech phrasing (generic, or closer to NVDA or VoiceOver wording), what gets said, what happens on the page, theme and text size, shortcuts. The bookmarklet has the same settings plus a dock position.</span></div></li>
+  </ol></div>
+  <div class="vis" style="display:flex;flex-direction:column;gap:28px">
+    <div class="fr"><div class="win" style="height:auto;background:#35363a"><div class="tabs"><span class="dots"><i></i><i></i><i></i></span><span class="tab">Apply for a Blue Badge</span></div>
+<div class="addr"><span style="opacity:.6">←  →  ↻</span><span class="url mono">council.example/blue-badge</span><span style="position:relative;display:inline-grid;place-items:center;width:28px;height:28px"><span class="sr">sr</span><span style="position:absolute;top:-2px;right:-2px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:#ff9b85;color:#2a0e07;font-size:10px;font-weight:700;display:grid;place-items:center">3</span></span></div>
+<div class="body" style="background:#f2f2f2;justify-content:flex-end;padding:10px;min-height:0">
+      <div style="width:min(340px,100%);border:1px solid #4e5663;border-radius:12px;background:#15181c;color:#e6e9ee;box-shadow:0 16px 40px rgba(0,0,0,.45);overflow:hidden;font-size:14px">
+        <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid #2d333b;background:#1d2126"><span class="sr" style="width:22px;height:22px;font-size:9px">sr</span><span style="font-weight:600">screen-reader-mirror</span><span style="flex:1"></span><span class="mono" style="font-size:11px;color:#aeb5c0">0.2</span></div>
+        <div style="padding:14px;display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#aeb5c0;font-weight:600">This tab</span><span style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Apply for a Blue Badge</span><span class="mono" style="font-size:12px;color:#aeb5c0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">council.example/blue-badge</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div style="padding:10px 12px;border:1px solid #2d333b;border-radius:10px;background:#1d2126"><div style="font-size:24px;font-weight:700;line-height:1.1">11</div><div style="font-size:12px;color:#aeb5c0">items spoken</div></div><div style="padding:10px 12px;border:1px dashed #efe08a;border-radius:10px;background:#3b3410;color:#efe08a"><div style="font-size:24px;font-weight:700;line-height:1.1">3</div><div style="font-size:12px">flagged</div></div></div>
+          <span style="min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:8px;background:#ff9b85;color:#2a0e07;font-weight:600;outline:2px solid #fff;outline-offset:3px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M15 3v18"></path></svg>Open mirror in side panel</span>
+          <div style="display:flex;flex-direction:column;gap:4px;padding-top:6px;border-top:1px solid #2d333b"><span class="sw on">Follow focus<i></i></span><span class="sw">Flagged only<i></i></span><span class="sw on">Highlight on page<i></i></span></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;padding:10px 14px;border-top:1px solid #2d333b;font-size:12px;color:#aeb5c0"><span>Shortcut <span class="mono">Alt+M</span></span><span style="flex:1"></span><span style="color:#ff9b85">Settings</span></div>
+      </div></div></div></div>
+    <div class="fr"><div class="win"><div class="tabs"><span class="dots"><i></i><i></i><i></i></span><span class="tab">Apply for a Blue Badge</span></div>
+<div class="addr"><span style="opacity:.6">←  →  ↻</span><span class="url mono">council.example/blue-badge</span><span style="position:relative;display:inline-grid;place-items:center;width:28px;height:28px"><span class="sr">sr</span><span style="position:absolute;top:-2px;right:-2px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:#ff9b85;color:#2a0e07;font-size:10px;font-weight:700;display:grid;place-items:center">3</span></span></div>
+<div class="body"><div class="hostwrap"><dc-import name="HostPage" hl="button" hint-size="100%,100%" style="height:100%"></dc-import></div><div class="panelwrap" style="box-shadow:-16px 0 40px rgba(0,0,0,.3)"><dc-import name="MirrorPanel" kind="ext" view="spoken" hl="{{ six }}" hint-size="100%,100%" style="height:100%"></dc-import></div></div></div></div>
+    <div class="fr"><div class="win"><div class="tabs"><span class="dots"><i></i><i></i><i></i></span><span class="tab">Apply for a Blue Badge</span></div>
+<div class="addr"><span style="opacity:.6">←  →  ↻</span><span class="url mono">council.example/blue-badge</span><span style="position:relative;display:inline-grid;place-items:center;width:28px;height:28px"><span class="sr">sr</span><span style="position:absolute;top:-2px;right:-2px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:#ff9b85;color:#2a0e07;font-size:10px;font-weight:700;display:grid;place-items:center">3</span></span></div>
+<div class="body"><div class="hostwrap"><dc-import name="HostPage" hl="img" hint-size="100%,100%" style="height:100%"></dc-import></div><div class="panelwrap" style="box-shadow:-16px 0 40px rgba(0,0,0,.3)"><dc-import name="MirrorPanel" kind="ext" view="preview" hl="{{ seven }}" hint-size="100%,100%" style="height:100%"></dc-import></div></div></div></div>
+    <div class="fr"><div class="win"><div class="tabs"><span class="dots"><i></i><i></i><i></i></span><span class="tab">Apply for a Blue Badge</span></div>
+<div class="addr"><span style="opacity:.6">←  →  ↻</span><span class="url mono">council.example/blue-badge</span><span style="position:relative;display:inline-grid;place-items:center;width:28px;height:28px"><span class="sr">sr</span><span style="position:absolute;top:-2px;right:-2px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:#ff9b85;color:#2a0e07;font-size:10px;font-weight:700;display:grid;place-items:center">3</span></span></div>
+<div class="body"><div class="hostwrap"><dc-import name="HostPage" hl="" hint-size="100%,100%" style="height:100%"></dc-import></div><div class="panelwrap" style="box-shadow:-16px 0 40px rgba(0,0,0,.3)"><dc-import name="MirrorPanel" kind="ext" view="settings" hint-size="100%,100%" style="height:100%"></dc-import></div></div></div></div>
+  </div>
+</section>
+
+
+<section id="sideload" class="sec" aria-labelledby="sl-h" style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="text"><p class="kicker"><span class="n sec-ico" aria-hidden="true" style="display:inline-grid;place-items:center;width:28px;height:28px;border-radius:999px;border:1px solid var(--link);color:var(--link)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path><path d="M12 15V3"></path></svg></span>Install it yourself</p><h2 id="sl-h">Signed build, published checksum</h2><p class="sub">Every release is also attached to the GitHub release as a signed package with a SHA-256 checksum, so you can install without a store, or verify what the store gave you. Same code, same version number.</p>
+  <ol class="steps">
+    <li><span class="n">1</span><div><b>Download the package for your browser</b><span class="v">Firefox: a Mozilla-signed <span class="mono">.xpi</span>, installs directly. Chrome and Edge: a <span class="mono">.zip</span> of the unpacked extension, since stable builds of Chromium do not install <span class="mono">.crx</span> files from outside the store.</span></div></li>
+    <li><span class="n">2</span><div><b>Check the checksum</b><span class="v">Compare the hash with the one on the release page. If it differs, do not install it and <a href="#">tell us</a>.</span></div></li>
+    <li><span class="n">3</span><div><b>Install</b><span class="v">Firefox: open the <span class="mono">.xpi</span> and accept. Chrome and Edge: <span class="mono">chrome://extensions</span>, turn on Developer mode, Load unpacked, choose the unzipped folder. For a whole team, IT can allow the extension ID by policy instead.</span></div></li>
+  </ol></div>
+  <div class="vis" style="display:flex;flex-direction:column;gap:16px;min-width:0">
+    <div class="mini" style="background:var(--bg)"><div class="mini-hd"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path><path d="M12 15V3"></path></svg>Release 0.2.0</div>
+      <ul style="list-style:none;margin:0;padding:0;font-size:14px">
+        <li style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--border)"><span><b style="font-weight:600">screen-reader-mirror-0.2.0.xpi</b><span style="display:block;color:var(--muted);font-size:13px">Firefox, signed by Mozilla. 184 KB</span></span><a href="#" class="b" style="text-decoration:none">Download</a><code class="mono" style="grid-column:1/-1;font-size:12px;color:var(--muted);overflow-wrap:anywhere">sha256 9f2c1e7a4b0d…c3a8 <a href="#" style="margin-left:6px">.sha256</a> · <a href="#">.sig</a></code></li>
+        <li style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--border)"><span><b style="font-weight:600">screen-reader-mirror-0.2.0-chromium.zip</b><span style="display:block;color:var(--muted);font-size:13px">Chrome and Edge, unpacked. 176 KB</span></span><a href="#" class="b" style="text-decoration:none">Download</a><code class="mono" style="grid-column:1/-1;font-size:12px;color:var(--muted);overflow-wrap:anywhere">sha256 51b7d0e2f98a…77e1 <a href="#" style="margin-left:6px">.sha256</a> · <a href="#">.sig</a></code></li>
+        <li style="padding:10px 14px;color:var(--muted);font-size:13px">Signing key fingerprint and the release workflow are in the repository, so the build can be reproduced from the tag.</li>
+      </ul></div>
+    <div class="mini" style="background:var(--bg)"><div class="mini-hd"><svg viewBox="0 0 24 24"><path d="M4 17l6-6-6-6"></path><path d="M12 19h8"></path></svg>Verify<span style="flex:1"></span><button type="button" class="b {{ cpSha.cls }}" style="min-height:28px;font-size:12px" aria-label="Copy verify commands" onClick="{{ copySha }}"><sc-if value="{{ cpSha.done }}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></sc-if>{{ cpSha.label }}</button></div>
+      <pre class="mono" style="margin:0;padding:12px 14px;font-size:13px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--text)"><span style="color:var(--muted)"># macOS, Linux</span>
+shasum -a 256 -c screen-reader-mirror-0.2.0.xpi.sha256
+<span style="color:var(--muted)"># Windows</span>
+certutil -hashfile screen-reader-mirror-0.2.0-chromium.zip SHA256</pre></div>
+  </div>
+</section>
+
+<section id="reading" class="sec" aria-labelledby="rd-h" style="background:var(--surface);border-top:1px solid var(--border)">
+  <div class="text"><p class="kicker"><span class="n sec-ico" aria-hidden="true" style="display:inline-grid;place-items:center;width:28px;height:28px;border-radius:999px;border:1px solid var(--link);color:var(--link)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M3 6h.01"></path><path d="M3 12h.01"></path><path d="M3 18h.01"></path></svg></span>Reading the output</p><h2 id="rd-h">Four views, one list</h2><p class="sub">Every surface shows the same reading order four ways. Only the first is speech; the rest are there to help you find and fix.</p>
+  <ul class="list">
+    <li><span class="k">Spoken</span><span class="v">What a screen reader says, in order, and nothing else. Notes in the dashed yellow box are from the mirror, not the screen reader, and say why a row is flagged.</span></li>
+    <li><span class="k">Preview</span><span class="v">The same HTML with its CSS removed. Structure that survives without styling is structure a screen reader can use.</span></li>
+    <li><span class="k">Nodes</span><span class="v">Position, role, name and flag per item. The table for people who want the data.</span></li>
+    <li><span class="k">JSON</span><span class="v">The list as text, for an issue, a snapshot or a script.</span></li>
+    <li><span class="k">A flag means worth checking</span><span class="v">Today: no accessible name, missing alt. Not a score, not a verdict. Fix it, run again, then confirm with a real screen reader and real users.</span></li>
+  </ul>
+  <p style="margin:22px 0 0;color:var(--muted)">Everything beyond the first step lives in the documentation: <a href="Docs - Testing with NVDA.dc.html">testing beside NVDA</a>, <a href="Docs - CI.dc.html">running it in CI</a>, the <a href="Docs - Install.dc.html">full install guide</a> and the <a href="Docs - API.dc.html">API</a>.</p></div>
+  <div class="vis fr"><div class="win" style="height:520px;background:transparent;border-color:var(--border)"><div class="panelwrap" style="width:100%;height:100%"><dc-import name="MirrorPanel" kind="ext" view="nodes" hl="{{ one }}" hint-size="100%,100%" style="height:100%"></dc-import></div></div></div>
+</section>
+
+<footer style="padding:40px 28px 28px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:28px;font-size:14px;color:var(--muted)">
+  <div class="fgrid" style="display:grid;grid-template-columns:minmax(0,2fr) repeat(3,minmax(0,1fr));gap:28px 32px">
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0;max-width:40ch">
+      <a href="Demo page - Concept.dc.html" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);font-weight:600;font-size:16px"><span aria-hidden="true" style="display:inline-grid;place-items:center;width:22px;height:22px;border:1.5px solid var(--link);color:var(--link);border-radius:6px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:9px;font-weight:600">sr</span>screen-reader-mirror</a>
+      <p style="margin:0;text-wrap:pretty">A screen reader simulator developers can read. Nothing on these pages is sent anywhere; the analysis runs in your browser.</p>
+      <p style="margin:0;text-wrap:pretty">Not a screen reader. There is no substitute for testing with real screen readers and real users.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px;min-width:0"><span style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--text)">Use it</span><a href="Demo page - Concept.dc.html#demo" style="color:var(--muted);text-decoration:none;min-height:32px;display:inline-flex;align-items:center">Live demo</a><a href="Getting started.dc.html#bookmarklet" style="color:var(--muted);text-decoration:none;min-height:32px;display:inline-flex;align-items:center">Bookmarklet</a><a href="Getting started.dc.html#package" style="color:var(--muted);text-decoration:none;min-height:32px;display:inline-flex;align-items:center">Package</a><a href="Getting started.dc.html#extension" style="color:var(--muted);text-decoration:none;min-height:32px;display:inline-flex;align-items:center">Browser extension</a></div>
+    <div style="display:flex;flex-direction:column;gap:6px;min-width:0"><span style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--text)">Learn</span><a href="Getting started.dc.html" style="color:var(--muted);text-decoration:none;min-height:32px;display:inline-flex;align-items:center">Getting started</a><a href="Getting started.dc.html#reading" style="color:var(--muted);text-decoration:none;min-height:32px;display:inline-flex;align-items:center">Reading the output</a><a href="About.dc.html" style="color:var(--muted);text-decoration:none;min-height:32px;display:inline-flex;align-items:center">About</a><a href="Compared.dc.html" style="color:var(--muted);text-decoration:none;min-height:32px;display:inline-flex;align-items:center">Compared</a></div>
+    <div style="display:flex;flex-direction:column;gap:6px;min-width:0"><span style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--text)">Project</span><a href="#" style="color:var(--muted);text-decoration:none;min-height:32px;display:inline-flex;align-items:center">GitHub repository</a><a href="#" style="color:var(--muted);text-decoration:none;min-height:32px;display:inline-flex;align-items:center">npm</a><a href="#" style="color:var(--muted);text-decoration:none;min-height:32px;display:inline-flex;align-items:center">Report a divergence</a><a href="#" style="color:var(--muted);text-decoration:none;min-height:32px;display:inline-flex;align-items:center">MIT license</a></div>
+  </div>
+  <div class="fbar" style="display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;padding-top:16px;border-top:1px solid var(--border);font-size:13px"><span>© 2026 James Lanzon</span><span class="fver">Version 0.2</span><span>No analytics, no cookies.</span><span style="flex:1"></span><a href="#top" style="color:var(--link);text-decoration:none;min-height:32px;display:inline-flex;align-items:center;gap:6px">Back to top<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 15-6-6-6 6"></path></svg></a></div>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;auto&quot;,&quot;coral&quot;,&quot;coral-light&quot;,&quot;dark&quot;,&quot;light&quot;,&quot;ochre&quot;,&quot;green&quot;,&quot;paper&quot;],&quot;default&quot;:&quot;auto&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Theme&quot;},&quot;width&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[320,768,1280],&quot;default&quot;:1280,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Layout&quot;}}">
+class Component extends DCLogic {
+  jump(e) { const v = e.target.value; if (!v) return; if (v.startsWith('#')) { location.hash = v; } else { location.href = v; } e.target.value = ''; }
+  themeNow() {
+    const o = this.state.themeOverride;
+    if (o) return o;
+    const p = this.props.theme ?? 'auto';
+    if (p !== 'auto') return p;
+    return (typeof matchMedia !== 'undefined' && matchMedia('(prefers-color-scheme: light)').matches) ? 'coral-light' : 'coral';
+  }
+  themeVals() {
+    const t = this.themeNow();
+    const light = /light|paper/.test(t);
+    return {
+      themeClass: 't-' + t, isLightNow: light, isDarkNow: !light,
+      themeBtnLabel: light ? 'Switch to dark theme' : 'Switch to light theme',
+      toggleTheme: () => { const next = light ? 'coral' : 'coral-light'; try { localStorage.setItem('srm-theme', next); } catch (e) {} this.setState({ themeOverride: next }); },
+    };
+  }
+  readStoredTheme() { try { return localStorage.getItem('srm-theme') || null; } catch (e) { return null; } }
+
+  headerRef = React.createRef();
+  componentDidMount() { this.onScroll = () => { if (this._sf) return; this._sf = requestAnimationFrame(() => { this._sf = 0; const h = this.headerRef.current; if (!h) return; const stuck = h.getBoundingClientRect().bottom < 0; if (stuck !== !!this.state.stuck) this.setState({ stuck }); }); }; document.addEventListener('scroll', this.onScroll, true); window.addEventListener('scroll', this.onScroll); this.onScroll(); }
+  componentWillUnmount() { document.removeEventListener('scroll', this.onScroll, true); window.removeEventListener('scroll', this.onScroll); }
+  state = { stuck: false, themeOverride: this.readStoredTheme(), copied: null };
+  copy(text, key) { if (navigator.clipboard) navigator.clipboard.writeText(text).catch(() => {}); clearTimeout(this._cpT); this.setState({ copied: key }); this._cpT = setTimeout(() => this.setState({ copied: null }), 1800); }
+  renderVals() {
+    const cp = (key, label) => { const done = this.state.copied === key; return { done, label: done ? 'Copied' : label, cls: done ? 'b-ok' : '' }; };
+    return { ...this.themeVals(), widthPx: (this.props.width ?? 1280) + 'px', headerRef: this.headerRef, stuckClass: this.state.stuck ? 'stuck' : '', jump: (e) => this.jump(e), one: 1, six: 6, seven: 7,
+      cpNpm: cp('npm', 'Copy'), cpCdn: cp('cdn', 'Copy'), cpQs: cp('qs', 'Copy'), cpTest: cp('test', 'Copy'), cpBm: cp('bm', 'Copy the code'), cpSha: cp('sha', 'Copy'),
+      copySha: () => this.copy('shasum -a 256 -c screen-reader-mirror-0.2.0.xpi.sha256\ncertutil -hashfile screen-reader-mirror-0.2.0-chromium.zip SHA256', 'sha'),
+      copyNpm: () => this.copy('npm install screen-reader-mirror', 'npm'),
+      copyCdn: () => this.copy('import { linearize } from "https://cdn.jsdelivr.net/npm/screen-reader-mirror@0.2/+esm"', 'cdn'),
+      copyQs: () => this.copy('import { linearize } from "screen-reader-mirror";\nconst items = linearize(document.body);\nconsole.table(items.filter(i => i.flags));', 'qs'),
+      copyTest: () => this.copy('import { linearize } from "screen-reader-mirror";\n\ntest("the form reads in order with nothing unnamed", () => {\n  render(<BlueBadgeForm />);\n  const items = linearize(document.body);\n  expect(items.filter(i => i.flags)).toEqual([]);\n  expect(items.map(i => i.name)).toMatchSnapshot();\n});', 'test'),
+      copyBm: () => this.copy("javascript:(function(){var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/screen-reader-mirror@0.2/bookmarklet.js';document.body.appendChild(s)})()", 'bm') };
+  }
+}
+</script>
+</body>
+</html>

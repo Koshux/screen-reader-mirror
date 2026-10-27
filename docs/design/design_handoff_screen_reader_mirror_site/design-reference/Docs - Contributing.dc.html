@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><link rel="stylesheet" href="docs.css"></helmet>
+<div class="srm {{ themeClass }}" style="width:{{ widthPx }}">
+<dc-import name="SiteHeader" is-light="{{ isLightNow }}" theme-label="{{ themeBtnLabel }}" on-toggle="{{ toggleTheme }}" hint-size="100%,64px"></dc-import>
+<div class="hero"><p class="kicker pg">Docs · Contributing</p><h1>Specs, fixtures, roadmap</h1><p class="lead">Behaviour is decided in a spec before it is written in code, and every behaviour has a golden HTML fixture. That makes contributions small and arguments short.</p></div>
+<div class="wrap">
+<dc-import name="DocsNav" active="contributing" hint-size="240px,520px"></dc-import>
+<main>
+
+<section id="layout" class="ch" aria-labelledby="h-layout">
+  <p class="kicker">Repository</p><h2 id="h-layout">One engine, thin hosts</h2>
+  <pre>packages/
+  core/        the engine: linearize, roles, visibility, live regions, tests, fixtures
+  extension/   MV3 host over core
+  cli/         Playwright host over core; the bridge
+  web/         the hosted demo
+docs/
+  specs/       SPEC-001 … one per behaviour
+  decisions/   ADR-0001 … why things are the way they are
+  design/      brief, handoff, these pages
+  project/     roadmap and board</pre>
+  <ul><li>pnpm workspace. <span class="mono">pnpm i</span>, <span class="mono">pnpm test</span>, <span class="mono">pnpm build</span>.</li><li>Hosts import core; core imports nothing from hosts. Lint enforces it.</li></ul>
+</section>
+
+<section id="specs" class="ch" aria-labelledby="h-specs">
+  <p class="kicker">Specs and ADRs</p><h2 id="h-specs">Decide, then build</h2>
+  <ul><li><b>SPEC-001</b> reading order, roles, names, levels, flags, hidden content. <b>SPEC-002</b> extension MVP. <b>SPEC-003</b> shadow DOM, slots, frames. <b>SPEC-004</b> live regions.</li><li>A spec has numbered acceptance criteria (AC-1 …). Tests cite the AC they cover; the API docs cite the spec a field comes from.</li><li><b>ADR-0001</b> infrastructure first, client-side only, no vendor lock-in. <b>ADR-0002</b> MIT. <b>ADR-0003</b> monorepo with a shared core.</li><li>Changing behaviour: amend or add a spec in a PR first, discuss there, then implement. Small fixes with an existing AC skip straight to code and a fixture.</li></ul>
+</section>
+
+<section id="fixtures" class="ch" aria-labelledby="h-fix">
+  <p class="kicker">Fixtures</p><h2 id="h-fix">One HTML file per behaviour</h2>
+  <ol class="steps">
+    <li><span class="n">1</span><div class="body"><h4>Write the smallest HTML that shows it</h4><p><span class="mono">packages/core/test/fixtures/&lt;area&gt;/&lt;name&gt;.html</span>, with a comment naming the spec AC.</p></div></li>
+    <li><span class="n">2</span><div class="body"><h4>Write the expected list</h4><p><span class="mono">&lt;name&gt;.expected.json</span>: the <span class="mono">InterpretationNode[]</span> it should produce. Run <span class="mono">pnpm test:update</span> to generate it, then read it line by line before committing.</p></div></li>
+    <li><span class="n">3</span><div class="body"><h4>Check it against a real screen reader if you can</h4><p>Open the fixture with the bridge running (<a href="Docs - Testing with NVDA.dc.html">Testing with NVDA</a>). Note the result in the PR; a known difference goes on <a href="Docs - Divergences.dc.html">Divergences</a>.</p></div></li>
+  </ol>
+  <p>Fixtures are never deleted. A behaviour that changes gets a new expected file and a changelog line under "Output changes".</p>
+</section>
+
+<section id="roadmap" class="ch" aria-labelledby="h-road">
+  <p class="kicker">Roadmap</p><h2 id="h-road">In order</h2>
+  <ul><li><span class="st ok">Shipped</span> core 0.x: SPEC-001, 003, 004. npm and CDN.</li><li><span class="st wip">Next</span> extension MVP (SPEC-002): side panel, badge, settings, AX tree source.</li><li><span class="st wip">Next</span> CLI with <span class="mono">--check</span>, snapshots, reports.</li><li><span class="st">Then</span> profiles: NVDA first, then JAWS, VoiceOver.</li><li><span class="st">Then</span> the bridge and capture, NVDA first.</li><li><span class="st">Then</span> hosted demo with URL fetch and report import.</li></ul>
+  <p>The board in <span class="mono">docs/project/board.md</span> is the live version. Pick anything marked "help wanted".</p>
+</section>
+
+<section id="licence" class="ch" aria-labelledby="h-lic">
+  <p class="kicker">Licence</p><h2 id="h-lic">MIT</h2>
+  <p>Use it anywhere, including commercially. Contributions are MIT too. There is no CLA.</p>
+</section>
+
+<nav class="pn" aria-label="Previous and next"><a href="Docs - Privacy.dc.html"><span>Previous</span><span>Privacy</span></a><a href="Site map.dc.html" style="text-align:right"><span>Next</span><span>Site map</span></a></nav>
+</main>
+</div>
+<dc-import name="SiteFooter" hint-size="100%,320px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;auto&quot;,&quot;coral&quot;,&quot;coral-light&quot;],&quot;default&quot;:&quot;auto&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Theme&quot;},&quot;width&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[320,768,1280],&quot;default&quot;:1280,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Layout&quot;}}">
+class Component extends DCLogic {
+  state = { themeOverride: (() => { try { return localStorage.getItem('srm-theme') || null; } catch (e) { return null; } })() };
+  themeNow() { const o = this.state.themeOverride; if (o) return o; const p = this.props.theme ?? 'auto'; if (p !== 'auto') return p; return (typeof matchMedia !== 'undefined' && matchMedia('(prefers-color-scheme: light)').matches) ? 'coral-light' : 'coral'; }
+  renderVals() { const t = this.themeNow(); const light = /light/.test(t); return { themeClass: 't-' + t, isLightNow: light, themeBtnLabel: light ? 'Switch to dark theme' : 'Switch to light theme', toggleTheme: () => { const next = light ? 'coral' : 'coral-light'; try { localStorage.setItem('srm-theme', next); } catch (e) {} this.setState({ themeOverride: next }); }, widthPx: (this.props.width ?? 1280) + 'px' }; }
+}
+</script>
+</body>
+</html>
