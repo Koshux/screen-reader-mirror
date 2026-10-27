@@ -182,7 +182,7 @@ interface LinearizeOptions {
 Reading order follows **DOM order** in the composed tree, as screen readers do. CSS reordering
 (`flex`/`grid` `order`, positioning) is intentionally not reflected. Per-screen-reader phrasing
 (NVDA, JAWS, and VoiceOver verbosity) is a tracked follow-up on the
-[roadmap](https://github.com/Koshux/screen-reader-mirror/blob/main/docs/project/board.md).
+[1.0 scope](https://github.com/Koshux/screen-reader-mirror/blob/main/docs/project/v1-scope.md).
 
 ## Guarantees
 

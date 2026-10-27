@@ -63,7 +63,7 @@ Or use it straight from a CDN — no build step, globally available, no account 
 
 > **Pre-release.** `SPEC-001` (the reading-order engine) has landed; the first npm release, `0.1.0`,
 > is being cut. Until then the CDN URLs above resolve nothing. Watch the
-> [roadmap](./docs/project/board.md).
+> [1.0 scope](./docs/project/v1-scope.md).
 
 ## Why it's safe for regulated and EU environments
 
@@ -86,7 +86,7 @@ up well-defined work and ship it through review — not ad-hoc.
 
 - **How we work:** [`docs/sdlc/README.md`](./docs/sdlc/README.md) — Journey → Spec → Review →
   Implement → Test → Self-review → PR → Operator review → Merge.
-- **Pick up a task:** [`docs/project/tasks.md`](./docs/project/tasks.md) and the GitHub Project board.
+- **Pick up a task:** [`docs/project/v1-scope.md`](./docs/project/v1-scope.md) and the open GitHub issues.
 - **Contributing:** [`CONTRIBUTING.md`](./CONTRIBUTING.md) — branch naming, PR rules, changesets.
 - **Who can merge:** [`GOVERNANCE.md`](./GOVERNANCE.md) — contributors' PRs require maintainer
   review; only the maintainer merges to `main`.
