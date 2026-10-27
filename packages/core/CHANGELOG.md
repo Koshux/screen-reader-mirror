@@ -1,5 +1,15 @@
 # screen-reader-mirror
 
+## 0.5.0
+
+### Minor Changes
+
+- 70f75c5: New `interpret(root, options)`: the same reading order as `linearize()`, plus visual-versus-semantic mismatches (text that looks like a heading, elements that look like a table, an element that looks clickable with no button or link role, a field with no label), each with the signals it rests on. `linearize()` output does not change.
+
+### Patch Changes
+
+- ff67cf3: `looks-like-heading`: the bold-only rule no longer fires when the longer text that follows is in the same block after a `<br>`, such as a label over its value (`<strong>Due</strong><br>18 Dec`).
+
 ## 0.4.0
 
 ### Minor Changes
