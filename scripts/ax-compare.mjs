@@ -15,6 +15,11 @@
  * as a line diff. The diff is information for a human, not a pass/fail: every differing line is an engine
  * bug, a pinned divergence with a reason, or a known gap in the normalisation below.
  *
+ * The engine runs as `srm.interpret` (SPEC-005), and its visual-versus-semantic mismatches for the
+ * same mode are printed after the diff, one line each: kind, the [at, end) range, the tag, the
+ * signals, and the text the range covers. Chrome has no such heuristics, so they are information
+ * for a person to judge as right or a false alarm, never compared.
+ *
  * --write-expected saves the engine's full output in both modes next to the fixture:
  * <name>.expected.json (default) and <name>.chrome.json (Chrome mode), the golden files the
  * vitest suite checks against. Only the Chrome golden is vouched for by this comparison; the
@@ -104,16 +109,17 @@ const page = await openPage(pagePath);
 try {
   chromeRaw = await page.axTree();
   await page.evaluate(engineSource);
-  inW3c = JSON.parse(await page.evaluate("JSON.stringify(srm.linearize(document.body))"));
-  inChrome = JSON.parse(await page.evaluate('JSON.stringify(srm.linearize(document.body, { browser: "chrome" }))'));
+  inW3c = JSON.parse(await page.evaluate("JSON.stringify(srm.interpret(document.body))"));
+  inChrome = JSON.parse(await page.evaluate('JSON.stringify(srm.interpret(document.body, { browser: "chrome" }))'));
 } finally {
   await page.close();
   rmSync(pageDir, { recursive: true, force: true });
 }
-const ours = w3c ? inW3c : inChrome;
+const ours = (w3c ? inW3c : inChrome).nodes;
+const mismatches = (w3c ? inW3c : inChrome).mismatches;
 
 if (writeExpected) {
-  for (const [suffix, output] of [["expected", inW3c], ["chrome", inChrome]]) {
+  for (const [suffix, { nodes: output }] of [["expected", inW3c], ["chrome", inChrome]]) {
     const target = join(dirname(fragmentPath), `${name}.${suffix}.json`);
     writeFileSync(target, JSON.stringify(output, null, 2) + "\n");
     console.log(`wrote ${target} (${output.length} nodes)`);
@@ -135,6 +141,12 @@ const mode = w3c ? "default (W3C)" : "Chrome mode";
 console.log(`${name}: chrome ${chrome.length} nodes, engine in ${mode} ${engine.length} nodes, ${changed} differing lines`);
 if (body) console.log(body);
 rmSync(dir, { recursive: true, force: true });
+console.log(`mismatches in ${mode}: ${mismatches.length}`);
+for (const m of mismatches) {
+  const covered = ours.slice(m.at, m.end).map((n) => `${n.role} "${n.name}"`).join(", ");
+  const where = m.ref.frame ? ` frame ${m.ref.frame}` : m.ref.shadow ? " shadow" : "";
+  console.log(`  ${m.kind} [${m.at}, ${m.end}) <${m.ref.tag}>${where} ${m.signals.join(" ")}${covered ? ` :: ${covered}` : ""}`);
+}
 
 /** True when Chrome counts this emitted node's content toward its ancestor's name. */
 function contributes(n, role) {

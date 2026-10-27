@@ -84,3 +84,39 @@ export interface InterpretationNode {
     frame?: number;
   };
 }
+
+/**
+ * What `interpret()` returns (SPEC-005): the reading order, and the places where the page looks
+ * like one thing and the tree says another.
+ */
+export interface Interpretation {
+  /** The reading order: exactly what `linearize(root, options)` returns. */
+  nodes: InterpretationNode[];
+  /** Places where the page looks like one thing and the tree says another. Guesses, not facts. */
+  mismatches: Mismatch[];
+}
+
+/**
+ * A visual-versus-semantic mismatch: a guess from markup and computed style, with the signals it
+ * rests on, so a developer can weigh it. Hosts place it beside `nodes[at..end)`. New kinds and
+ * signal values may be added in a minor release, so a consumer ignores values it does not know.
+ */
+export interface Mismatch {
+  kind: "looks-like-heading" | "looks-like-table" | "clickable-not-button" | "field-without-label";
+  /** Index in `nodes` of the first node holding the element's content. */
+  at: number;
+  /** One past the last node holding the element's content; equal to `at` when there is none. */
+  end: number;
+  /** The element the mismatch was found on, in the shape of a node's `ref`. */
+  ref: NonNullable<InterpretationNode["ref"]>;
+  /** The signals that fired, as stable identifiers, in a fixed order (SPEC-005 §3). */
+  signals: MismatchSignal[];
+}
+
+/** Why a mismatch fired. Identifiers, not sentences: the host phrases them. */
+export type MismatchSignal =
+  | "font-size" | "font-weight"
+  | "grid-layout" | "row-layout" | "table-layout"
+  | "rows" | "cell-borders" | "cell-backgrounds" | "header-row"
+  | "click-attribute" | "tabindex" | "cursor-pointer"
+  | "no-name" | "title" | "placeholder" | "nearby-text";

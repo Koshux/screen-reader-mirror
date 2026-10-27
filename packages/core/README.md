@@ -6,9 +6,11 @@
 The shared engine behind [screen-reader-mirror](https://github.com/Koshux/screen-reader-mirror).
 `linearize(element)` walks a DOM subtree and returns the **reading order a screen reader would
 traverse**: each node's WAI-ARIA role and accessible name, with assistive-tech-hidden content
-removed and the common encoding mistakes flagged (a styled `<span>` that only *looks* like a
-heading, a button with no name, an image with no `alt`). A sighted developer can see the
-screen-reader view without a screen reader installed.
+removed and the common encoding mistakes flagged (a button with no name, an image with no
+`alt`). `interpret(element)` returns the same reading order together with the places where the
+page looks like one thing and the tree says another, such as a styled `<span>` that only *looks*
+like a heading. A sighted developer can see the screen-reader view without a screen reader
+installed.
 
 ## Install
 
@@ -113,6 +115,55 @@ whether a screen reader will speak: that depends on the screen reader and on how
 changes. A common failure is inserting the region together with its message, which is often
 not announced at all.
 
+## Mismatches: what the page shows and the tree does not
+
+```js
+import { interpret } from "screen-reader-mirror";
+
+const { nodes, mismatches } = interpret(document.querySelector("main"));
+// nodes: exactly what linearize() returns
+// mismatches: [{ kind: "looks-like-heading", at: 3, end: 4, ref: { tag: "span" }, signals: ["font-size"] }]
+```
+
+A mismatch is a guess from markup and computed style, not a fact from the tree. Each one names
+its `kind`, the range `nodes[at..end)` it covers (`at` equals `end` when the element has no
+content of its own), the element it was found on, and the `signals` that fired, so you can weigh
+it. No page text is copied into a mismatch. A tool can put its label beside that range of the
+reading order. Screen readers never announce mismatches, and the phrasing profiles do not read
+them.
+
+| Kind | Fires when | Signals | False alarms you may see |
+|---|---|---|---|
+| `looks-like-heading` | A short line (up to 80 characters) with no role of its own is at least 1.25 times its parent's font size; or 1.1 times and bold over a plain parent; or bold over a plain parent, not ending in `.` or `:`, and followed by plain text at least twice as long | `font-size`, `font-weight` | A large price or statistic, a short pull quote, a bold lead-in, a bold label over its value, a logo set in text |
+| `looks-like-table` | Elements with no role of their own laid out as at least 2 by 2 cells of short text (CSS grid, flex or grid rows, or `display: table`), with 20 rows or more, borders on half the cells, a tinted cell, or a bold header row | `grid-layout`, `row-layout`, `table-layout`, then `rows`, `cell-borders`, `cell-backgrounds`, `header-row` | A bordered grid of tags, a label and value form with borders, a pricing grid that reads better as a list |
+| `clickable-not-button` | An element with no role of its own (or an image) has an `onclick`, `onmousedown`, `onmouseup`, `onpointerdown`, or `onpointerup` attribute, a `tabindex` of 0 or more, or a pointer cursor its parent does not have | `click-attribute`, `tabindex`, `cursor-pointer` | A pointer cursor on a tooltip trigger or a draggable item, an `onclick` used only for analytics, a focusable region meant to be read |
+| `field-without-label` | A form field has no `<label>` with text, no `aria-label`, and no `aria-labelledby` that resolves to text | `no-name`, `title`, or `placeholder` (what names it instead), and `nearby-text` when short text just before it (after a checkbox, radio, or switch) is probably its visual label | A search field labelled only by its search button |
+
+What the heuristics leave alone: real `<table>` elements (also the ones Chrome reads as layout)
+and anything inside them for `looks-like-table`; elements with a role of their own, such as a
+`tabpanel` or `toolbar` with `tabindex="0"`; elements inside a widget or holding one, such as a
+card with a link inside; `tabindex="-1"`; a scrolling region with only `tabindex`; and hidden
+content.
+
+What they cannot see, so no mark does not mean fine:
+
+- **Click listeners added by a script** (`addEventListener`, an `onclick` property, React's
+  `onClick`) leave nothing in the DOM a page can read. Only `tabindex` and the pointer cursor
+  remain for those.
+- Headings made by colour, capitals, or spacing alone, or styled no larger than their parent.
+- Grids made with floats or absolute positioning, or wrapped in `display: contents`.
+
+Style is read through the `getComputedStyle` option when you give one, and from each element's
+own window otherwise, once per element for the call. In a test DOM such as jsdom or happy-dom,
+browser default styles (a bold `<strong>`, a large `<h2>`) and `em` sizes are not computed, so
+the style-based signals fire only for the styles the test DOM does compute. When an element's
+style cannot be read, no style-based signal fires for it.
+
+`interpret` takes the same options as `linearize`, `browser` included, and a mismatch follows the
+reading of the chosen mode. A field with an empty `<label>` and a placeholder reports
+`placeholder` by default and `no-name` with `browser: "chrome"`; a `<td onclick>` in a table
+Chrome reads as layout is a candidate only in Chrome mode, where the cell has no role.
+
 ## W3C specifications by default, Chrome as an option
 
 By default the reading follows the W3C specifications: AccName 1.2, HTML-AAM, WAI-ARIA 1.2,
@@ -150,6 +201,20 @@ A tool that shows this output should say which mode it shows.
 
 ```ts
 function linearize(root: Element, options?: LinearizeOptions): InterpretationNode[];
+function interpret(root: Element, options?: LinearizeOptions): Interpretation;
+
+interface Interpretation {
+  nodes: InterpretationNode[];  // exactly what linearize() returns
+  mismatches: Mismatch[];       // guesses, ordered by at
+}
+
+interface Mismatch {
+  kind: "looks-like-heading" | "looks-like-table" | "clickable-not-button" | "field-without-label";
+  at: number;                   // first node holding the element's content
+  end: number;                  // one past the last; equal to at when there is none
+  ref: { tag: string; shadow?: true; frame?: number };
+  signals: MismatchSignal[];    // new kinds and signals may be added in a minor release
+}
 
 interface InterpretationNode {
   role: string;                 // computed ARIA role, or "text"
@@ -201,7 +266,9 @@ Reading order follows **DOM order** in the composed tree, as screen readers do. 
 [SPEC-003](https://github.com/Koshux/screen-reader-mirror/blob/main/docs/specs/SPEC-003-composed-tree-shadow-dom-frames.md)
 (shadow DOM, slots, and frames),
 [SPEC-004](https://github.com/Koshux/screen-reader-mirror/blob/main/docs/specs/SPEC-004-live-regions.md)
-(live regions), and
+(live regions),
+[SPEC-005](https://github.com/Koshux/screen-reader-mirror/blob/main/docs/specs/SPEC-005-mismatch-heuristics.md)
+(visual-versus-semantic mismatches), and
 [SPEC-006](https://github.com/Koshux/screen-reader-mirror/blob/main/docs/specs/SPEC-006-browser-matching.md)
 (the W3C default and the Chrome mode), with a golden HTML fixture per behaviour. The pure-JS role/name computation is the portable path; hosts that can reach a real
 browser accessibility tree (the upcoming extension) will use it as the higher-fidelity oracle.
