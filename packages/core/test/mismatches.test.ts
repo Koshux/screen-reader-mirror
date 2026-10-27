@@ -76,6 +76,8 @@ describe("the output (AC-1 to AC-5)", () => {
     expect(marksInBoth("click-heading")).toEqual([["clickable-not-button", 0, 1, "div", ["click-attribute"]]]);
     // Nested grids report the outer one only.
     expect(marksInBoth("table-nested")).toEqual([["looks-like-table", 0, 7, "div", ["grid-layout", "cell-borders"]]]);
+    // Large header cells of a fake table are not reported as headings as well.
+    expect(marksInBoth("table-big-header")).toEqual([["looks-like-table", 0, 6, "div", ["row-layout", "header-row"]]]);
     const ats = marks("click").map((m) => m[1] as number);
     expect(ats).toEqual([...ats].sort((a, b) => a - b));
   });
@@ -156,6 +158,10 @@ describe("looks like a heading (AC-6 to AC-9)", () => {
     expect(marksInBoth("heading-size")).toEqual([["looks-like-heading", 0, 1, "div", ["font-size"]]]);
     // The design brief's lone span between blocks.
     expect(marksInBoth("heading-inline")).toEqual([["looks-like-heading", 1, 2, "span", ["font-size"]]]);
+  });
+
+  it("fires on a styled live region with no role of its own, after its node (AC-6, §5)", () => {
+    expect(marksInBoth("heading-live")).toEqual([["looks-like-heading", 1, 2, "div", ["font-size"]]]);
   });
 
   it("fires on text 1.1 times the size and bold over a plain parent (AC-7)", () => {

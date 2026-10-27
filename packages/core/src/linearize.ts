@@ -147,6 +147,8 @@ interface Entry {
   text: number;
   marks: Array<{ kind: Mismatch["kind"]; signals: MismatchSignal[] }>;
   heading: boolean;
+  /** A live region with no role of its own: its node comes first, then its text (SPEC-004). */
+  liveNode: boolean;
   counted: { noHeading: boolean; inTable: boolean; inWidget: boolean };
 }
 
@@ -549,6 +551,7 @@ function enterElement(el: Element, tag: string, role: string | null, live: LiveR
     text: mm.text,
     marks: [],
     heading: false,
+    liveNode: hasNoRoleOfItsOwn(role) && !!live,
     counted: { noHeading: false, inTable: false, inWidget: false },
   };
   // A <table> is a real table in either mode, even one Chrome mode reads as layout (SPEC-005
@@ -572,7 +575,9 @@ function enterElement(el: Element, tag: string, role: string | null, live: LiveR
   if (entry.counted.inTable) mm.inTable++;
   if (entry.counted.inWidget) mm.inWidget++;
   if (entry.counted.noHeading) mm.noHeading++;
-  entry.heading = hasNoRoleOfItsOwn(role) && !live && mm.noHeading === 0;
+  // A live region with no role of its own still carries its line: a status message styled as a
+  // heading is a mismatch worth seeing (SPEC-005 §5).
+  entry.heading = hasNoRoleOfItsOwn(role) && mm.noHeading === 0;
   return entry;
 }
 
@@ -591,11 +596,13 @@ function leaveElement(entry: Entry, walk: Walk): void {
   for (const { kind, signals } of entry.marks) {
     mm.found.push({ seq: entry.seq, mismatch: { kind, at, end, ref: entry.ref, signals } });
   }
-  if (entry.heading && end - at === 1) {
-    if (at < walk.out.length) {
-      const run = mm.runs.get(at);
+  // The line is the element's only text run; a live region's own node comes before it.
+  const line = entry.liveNode ? at + 1 : at;
+  if (entry.heading && end - line === 1) {
+    if (line < walk.out.length) {
+      const run = mm.runs.get(line);
       if (run && run.start > entry.text && run.end === mm.text) {
-        mm.lines.push({ index: at, el: entry.el, seq: entry.seq, ref: entry.ref });
+        mm.lines.push({ index: line, el: entry.el, seq: entry.seq, ref: entry.ref });
       }
     } else if (mm.runStart > entry.text) {
       mm.deferred.push({ el: entry.el, seq: entry.seq, ref: entry.ref, text: mm.text });
