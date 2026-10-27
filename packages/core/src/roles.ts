@@ -520,17 +520,31 @@ function isLayoutTable(table: Element, styleOf: StyleOf): boolean {
   const border = table.getAttribute("border");
   if (border !== null && border.trim() !== "" && border.trim() !== "0") return false;
   if (cells.length === 0) return true;
+  const { bordered, tinted } = cellPresentation(cells, table, styleOf);
+  return bordered * 2 < cells.length && tinted === 0;
+}
+
+/**
+ * The presentation Chrome looks for in a data table: how many cells have a border, and how many
+ * have a background that differs from the container's. Cells whose style cannot be read count as
+ * neither. Shared by the layout-table rule and the looks-like-table heuristic (SPEC-005).
+ */
+export function cellPresentation(
+  cells: readonly Element[],
+  container: Element,
+  styleOf: StyleOf,
+): { bordered: number; tinted: number } {
   let bordered = 0;
   let tinted = 0;
-  const tableBackground = styleOf(table)?.backgroundColor ?? "";
+  const containerBackground = styleOf(container)?.backgroundColor ?? "";
   for (const cell of cells) {
     const style = styleOf(cell);
     if (!style) continue;
     if (hasBorder(style)) bordered++;
     const background = style.backgroundColor ?? "";
-    if (background && !/^(transparent|rgba\(0, 0, 0, 0\))$/.test(background) && background !== tableBackground) tinted++;
+    if (background && !/^(transparent|rgba\(0, 0, 0, 0\))$/.test(background) && background !== containerBackground) tinted++;
   }
-  return bordered * 2 < cells.length && tinted === 0;
+  return { bordered, tinted };
 }
 
 /** Any non-zero border width, read from the longhands or, in DOMs that keep shorthands, from them. */
@@ -679,6 +693,15 @@ export function hasOnlyEmptyLabels(el: Element, ctx: RoleContext = defaultContex
   if ((el.getAttribute("aria-label") ?? "").trim() !== "" || labelledbyResolves(el)) return false;
   const labels = Array.from((el as HTMLInputElement).labels ?? []);
   return labels.length > 0 && labels.every((label) => !labelHasText(label, el, ctx));
+}
+
+/**
+ * True when the field has an associated `<label>` that holds text, by `for` (scoped to the field's
+ * root) or by wrapping it. The looks-like-a-label check of SPEC-005 heuristic 4.
+ */
+export function hasLabelWithText(el: Element, ctx: RoleContext = defaultContext): boolean {
+  const labels = Array.from((el as HTMLInputElement).labels ?? []);
+  return labels.some((label) => labelHasText(label, el, ctx));
 }
 
 function labelledbyResolves(el: Element): boolean {

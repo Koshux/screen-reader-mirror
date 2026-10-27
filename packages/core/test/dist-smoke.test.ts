@@ -40,13 +40,14 @@ describe("packages/core dist (AC-7)", () => {
     expect(js).toMatch(/^export \{/m);
     expect(js).not.toMatch(/\brequire\(|module\.exports|\bprocess\.|\b__dirname\b|\bBuffer\b/);
     expect(js).not.toMatch(/\bfetch\(|XMLHttpRequest|WebSocket|sendBeacon|navigator\./);
-    // A dependency accidentally bundled in would be an order of magnitude larger.
-    expect(js.length).toBeLessThan(32 * 1024);
+    // A dependency accidentally bundled in would be an order of magnitude larger. Raised from
+    // 32 KiB with SPEC-005's heuristics (the engine's own code is about 48 KiB unminified).
+    expect(js.length).toBeLessThan(64 * 1024);
   });
 
   it("the built linearize() works on a DOM exactly like the source", async () => {
     const mod = (await import(/* @vite-ignore */ distJs)) as typeof Core;
-    expect(Object.keys(mod).sort()).toEqual(["linearize"]);
+    expect(Object.keys(mod).sort()).toEqual(["interpret", "linearize"]);
     document.body.innerHTML = '<h1>Title</h1><p>Intro</p><a href="/x">More</a><img src="a.png">';
     expect(mod.linearize(document.body)).toEqual([
       { role: "heading", name: "Title", level: 1, ref: { tag: "h1" } },
