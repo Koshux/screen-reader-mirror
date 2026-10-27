@@ -59,6 +59,81 @@ created: 2026-10-26
 > 4. happy-dom 21.0.4 does give `<style>` and `<script>` `display: none`, so the walk would not
 >    read their text. §3 is corrected; keeping them outside the case roots is still tidy.
 
+> **Backfill (2026-10-27, from SPEC-006).** SPEC-006 shipped (0.4.0) after this spec was reviewed.
+> What changes here:
+> 1. **The option.** `interpret(root, options)` takes `browser` as `linearize` does (SPEC-006
+>    AC-7): `interpret(root, { browser: "chrome" }).nodes` equals `linearize(root, { browser:
+>    "chrome" })`, and a value other than `"chrome"` throws the same `RangeError`. AC-1 holds in
+>    both modes, on every probe case and every real page, and both goldens per page
+>    (`<name>.expected.json`, `<name>.chrome.json`) stay byte-identical.
+> 2. **One mode for everything.** Every role-based condition in §3 (no role of its own, inside a
+>    name-from-content role, contains or sits inside a widget, a form field by role) reads the
+>    role the engine resolved in the chosen mode, through the call's one `RoleContext`. So a
+>    mismatch can differ by mode where the reading does: a `<td onclick>` in a table Chrome reads
+>    as layout has no role in Chrome mode and is a candidate there (AC-12), and is a `cell` in
+>    the default; text in such a table's cells is plain text in Chrome mode and can look like a
+>    heading (AC-6 to AC-8), while in the default it is in the cell's name. The one exception is
+>    point 4.
+> 3. **`RoleContext`.** `roles.ts` passes one `RoleContext` (`parentOf`, `styleOf`, `rules`,
+>    `grids`) in place of the positional `parentOf`/`styleOf` the review saw. The presentation
+>    helper extracted from `isLayoutTable` (borders on half the cells, tinted cells) takes the
+>    cells, the container, and a `StyleOf`; `isLayoutTable` passes `ctx.styleOf`, the heuristic
+>    passes the same. The per-call style cache of AC-5 is that `ctx.styleOf`: `interpret` builds
+>    one cached source and gives it to both `ctx.styleOf` and the walk's `getComputedStyle`, so
+>    visibility, the layout-table rule, the label check, and the heuristics share one read per
+>    element. The name library reads style from the element's own window through its own hook,
+>    as in `linearize`; that path is outside the given style source and outside AC-5's count.
+> 4. **Layout tables (operator, 2026-10-27).** In Chrome mode a `<table>` that is not a data table
+>    by Chrome's rules has no role (SPEC-006 row 1). `looks-like-table` does not fire on it, in
+>    either mode: it is a real table element, and the heuristic is about markup that is not a
+>    table. AC-11's "inside a `table`" means a `<table>` element whatever its role, or an element
+>    with the role `table`, `grid`, or `treegrid`.
+> 5. **AC-15 by mode.** The signal follows the engine's name in the chosen mode. A field with an
+>    empty `<label>` and a placeholder reports `placeholder` by default (HTML-AAM 4.1) and
+>    `no-name` in Chrome mode, which gives it no name (SPEC-006 row 5).
+> 6. **Row 8, label text.** By default the text of a `<label>` for a checkbox or radio is also a
+>    text run after or before the control; in Chrome mode it is not in the reading order. Two
+>    effects:
+>    - AC-14: such a run could sit just before an unlabelled text field (`<label><input
+>      type=checkbox> Same address</label><input type=text>`) and be taken for its nearby text,
+>      in the default only. That text belongs to the other control, so `nearby-text` does not
+>      count a run whose text comes from inside a `<label>` that labels another control
+>      (`labelledControl` finds one, and it is not this field). A `<label>` that labels nothing
+>      (no `for`, a `for` that resolves to no element, nothing labelable inside) still counts: it
+>      is the visual label a screen reader never ties to the field, the case `nearby-text` is
+>      for. Then the signal is the same in both modes. A field that row 8 touches has a label
+>      with text, so it never fires AC-14 at all.
+>    - AC-8: the bold rule reads the next node, which must be a text run. A bold line followed by
+>      `<label for>` text and then its checkbox fires in the default, where that text is a run,
+>      and not in Chrome mode, where the next node is the checkbox. This is kept as a mode
+>      difference rather than worked around: the rule reads the reading order, and the label
+>      text in AC-9's exclusions is never itself the bold line. It is pinned by a fixture.
+> 7. **AC-16 per mode.** The default goldens changed (layout tables are tables, `tbody` rowgroups,
+>    named rows, toggle label text read as text). Re-derived from the fixtures: the clickable
+>    `div`s hold no widget and sit in no table; the "Vehicle registration" field follows the tel
+>    field's node, not a text run, so it gets no `nearby-text`; every other field has a label
+>    with text; the layout table holds no click attribute; and under happy-dom no style-based
+>    signal fires. So the four mismatches of AC-16 are the same in both modes, and the test
+>    checks both. Their `at` and `end` differ by mode, since the default reading has more nodes.
+>
+> **Delta review applied (2026-10-27, Stage 2.5, backfilled ACs only).** Against `main` at
+> 34e5ba8. Checked in code: `RoleContext`, `StyleOf`, `resolveStyle`, `labelledControl`, and
+> `isLayoutTable(table, styleOf)` exist as named; `linearize` builds `ctx.styleOf` from
+> `resolveStyle(el, options)`, so one cached `getComputedStyle` reaches visibility, the layout
+> rule, and `labelHasText` (point 3); the service-form goldens put `textbox "Phone number"`
+> right before "Vehicle registration" in both modes (point 7).
+> 1. HIGH, fixed: point 6 first excluded every run from inside a `<label>` from `nearby-text`.
+>    That would have hidden the commonest real case, `<label>Email</label><input>` with no `for`.
+>    Now only a label that labels another control is excluded (point 6, AC-14, test plan).
+> 2. LOW: §3 "Reuse" says `isLayoutTable` calls the helper "with the element's own window"; since
+>    SPEC-006 it passes `ctx.styleOf` (point 3 supersedes). The stale "see #11" comment named in
+>    §7 is already gone from `roles.ts`.
+> 3. LOW: the heading heuristic's "inside an element whose name comes from its content" is read
+>    by ancestry, so text that Chrome mode's row 4 reads again inside a button (a status) is
+>    still excluded, in both modes.
+> 4. Privacy: unchanged. A mismatch carries a tag, indices, and signal identifiers; the option
+>    selects bundled rules. No network.
+
 ## 1. Summary
 
 The engine shows what a screen reader is told. It does not yet show where that differs from what
@@ -76,9 +151,10 @@ mismatch heuristics, so the probe confirms the semantic side of each case, not t
 ### The output
 
 - **AC-1** `interpret(root, options)` returns `{ nodes, mismatches }`. `nodes` deep-equals
-  `linearize(root, options)` for the same root and options, on every probe case and every
-  real-page fixture. `linearize()` output is unchanged: the four real-page goldens are
-  byte-identical.
+  `linearize(root, options)` for the same root and options, in the default and in
+  `browser: "chrome"`, on every probe case and every real-page fixture. `linearize()` output is
+  unchanged: both goldens of each of the four real pages are byte-identical (SPEC-006 backfill,
+  point 1).
 - **AC-2** Each mismatch has `kind`, `at`, `end`, `ref`, and `signals` (§3, data shapes). `at`
   is the index in `nodes` of the first node that holds any of the element's content, which for an
   inline element can be a text run that starts before it; `end` is one past the last such node.
@@ -124,8 +200,10 @@ mismatch heuristics, so the probe confirms the semantic side of each case, not t
   `grid-layout`, `row-layout`, or `table-layout`.
 - **AC-11** It does not fire: for one row or one column; when a cell holds anything with a role
   other than link, or no text; below 20 rows with none of the presentation signals; on an element
-  with a role of its own (table, grid, list, and so on); or inside a `table`, `grid`, or
-  `treegrid`. Only the outermost grid is reported.
+  with a role of its own (table, grid, list, and so on); on or inside a `<table>` element, in
+  either mode, including one Chrome mode reads as layout; or inside an element with the role
+  `table`, `grid`, or `treegrid`. Only the outermost grid is reported (SPEC-006 backfill,
+  point 4).
 
 ### Clickable, not a button or link
 
@@ -146,13 +224,15 @@ mismatch heuristics, so the probe confirms the semantic side of each case, not t
 - **AC-14** A form field (§3) with no label fires `field-without-label`, with the signal that
   says what it is named by instead: `no-name`, `title`, or `placeholder`. When the text run just
   before it (just after it, for a checkbox, radio, or switch) is 60 characters or fewer and comes
-  from the field's parent or a sibling of the field, `nearby-text` is added.
+  from the field's parent or a sibling of the field, and not from inside a `<label>` that labels
+  another control, `nearby-text` is added (SPEC-006 backfill, point 6).
 - **AC-15** It does not fire for a field with a `<label>` that has text (by `for`, scoped to the
   field's root as `labelledControl` does, or by wrapping it), a non-empty `aria-label`, or an
   `aria-labelledby` that resolves to text. It fires for an empty `aria-label`, an empty `<label>`,
   and an `aria-labelledby` that points at nothing. Buttons and hidden inputs are not fields. The
-  signal follows the engine's name, so a field with an empty `<label>` and a placeholder reports
-  `placeholder`, as HTML-AAM names it. Chrome gives it no name (backfill 3).
+  signal follows the engine's name in the chosen mode, so a field with an empty `<label>` and a
+  placeholder reports `placeholder` by default, as HTML-AAM names it, and `no-name` in Chrome
+  mode (SPEC-006 backfill, point 5).
 
 ### Real pages and the real browser
 
@@ -160,9 +240,10 @@ mismatch heuristics, so the probe confirms the semantic side of each case, not t
   `div` with `onclick` (`clickable-not-button`, `click-attribute`); component demo, the card
   `div` with `onclick` (same); service form, the "Vehicle registration" field
   (`field-without-label`, `placeholder`) and the "Continue" `div` with `onclick`
-  (`clickable-not-button`, `click-attribute`); reference article, none. This holds under
-  happy-dom: the fixtures carry no stylesheet and happy-dom applies no browser defaults, so no
-  style-based signal fires.
+  (`clickable-not-button`, `click-attribute`); reference article, none. The same four in both
+  modes, with `at` and `end` per mode (SPEC-006 backfill, point 7). This holds under happy-dom:
+  the fixtures carry no stylesheet and happy-dom applies no browser defaults, so no style-based
+  signal fires.
 - **AC-17** The probe page and the four real pages, run through `pnpm ax:compare`, show the
   engine's mismatches beside the comparison. The cases that only a real browser can compute (§3,
   computed style) fire on the probe page. Every mismatch on the real pages in Chrome, including
@@ -557,22 +638,22 @@ Branch `feat/SPEC-005-mismatch-heuristics` from `main` after this spec merges.
 
 | AC | Test | Layer | File |
 |---|---|---|---|
-| AC-1 | `interpret(...).nodes` equals `linearize(...)` on every probe case and real page; goldens unchanged | fixture | `packages/core/test/mismatches.test.ts`, `real-pages.test.ts` |
+| AC-1 | `interpret(...).nodes` equals `linearize(...)` in both modes on every probe case and real page (SPEC-006 AC-7); both goldens unchanged; `browser: "firefox"` throws | fixture | `packages/core/test/mismatches.test.ts`, `real-pages.test.ts` |
 | AC-2 | `at`, `end`, `ref`, and `signals` for a heading line, a 3x3 grid, an empty clickable `div` (`at` equals `end`), and a shadow and frame case | fixture | `mismatches.test.ts` |
 | AC-3 | a clickable `div` with large text gives one mismatch, not two; a fake heading inside a grid's header row is not reported; order by `at` | fixture | same |
 | AC-4 | each heuristic's firing case inside `aria-hidden`, `display:none`, a hidden ancestor: none; inside an open shadow root and a `srcdoc` frame: reported with `shadow` and `frame` | fixture | same |
 | AC-5 | an injected `getComputedStyle` decides a heading case both ways; a style source that throws gives no style-based mismatch and no error; in `interpret` a counting style source is called at most once per element; `linearize` with the same source behaves as today | unit | same |
 | AC-6 | 24px `div` in a 16px parent; 20px span between blocks (the brief's "Recent") | fixture | same |
 | AC-7 | 18px bold in a 16px normal parent | fixture | same |
-| AC-8 | bold paragraph over a longer plain one; the same ending in `:`; the same followed by shorter text | fixture + option | same |
+| AC-8 | bold paragraph over a longer plain one; the same ending in `:`; the same followed by shorter text; a bold line before `<label for>` text and its checkbox fires by default, not in Chrome mode | fixture + option | same |
 | AC-9 | real heading; large text in a link, a button, a `label`, a `legend`; 81 characters; "12" alone; two lines; same style as parent; `div > span` chain reported once, on the `div` | fixture | same |
 | AC-10 | CSS grid 3x3 with borders; flex rows with a tinted cell; `display: table` with borders; 20 plain rows; bold header row | fixture + option | same |
-| AC-11 | 1 row; 1 column; card grid with headings and images; 3 plain rows; `role="list"` grid; a grid inside a `<table>` cell; nested grids report the outer one | fixture | same |
+| AC-11 | 1 row; 1 column; card grid with headings and images; 3 plain rows; `role="list"` grid; a grid inside a `<table>` cell; nested grids report the outer one; a bordered layout `<table>` in Chrome mode: none | fixture | same |
 | AC-12 | `onclick`, `onmousedown`, `tabindex="0"`, pointer cursor, and all three on one `div`; `<a onclick>` with no `href`; `<img onclick>` | fixture | same |
-| AC-13 | `<button>`, `<a href>`, `role="button"`; `role="tabpanel" tabindex="0"`; `role="toolbar" tabindex="0" aria-activedescendant`; `<h2 tabindex="0">`; `label` with a pointer cursor; card with a link inside; span inside a pointer `div`; `tabindex="-1"`; scrolling `div` with `tabindex="0"`; listener-only `div` (pinned: no mark) | fixture | same |
-| AC-14 | no name; title only; placeholder only; `<p>Email</p>` before a field (`nearby-text`); checkbox then "Remember me" | fixture | same |
-| AC-15 | `label for`, wrapping label, `aria-label`, `aria-labelledby`: none; empty `aria-label`, empty `<label>`, missing `aria-labelledby` target: fires; submit and hidden inputs: none | fixture | same |
-| AC-16 | the four real pages give exactly the four mismatches listed | fixture | `real-pages.test.ts` |
+| AC-13 | `<button>`, `<a href>`, `role="button"`; `role="tabpanel" tabindex="0"`; `role="toolbar" tabindex="0" aria-activedescendant`; `<h2 tabindex="0">`; `label` with a pointer cursor; card with a link inside; span inside a pointer `div`; `tabindex="-1"`; scrolling `div` with `tabindex="0"`; listener-only `div` (pinned: no mark); `<td onclick>` in a layout table: fires in Chrome mode only | fixture | same |
+| AC-14 | no name; title only; placeholder only; `<p>Email</p>` before a field (`nearby-text`); checkbox then "Remember me"; a toggle's label text just before a field is not `nearby-text`, in both modes; `<label>Email</label>` with no `for` before a field gives `nearby-text` | fixture | same |
+| AC-15 | `label for`, wrapping label, `aria-label`, `aria-labelledby`: none; empty `aria-label`, empty `<label>`, missing `aria-labelledby` target: fires; submit and hidden inputs: none; empty `<label>` with a placeholder gives `placeholder` by default and `no-name` in Chrome mode | fixture | same |
+| AC-16 | the four real pages give exactly the four mismatches listed, in both modes | fixture | `real-pages.test.ts` |
 | AC-17 | probe page in Chrome with real styles: bare `<strong>` line and `em` sizes fire, listener-only `div` does not; the four real pages in Chrome, each mismatch judged; results in the log | oracle | `fixtures/probes/mismatches.html`, `scripts/ax-compare.mjs` |
 
 ## 9. Risks & rollback
