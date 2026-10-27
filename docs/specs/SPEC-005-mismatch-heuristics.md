@@ -142,12 +142,17 @@ created: 2026-10-26
 >    <br>18 Dec`, in Chrome mode only, where the layout table's cells have no role. Recorded in
 >    the log; tightening the rule (the next run must start in a new block) is left to the
 >    operator as a threshold change.
+>    **Resolved (2026-10-28, operator):** tightened. AC-8 now skips a next run that follows the
+>    line after only a `<br>`; a larger font size (AC-6, AC-7) still fires there. The cost: a
+>    bold-only line over its paragraph split by a `<br>` (`<b>Opening hours</b><br>Monday to
+>    Friday, 9 to 5`) is no longer flagged. Pinned by `heading-bold-br`.
 > 3. Chrome exposes an `<a>` with an `onclick` attribute and no `href` as a link. Chrome mode
 >    reads it as plain text, as the default does, so `clickable-not-button` fires on it in both
 >    modes. That is a new SPEC-006 inventory difference, not part of this spec; it is listed as
 >    a follow-up and is the probe page's 2 differing lines in Chrome mode.
 > 4. The dist smoke test's size guard went from 32 KiB to 64 KiB: the engine's own unminified
->    bundle is about 48 KiB now. A bundled dependency would still be far larger.
+>    bundle is about 48 KiB now. A bundled dependency would still be far larger. Accepted by the
+>    operator on 2026-10-28.
 
 ## 1. Summary
 
@@ -196,7 +201,8 @@ mismatch heuristics, so the probe confirms the semantic side of each case, not t
   times the parent's font size and bold where the parent's is not.
 - **AC-8** It fires with signal `font-weight` when its text is bold where the parent's is not,
   it does not end with `.` or `:`, and the next node in the reading order is a text run that is
-  not bold and is at least twice as long.
+  not bold, is at least twice as long, and starts in a new block: a run that follows the line
+  after only a `<br>` does not count (backfill 2026-10-28).
 - **AC-9** It does not fire: on an element with a role of its own (anything but no role,
   generic, none, presentation, or paragraph); inside an element whose name comes from its content
   (a heading, link, button, cell); inside a `label`, `legend`, `caption`, `figcaption`, `dt`, or
@@ -660,7 +666,7 @@ Branch `feat/SPEC-005-mismatch-heuristics` from `main` after this spec merges.
 | AC-5 | an injected `getComputedStyle` decides a heading case both ways; a style source that throws gives no style-based mismatch and no error; in `interpret` a counting style source is called at most once per element; `linearize` with the same source behaves as today | unit | same |
 | AC-6 | 24px `div` in a 16px parent; 20px span between blocks (the brief's "Recent") | fixture | same |
 | AC-7 | 18px bold in a 16px normal parent | fixture | same |
-| AC-8 | bold paragraph over a longer plain one; the same ending in `:`; the same followed by shorter text; a bold line before `<label for>` text and its checkbox fires by default, not in Chrome mode | fixture + option | same |
+| AC-8 | bold paragraph over a longer plain one; the same ending in `:`; the same followed by shorter text; a bold line with longer text after a `<br>` in the same block does not fire; a bold line before `<label for>` text and its checkbox fires by default, not in Chrome mode | fixture + option | same |
 | AC-9 | real heading; large text in a link, a button, a `label`, a `legend`; 81 characters; "12" alone; two lines; same style as parent; `div > span` chain reported once, on the `div` | fixture | same |
 | AC-10 | CSS grid 3x3 with borders; flex rows with a tinted cell; `display: table` with borders; 20 plain rows; bold header row | fixture + option | same |
 | AC-11 | 1 row; 1 column; card grid with headings and images; 3 plain rows; `role="list"` grid; a grid inside a `<table>` cell; nested grids report the outer one; a bordered layout `<table>` in Chrome mode: none | fixture | same |

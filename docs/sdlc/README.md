@@ -49,8 +49,8 @@ Full detail in [`GOVERNANCE.md`](../../GOVERNANCE.md) (enforced by branch protec
 
 ## Picking up work
 
-1. Find a task on the [board](../project/tasks.md) (or open an issue and get it assigned).
-2. Each board task points to (or asks you to create) a journey/spec. Start at the right phase.
+1. Find a task in the [1.0 scope](../project/v1-scope.md) or the open issues (or open an issue and get it assigned).
+2. Each task points to (or asks you to create) a journey/spec. Start at the right phase.
 3. Use the orchestrator: `/sdlc-workflow` (Claude) or the `sdlc-workflow` skill (Copilot).
 
 ## IDs & naming

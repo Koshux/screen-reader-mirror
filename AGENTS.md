@@ -194,7 +194,7 @@ Keep the mirrored files aligned: if you change a rule's substance, update both s
 ## 9. Pointers
 
 - SDLC playbook → [docs/sdlc/README.md](docs/sdlc/README.md)
-- Roadmap → [docs/project/roadmap.md](docs/project/roadmap.md) · Task backlog → [docs/project/tasks.md](docs/project/tasks.md)
+- Roadmap → [docs/project/roadmap.md](docs/project/roadmap.md) · 1.0 scope and order of work → [docs/project/v1-scope.md](docs/project/v1-scope.md)
 - Architecture → [docs/architecture/overview.md](docs/architecture/overview.md)
 - Templates → [journey](docs/journeys/_TEMPLATE.md) · [spec](docs/specs/_TEMPLATE.md) · [log](docs/logs/_TEMPLATE.md) · [ADR](docs/decisions/_TEMPLATE.md)
 - Core rules → [core-workflow](.claude/rules/00-core-workflow.md) · [effort-discipline](.claude/rules/effort-discipline.md) · [infrastructure](.claude/rules/infrastructure.md) · [accessibility](.claude/rules/accessibility.md) · [testing](.claude/rules/testing.md)

@@ -1,5 +1,9 @@
 # Task Backlog
 
+> **Superseded (2026-10-27).** This file predates the 1.0 scope and is kept as a record. The
+> current plan, phases, and order of work are in [v1-scope.md](v1-scope.md); open work is
+> tracked as GitHub issues. Do not update this file; update v1-scope.md instead.
+
 The single, human-readable backlog. Each task is small enough to ship in one PR and has an
 **outcome** + **acceptance criteria** so a contributor (or an agent) can pick it up without
 guessing. `scripts/setup-github.sh issues` seeds the **M1** tasks here as GitHub issues and adds

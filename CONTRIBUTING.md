@@ -6,7 +6,7 @@ well-defined task and ship it through review. Please skim this before your first
 
 ## TL;DR
 
-1. Pick a task from the [board](./docs/project/tasks.md) (or open an issue and get it assigned).
+1. Pick a task from the [1.0 scope](./docs/project/v1-scope.md) or the open issues (or open an issue and get it assigned).
 2. Branch from `main`: `git checkout main && git pull && git checkout -b feat/<spec>-<short-name>`.
 3. Make the change following the spec's acceptance criteria.
 4. `pnpm verify` (typecheck + lint + test) must be green.

@@ -1,5 +1,9 @@
 # Project Board — process, state, and dependencies
 
+> **Superseded (2026-10-27).** This file predates the 1.0 scope and is kept as a record. The
+> current plan, phases, and order of work are in [v1-scope.md](v1-scope.md); open work is
+> tracked as GitHub issues. Do not update this file; update v1-scope.md instead.
+
 The canonical map of **how work flows** and **what unlocks what**. This is the version-controlled
 companion to the live [GitHub Project board #4](https://github.com/users/Koshux/projects/4), the
 [Milestones](https://github.com/Koshux/screen-reader-mirror/milestones), and the pinnable

@@ -123,6 +123,8 @@ operator. No GitHub issues filed.
      cases: the bold rule's next run must start in a new block, not after a `<br>` in the same
      block. A threshold change, so a patch under ADR-0004; not made here.
    - The dist size guard raised to 64 KiB.
+   Both answered on 2026-10-28 after the merge: the bold rule was tightened and the guard
+   accepted. See `2026-10-28-spec-005-bold-rule.md`.
 2. Follow-ups, scheduled by the operator on 2026-10-27 (all four known ones), in this order:
    1. The old em dashes in `packages/core/README.md`: doc-only, after this PR merges (it edits
       the same README).
