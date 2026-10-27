@@ -1,0 +1,312 @@
+<!--
+  SPEC-005: visual-versus-semantic mismatches. One source for two checks:
+  - Chrome: `pnpm ax:compare packages/core/test/fixtures/probes/mismatches.html` (Chrome mode)
+    and `--w3c` for the default reading. The engine's mismatches are printed after the diff.
+  - Unit tests: test/mismatches.test.ts loads one case at a time by its data-case.
+  The style block and the script sit outside every case root; all sizes are in px, which the
+  test DOM computes. The "browser-only" case relies on browser default styles and em sizes,
+  which only Chrome computes (AC-17).
+-->
+<style>
+  .base { font-size: 16px; font-weight: 400; }
+  .h24 { font-size: 24px; }
+  .h20 { font-size: 20px; }
+  .h18b { font-size: 18px; font-weight: 700; }
+  .b { font-weight: 700; }
+  .box24 { font-size: 24px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 120px); }
+  .grid2 { display: grid; grid-template-columns: repeat(2, 120px); }
+  .grid1 { display: grid; grid-template-columns: 120px; }
+  .grid-fill { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+  .row { display: flex; }
+  .tbl { display: table; }
+  .tr { display: table-row; }
+  .td { display: table-cell; }
+  .bd { border: 1px solid #888888; }
+  .tint { background-color: #eeeeee; }
+  .lt tr { display: table-row; }
+  .lt td { display: table-cell; }
+  .p { cursor: pointer; }
+  .scroll { overflow: auto; height: 40px; }
+</style>
+
+<!-- Looks like a heading -->
+
+<div data-case="heading-size" class="base">
+  <div class="h24">Delivery options</div>
+  <p>Choose how your order is sent to you.</p>
+</div>
+
+<div data-case="heading-inline" class="base">
+  <div>Projects</div>
+  <span class="h20">Recent</span>
+  <div>Item one</div>
+</div>
+
+<div data-case="heading-size-bold" class="base">
+  <div class="h18b">Payment</div>
+  <div>Pay by card or bank transfer.</div>
+</div>
+
+<div data-case="heading-bold" class="base">
+  <p><strong class="b">Payment details</strong></p>
+  <p>Enter the card number and the name on the card.</p>
+</div>
+
+<div data-case="heading-bold-colon" class="base">
+  <p><strong class="b">Payment details:</strong></p>
+  <p>Enter the card number and the name on the card.</p>
+</div>
+
+<div data-case="heading-bold-short" class="base">
+  <p><strong class="b">Payment details</strong></p>
+  <p>Card</p>
+</div>
+
+<div data-case="heading-bold-label" class="base">
+  <div class="b">Notifications</div>
+  <label for="mm-notify">Email me when someone replies to my comment</label>
+  <input id="mm-notify" type="checkbox">
+</div>
+
+<div data-case="heading-chain" class="base">
+  <div><span class="h24">Chain</span></div>
+  <p>Text under the chain.</p>
+</div>
+
+<div data-case="heading-not" class="base">
+  <h2 class="h24">Real heading</h2>
+  <a href="#mm-a"><span class="h24">Link text</span></a>
+  <button><span class="h24">Go</span></button>
+  <label class="h24">Name <input type="text"></label>
+  <fieldset><legend class="h24">Legend</legend><input type="text" aria-label="In fieldset"></fieldset>
+  <div class="h24">This line is longer than eighty characters, so it reads as a sentence, not a heading.</div>
+  <div class="h24">12</div>
+  <div class="h24">One<br>Two</div>
+  <div class="box24"><p>Intro in a large box.</p><div>Same size</div></div>
+</div>
+
+<!-- Looks like a table -->
+
+<div data-case="table-grid" class="base">
+  <div class="grid3">
+    <div class="bd">Name</div><div class="bd">Role</div><div class="bd">Team</div>
+    <div class="bd">Ann</div><div class="bd">Lead</div><div class="bd">Web</div>
+    <div class="bd">Ben</div><div class="bd">Dev</div><div class="bd">API</div>
+  </div>
+</div>
+
+<div data-case="table-rows-tint" class="base">
+  <div>
+    <div class="row"><span class="tint">Plan</span><span>Price</span></div>
+    <div class="row"><span>Basic</span><span>5 euro</span></div>
+    <div class="row"><span>Pro</span><span>9 euro</span></div>
+  </div>
+</div>
+
+<div data-case="table-display" class="base">
+  <div class="tbl">
+    <div class="tr"><div class="td bd">Size</div><div class="td bd">Small</div></div>
+    <div class="tr"><div class="td bd">Colour</div><div class="td bd">Red</div></div>
+  </div>
+</div>
+
+<div data-case="table-20-rows" class="base">
+  <div>
+    <div class="row"><span>1</span><span>Row a</span></div>
+    <div class="row"><span>2</span><span>Row b</span></div>
+    <div class="row"><span>3</span><span>Row c</span></div>
+    <div class="row"><span>4</span><span>Row d</span></div>
+    <div class="row"><span>5</span><span>Row e</span></div>
+    <div class="row"><span>6</span><span>Row f</span></div>
+    <div class="row"><span>7</span><span>Row g</span></div>
+    <div class="row"><span>8</span><span>Row h</span></div>
+    <div class="row"><span>9</span><span>Row i</span></div>
+    <div class="row"><span>10</span><span>Row j</span></div>
+    <div class="row"><span>11</span><span>Row k</span></div>
+    <div class="row"><span>12</span><span>Row l</span></div>
+    <div class="row"><span>13</span><span>Row m</span></div>
+    <div class="row"><span>14</span><span>Row n</span></div>
+    <div class="row"><span>15</span><span>Row o</span></div>
+    <div class="row"><span>16</span><span>Row p</span></div>
+    <div class="row"><span>17</span><span>Row q</span></div>
+    <div class="row"><span>18</span><span>Row r</span></div>
+    <div class="row"><span>19</span><span>Row s</span></div>
+    <div class="row"><span>20</span><span>Row t</span></div>
+  </div>
+</div>
+
+<div data-case="table-header" class="base">
+  <div>
+    <div class="row"><span class="b">Item</span><span class="b">Qty</span></div>
+    <div class="row"><span>Tea</span><span>2</span></div>
+    <div class="row"><span>Milk</span><span>1</span></div>
+  </div>
+</div>
+
+<div data-case="table-not" class="base">
+  <div><div class="row"><span class="bd">One</span><span class="bd">row</span><span class="bd">only</span></div></div>
+  <div class="grid1"><div class="bd">One</div><div class="bd">column</div><div class="bd">only</div></div>
+  <div class="grid2">
+    <div class="bd"><h3>Card one</h3><img src="a.png" alt="A"></div>
+    <div class="bd"><h3>Card two</h3><img src="b.png" alt="B"></div>
+    <div class="bd"><h3>Card three</h3><img src="c.png" alt="C"></div>
+    <div class="bd"><h3>Card four</h3><img src="d.png" alt="D"></div>
+  </div>
+  <div>
+    <div class="row"><span>Plain</span><span>rows</span></div>
+    <div class="row"><span>under</span><span>twenty</span></div>
+    <div class="row"><span>no</span><span>borders</span></div>
+  </div>
+  <div class="grid2" role="list">
+    <div class="bd" role="listitem">Tag a</div><div class="bd" role="listitem">Tag b</div>
+    <div class="bd" role="listitem">Tag c</div><div class="bd" role="listitem">Tag d</div>
+  </div>
+  <div class="grid-fill">
+    <div class="bd">Auto</div><div class="bd">fill</div><div class="bd">is</div><div class="bd">unresolved</div>
+  </div>
+</div>
+
+<div data-case="table-in-table" class="base">
+  <table>
+    <tr><td><div class="grid2"><div class="bd">a</div><div class="bd">b</div><div class="bd">c</div><div class="bd">d</div></div></td><td>Side</td></tr>
+    <tr><td>Left</td><td>Right</td></tr>
+  </table>
+</div>
+
+<div data-case="table-nested" class="base">
+  <div class="grid2">
+    <div class="bd"><div class="grid2"><div class="bd">a</div><div class="bd">b</div><div class="bd">c</div><div class="bd">d</div></div></div>
+    <div class="bd">Two</div>
+    <div class="bd">Three</div>
+    <div class="bd">Four</div>
+  </div>
+</div>
+
+<div data-case="table-layout-table" class="base">
+  <table class="lt">
+    <tr><td class="b">Name</td><td class="b">Age</td></tr>
+    <tr><td>Ann</td><td>3</td></tr>
+    <tr><td>Ben</td><td>5</td></tr>
+  </table>
+</div>
+
+<!-- Clickable, not a button or link -->
+
+<div data-case="click" class="base">
+  <div onclick="void 0">Open</div>
+  <div onmousedown="void 0">Drag</div>
+  <div tabindex="0">Focus me</div>
+  <div class="p">Pointer</div>
+  <div onclick="void 0" tabindex="0" class="p">All three</div>
+  <a onclick="void 0">No href</a>
+  <img onclick="void 0" src="zoom.png" alt="Zoom">
+</div>
+
+<div data-case="click-empty" class="base">
+  <p>Before</p>
+  <div onclick="void 0"></div>
+  <p>After</p>
+</div>
+
+<div data-case="click-inline" class="base">
+  <p>Read <span onclick="void 0">more</span> here</p>
+</div>
+
+<div data-case="click-not" class="base">
+  <button onclick="void 0">Save</button>
+  <a href="#mm-b" onclick="void 0">Link</a>
+  <div role="button" tabindex="0">Role button</div>
+  <div role="tabpanel" tabindex="0">Panel</div>
+  <div role="toolbar" tabindex="0" aria-activedescendant="mm-tool"><div role="button" id="mm-tool">Tool</div></div>
+  <h2 tabindex="0">Focusable heading</h2>
+  <label class="p">Name <input type="text"></label>
+  <div onclick="void 0"><a href="#mm-c">Read the card</a></div>
+  <div tabindex="-1">Script focus</div>
+  <div tabindex="0" class="scroll">A scrolling region that keyboard users can scroll.</div>
+  <div id="mm-listener">Listener only</div>
+</div>
+
+<div data-case="click-pointer-chain" class="base">
+  <div class="p"><span>Inside a pointer area</span></div>
+</div>
+
+<div data-case="click-heading" class="base">
+  <div onclick="void 0" class="h24">Big and clickable</div>
+  <p>Some text after it.</p>
+</div>
+
+<div data-case="click-layout-cell" class="base">
+  <table><tr><td onclick="void 0">Open</td><td>Close</td></tr></table>
+</div>
+
+<div data-case="click-missing-alt" class="base">
+  <div onclick="void 0"><img src="me.png"></div>
+</div>
+
+<!-- Field without a label -->
+
+<div data-case="field" class="base">
+  <div><input type="text"></div>
+  <div><input type="text" title="Search"></div>
+  <div><input type="text" placeholder="Email"></div>
+  <div><p>Email</p><input type="email"></div>
+  <div><input type="checkbox"> Remember me</div>
+  <div><span>Country</span><select><option>Malta</option></select></div>
+</div>
+
+<div data-case="field-labelled" class="base">
+  <label for="mm-l1">First</label><input id="mm-l1" type="text">
+  <label>Last <input type="text"></label>
+  <input type="text" aria-label="Middle">
+  <span id="mm-l2">Town</span><input type="text" aria-labelledby="mm-l2">
+  <div role="checkbox" aria-checked="false" tabindex="0">Subscribe</div>
+  <input type="submit" value="Send">
+  <input type="hidden" value="x">
+  <button>Go</button>
+</div>
+
+<div data-case="field-fires" class="base">
+  <div><input type="text" aria-label=""></div>
+  <div><label for="mm-e"></label><input id="mm-e" type="text" placeholder="Postcode"></div>
+  <div><input type="text" aria-labelledby="mm-missing" placeholder="Town"></div>
+</div>
+
+<div data-case="field-nearby" class="base">
+  <div><label><input type="checkbox"> Same address</label><input type="text"></div>
+  <div><label>Email</label><input type="email"></div>
+</div>
+
+<!-- Hidden, shadow, frame (AC-4) -->
+
+<div data-case="hidden" class="base">
+  <div aria-hidden="true"><div onclick="void 0">A</div><div class="h24">Big</div><input type="text"></div>
+  <div style="display:none"><div onclick="void 0">B</div><input type="text"></div>
+  <div hidden><div class="grid2"><div class="bd">a</div><div class="bd">b</div><div class="bd">c</div><div class="bd">d</div></div></div>
+</div>
+
+<div data-case="shadow" class="base">
+  <div><template shadowrootmode="open"><div onclick="void 0">In shadow</div><input type="text"></template></div>
+</div>
+
+<div data-case="frame" class="base">
+  <iframe title="Form" srcdoc="<div onclick='void 0'>In frame</div><input type='text'>"></iframe>
+</div>
+
+<!-- Browser only (AC-17): default styles and em sizes, which the test DOM does not compute -->
+
+<div data-case="browser-only" class="base">
+  <p><strong>Shipping address</strong></p>
+  <p>Enter the street, the town, and the postcode where the parcel goes.</p>
+  <div style="font-size: 1.5em">Order summary</div>
+  <div>Three items, delivered on Friday.</div>
+  <div id="mm-script-listener">Clickable by script only</div>
+  <div class="grid-fill" style="width: 250px">
+    <div class="bd">Auto</div><div class="bd">fill</div><div class="bd">grid</div><div class="bd">cells</div>
+  </div>
+</div>
+
+<script>
+  document.getElementById("mm-listener").addEventListener("click", () => {});
+  document.getElementById("mm-script-listener").addEventListener("click", () => {});
+</script>

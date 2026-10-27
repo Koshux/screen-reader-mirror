@@ -33,12 +33,17 @@ The distribution rules already require a major bump for breaking changes and an 
 2. **What semver covers: the API shape.**
    - The exported names, function signatures, and option names.
    - The fields of `InterpretationNode` and `NodeFlags`, and their types.
-   - Adding an export, an option, a field, or a flag is a **minor**.
+   - The fields of `Interpretation` and `Mismatch` from `interpret()`, and their types
+     (SPEC-005, added 2026-10-27).
+   - Adding an export, an option, a field, or a flag is a **minor**. So is adding a mismatch
+     `kind` or a `MismatchSignal` value, so a consumer must ignore values it does not know.
    - Removing or renaming any of those, or changing a type, is a **major**, preceded by at least
      one minor that marks it deprecated with a documented replacement.
 
 3. **What semver does not cover: the interpretation.** The reading order, roles, names, levels,
    and flags produced for a given markup follow the W3C specifications and the golden fixtures.
+   Which mismatches fire for a given markup is interpretation too: tuning a heuristic's threshold
+   is a patch with a changelog line.
    Making them more faithful to what a real screen reader gets is a **patch**, even when it
    changes output. Consumers who need a stable reading for a specific markup should pin an exact
    version and own a fixture for it.

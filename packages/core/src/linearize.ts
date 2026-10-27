@@ -1,4 +1,4 @@
-import type { InterpretationNode, LiveRegion, NodeFlags } from "./types";
+import type { Interpretation, InterpretationNode, LiveRegion, Mismatch, MismatchSignal, NodeFlags } from "./types";
 import { isHiddenFromAT, firstSummaryOf, resolveStyle, type VisibilityOptions } from "./visibility";
 import { liveRegionOf } from "./live";
 import { rulesFor, type BrowserMode } from "./browser";
@@ -17,6 +17,17 @@ import {
   composedParent,
   type RoleContext,
 } from "./roles";
+import {
+  clickSignals,
+  fieldSignal,
+  hasNoRoleOfItsOwn,
+  headingSignals,
+  isField,
+  orderSignals,
+  tableSignals,
+  HEADING_EXCLUDED_TAGS,
+  TOGGLE_ROLES,
+} from "./mismatch";
 
 export interface LinearizeOptions extends VisibilityOptions {
   /**
@@ -91,6 +102,52 @@ interface Walk {
   frame: number | undefined;
   parents: WeakMap<Element, Element>;
   ctx: RoleContext;
+  /** Present only in `interpret()`: the mismatch heuristics run and keep their state here. */
+  mm?: MismatchWalk;
+}
+
+type Ref = NonNullable<InterpretationNode["ref"]>;
+
+/**
+ * Bookkeeping for the mismatch heuristics (SPEC-005 §3, Walk). Text is counted in pieces: `text`
+ * goes up by one for every non-blank piece added to a run, so comparing counts tells whether an
+ * element added text, and whether a run holds only an element's text.
+ */
+interface MismatchWalk {
+  found: Array<{ seq: number; mismatch: Mismatch }>;
+  /** Elements entered so far: orders an outer element before an inner one at the same index. */
+  seq: number;
+  text: number;
+  /** The value of `text` for the pending run's first piece, and the element holding it. */
+  runStart: number;
+  holder: Element | null;
+  /** Each emitted text run by index: its first and last piece, and the element holding its first. */
+  runs: Map<number, { start: number; end: number; holder: Element | null }>;
+  /** Heading candidates whose text is the pending run, if nothing is added before it ends. */
+  deferred: Array<{ el: Element; seq: number; ref: Ref; text: number }>;
+  /** Heading candidates whose text is exactly the run at `index`, innermost first. */
+  lines: Array<{ index: number; el: Element; seq: number; ref: Ref }>;
+  fields: Array<{ index: number; el: Element; seq: number; ref: Ref; signal: MismatchSignal; toggle: boolean }>;
+  /** Open ancestors that rule out a heading: named from content, a label or caption, a mismatch. */
+  noHeading: number;
+  /** Open `<table>` elements, table, grid, and treegrid roles, and fake tables already found. */
+  inTable: number;
+  /** Open widgets. */
+  inWidget: number;
+}
+
+/** What `enterElement` records for `leaveElement`. */
+interface Entry {
+  el: Element;
+  seq: number;
+  ref: Ref;
+  /** `walk.out.length`, whether a run was pending, and the text count, on entry. */
+  len: number;
+  pendingBefore: boolean;
+  text: number;
+  marks: Array<{ kind: Mismatch["kind"]; signals: MismatchSignal[] }>;
+  heading: boolean;
+  counted: { noHeading: boolean; inTable: boolean; inWidget: boolean };
 }
 
 /**
@@ -123,6 +180,31 @@ interface Walk {
  * or a `document` node flagged `unreachable` when it cannot.
  */
 export function linearize(root: Element, options: LinearizeOptions = {}): InterpretationNode[] {
+  return walkTree(root, options, false).out;
+}
+
+/**
+ * The reading order `linearize()` returns, with the visual-versus-semantic mismatches found on
+ * the same walk (SPEC-005): text that looks like a heading, a grid of elements that looks like a
+ * table, an element that looks clickable with no button or link role, a field with no label.
+ * Mismatches are guesses from markup and computed style; each carries the signals it rests on.
+ * Takes the same options, `browser` included, and `nodes` equals `linearize(root, options)`.
+ *
+ * Style is read through `options.getComputedStyle` when given, else from each element's own
+ * window, once per element for the call: visibility, the table rules, and the heuristics share
+ * the cache.
+ */
+export function interpret(root: Element, options: LinearizeOptions = {}): Interpretation {
+  const styles = new Map<Element, CSSStyleDeclaration | null>();
+  const getComputedStyle = (el: Element): CSSStyleDeclaration | null => {
+    if (!styles.has(el)) styles.set(el, resolveStyle(el, options));
+    return styles.get(el) ?? null;
+  };
+  const walk = walkTree(root, { ...options, getComputedStyle }, true);
+  return { nodes: walk.out, mismatches: finishMismatches(walk) };
+}
+
+function walkTree(root: Element, options: LinearizeOptions, heuristics: boolean): Walk {
   const rules = rulesFor(options.browser);
   const parents = new WeakMap<Element, Element>();
   const ctx: RoleContext = {
@@ -132,9 +214,15 @@ export function linearize(root: Element, options: LinearizeOptions = {}): Interp
     grids: new WeakMap(),
   };
   const walk: Walk = { out: [], options, pending: "", frames: 0, frame: undefined, parents, ctx };
+  if (heuristics) {
+    walk.mm = {
+      found: [], seq: 0, text: 0, runStart: 0, holder: null, runs: new Map(), deferred: [], lines: [],
+      fields: [], noHeading: 0, inTable: 0, inWidget: 0,
+    };
+  }
   emitElement(root, walk, false);
   flushText(walk);
-  return walk.out;
+  return walk;
 }
 
 function emitElement(el: Element, walk: Walk, textConsumed: boolean): void {
@@ -165,6 +253,19 @@ function emitElement(el: Element, walk: Walk, textConsumed: boolean): void {
     return;
   }
 
+  const entry = walk.mm ? enterElement(el, tag, role, live, walk) : undefined;
+  emitByRole(el, tag, role, live, walk, textConsumed);
+  if (entry) leaveElement(entry, walk);
+}
+
+function emitByRole(
+  el: Element,
+  tag: string,
+  role: string | null,
+  live: LiveRegion | undefined,
+  walk: Walk,
+  textConsumed: boolean,
+): void {
   // Decorative image (alt=""): excluded from the reading order entirely.
   if (role === "presentation" && tag === "img") return;
 
@@ -199,6 +300,7 @@ function emitElement(el: Element, walk: Walk, textConsumed: boolean): void {
   flushText(walk);
   const node = buildNode(el, role, tag, walk, live);
   walk.out.push(node);
+  if (walk.mm) noteField(el, tag, role, node, walk);
 
   const consumesText = takesNameFromContent(role, walk.ctx.rules);
 
@@ -295,7 +397,7 @@ function walkChildren(el: Element, walk: Walk, textConsumed: boolean): void {
   const parent = el.tagName.toLowerCase() === "slot" ? walk.ctx.parentOf(el) : el;
   for (const child of composedChildren(el, walk.options)) {
     if (child.nodeType === TEXT_NODE) {
-      if (!textConsumed) walk.pending += child.textContent ?? "";
+      if (!textConsumed) appendText(walk, child.textContent ?? "", el);
       continue;
     }
     if (child.nodeType !== ELEMENT_NODE) continue;
@@ -333,6 +435,20 @@ function flushText(walk: Walk): void {
   const node: InterpretationNode = { role: "text", name: text };
   if (walk.frame !== undefined) node.ref = { tag: "#text", frame: walk.frame };
   walk.out.push(node);
+  if (walk.mm) noteRun(walk.mm, walk.out.length - 1);
+}
+
+/** Add a piece of text to the pending run; `holder` is the element whose child it is. */
+function appendText(walk: Walk, text: string, holder: Element): void {
+  const mm = walk.mm;
+  if (mm && /\S/.test(text)) {
+    if (!/\S/.test(walk.pending)) {
+      mm.runStart = mm.text + 1;
+      mm.holder = holder;
+    }
+    mm.text++;
+  }
+  walk.pending += text;
 }
 
 /** True when the element's root is a shadow root rather than a document. */
@@ -364,16 +480,21 @@ function buildNode(el: Element, role: string, tag: string, walk: Walk, live?: Li
   // SVG-AAM 7.1 names any SVG element from its first title child; the name library does this for
   // the svg element only. Chrome agrees.
   if (name === "" && el.namespaceURI === SVG_NS) name = svgTitle(el);
-  const ref: NonNullable<InterpretationNode["ref"]> = { tag };
-  if (inShadowTree(el)) ref.shadow = true;
-  if (walk.frame !== undefined) ref.frame = walk.frame;
-  const node: InterpretationNode = { role, name, ref };
+  const node: InterpretationNode = { role, name, ref: refOf(el, tag, walk) };
   const level = headingLevel(el, role);
   if (level !== undefined) node.level = level;
   const flags = computeFlags(el, role, tag, name);
   if (flags) node.flags = flags;
   if (live) node.live = live;
   return node;
+}
+
+/** A pointer back to an element: its tag, and whether it sits in a shadow tree or a frame. */
+function refOf(el: Element, tag: string, walk: Walk): Ref {
+  const ref: Ref = { tag };
+  if (inShadowTree(el)) ref.shadow = true;
+  if (walk.frame !== undefined) ref.frame = walk.frame;
+  return ref;
 }
 
 /** The text of an SVG element's first `title` child, collapsed, or "". */
@@ -408,6 +529,171 @@ function computeFlags(el: Element, role: string, tag: string, name: string): Nod
   if (isWidget(role) && name === "") flags.unnamed = true; // interactive control, no name (AC-5)
   if (tag === "img" && !el.hasAttribute("alt")) flags.missingAlt = true; // missing alt (AC-6)
   return Object.keys(flags).length > 0 ? flags : undefined;
+}
+
+// ---- Mismatch heuristics on the walk (SPEC-005) -------------------------------------------
+
+/**
+ * On entering an element: decide the mismatches known before its content is walked (table,
+ * click), whether it may carry a heading line, and open the ancestor counters its role sets.
+ */
+function enterElement(el: Element, tag: string, role: string | null, live: LiveRegion | undefined, walk: Walk): Entry {
+  const mm = walk.mm!;
+  const { ctx } = walk;
+  const entry: Entry = {
+    el,
+    seq: ++mm.seq,
+    ref: refOf(el, tag, walk),
+    len: walk.out.length,
+    pendingBefore: /\S/.test(walk.pending),
+    text: mm.text,
+    marks: [],
+    heading: false,
+    counted: { noHeading: false, inTable: false, inWidget: false },
+  };
+  // A <table> is a real table in either mode, even one Chrome mode reads as layout (SPEC-005
+  // backfill from SPEC-006, point 4); a paragraph has a role that a grid container never has.
+  const tableCandidate = (role === null || role === "generic" || role === "none" || role === "presentation") && tag !== "table";
+  if (tableCandidate && mm.inTable === 0) {
+    const signals = tableSignals(el, ctx, (e) => visibleChildren(e, walk));
+    if (signals.length > 0) entry.marks.push({ kind: "looks-like-table", signals });
+  }
+  if (mm.inWidget === 0) {
+    const signals = clickSignals(el, tag, role, ctx);
+    if (signals.length > 0) entry.marks.push({ kind: "clickable-not-button", signals });
+  }
+  const isTable = tag === "table" || role === "table" || role === "grid" || role === "treegrid";
+  entry.counted.inTable = isTable || entry.marks.some((m) => m.kind === "looks-like-table");
+  entry.counted.inWidget = isWidget(role);
+  entry.counted.noHeading =
+    (role !== null && !hasNoRoleOfItsOwn(role) && takesNameFromContent(role, ctx.rules)) ||
+    HEADING_EXCLUDED_TAGS.has(tag) ||
+    entry.marks.length > 0;
+  if (entry.counted.inTable) mm.inTable++;
+  if (entry.counted.inWidget) mm.inWidget++;
+  if (entry.counted.noHeading) mm.noHeading++;
+  entry.heading = hasNoRoleOfItsOwn(role) && !live && mm.noHeading === 0;
+  return entry;
+}
+
+/**
+ * On leaving an element: its range in the reading order (AC-2), its mismatches, and whether its
+ * text is exactly one run. `at` skips a run flushed at the element's edge that holds only text
+ * from before it; `end` counts a pending run that holds some of the element's text.
+ */
+function leaveElement(entry: Entry, walk: Walk): void {
+  const mm = walk.mm!;
+  let at = entry.len;
+  const first = mm.runs.get(entry.len);
+  if (entry.pendingBefore && first && first.end === entry.text) at++;
+  const pendingOwn = /\S/.test(walk.pending) && (walk.out.length > entry.len || mm.text > entry.text);
+  const end = Math.max(at, walk.out.length + (pendingOwn ? 1 : 0));
+  for (const { kind, signals } of entry.marks) {
+    mm.found.push({ seq: entry.seq, mismatch: { kind, at, end, ref: entry.ref, signals } });
+  }
+  if (entry.heading && end - at === 1) {
+    if (at < walk.out.length) {
+      const run = mm.runs.get(at);
+      if (run && run.start > entry.text && run.end === mm.text) {
+        mm.lines.push({ index: at, el: entry.el, seq: entry.seq, ref: entry.ref });
+      }
+    } else if (mm.runStart > entry.text) {
+      mm.deferred.push({ el: entry.el, seq: entry.seq, ref: entry.ref, text: mm.text });
+    }
+  }
+  if (entry.counted.inTable) mm.inTable--;
+  if (entry.counted.inWidget) mm.inWidget--;
+  if (entry.counted.noHeading) mm.noHeading--;
+}
+
+/** Record an emitted run, and settle the heading candidates waiting on it. */
+function noteRun(mm: MismatchWalk, index: number): void {
+  mm.runs.set(index, { start: mm.runStart, end: mm.text, holder: mm.holder });
+  for (const c of mm.deferred) {
+    if (c.text === mm.text) mm.lines.push({ index, el: c.el, seq: c.seq, ref: c.ref });
+  }
+  mm.deferred = [];
+}
+
+/** A field node just emitted: record it when it has no label (AC-14, AC-15). */
+function noteField(el: Element, tag: string, role: string, node: InterpretationNode, walk: Walk): void {
+  if (!isField(el, tag, role)) return;
+  const signal = fieldSignal(el, node.name, walk.ctx);
+  if (!signal) return;
+  const mm = walk.mm!;
+  mm.fields.push({
+    index: walk.out.length - 1,
+    el,
+    seq: mm.seq,
+    ref: node.ref ?? { tag },
+    signal,
+    toggle: TOGGLE_ROLES.has(role),
+  });
+}
+
+/** The element children a screen reader sees under an element, hidden ones left out. */
+function visibleChildren(el: Element, walk: Walk): Element[] {
+  return composedChildren(el, walk.options).filter(
+    (c): c is Element => c.nodeType === ELEMENT_NODE && !isHiddenFromAT(c as Element, walk.options),
+  );
+}
+
+/**
+ * After the walk: decide the heading lines, which need the next node (AC-8), add `nearby-text`
+ * to the fields, and order everything by `at`, outer element first (AC-3).
+ */
+function finishMismatches(walk: Walk): Mismatch[] {
+  const mm = walk.mm!;
+  const { ctx, out } = walk;
+  const byIndex = new Map<number, Array<MismatchWalk["lines"][number]>>();
+  for (const line of mm.lines) byIndex.set(line.index, [...(byIndex.get(line.index) ?? []), line]);
+  for (const [index, chain] of byIndex) {
+    // The innermost element of the chain holds the text's style; the outermost is reported.
+    const inner = chain[0]!;
+    const outer = chain[chain.length - 1]!;
+    const parent = ctx.parentOf(outer.el);
+    const nextRun = out[index + 1]?.role === "text" ? mm.runs.get(index + 1) : undefined;
+    const next = nextRun
+      ? { text: out[index + 1]!.name, style: nextRun.holder ? ctx.styleOf(nextRun.holder) : null }
+      : undefined;
+    const signals = headingSignals(out[index]!.name, ctx.styleOf(inner.el), parent ? ctx.styleOf(parent) : null, next);
+    if (signals.length > 0) {
+      mm.found.push({ seq: outer.seq, mismatch: { kind: "looks-like-heading", at: index, end: index + 1, ref: outer.ref, signals } });
+    }
+  }
+  for (const field of mm.fields) {
+    const signals: MismatchSignal[] = [field.signal];
+    if (hasNearbyText(field, walk)) signals.push("nearby-text");
+    mm.found.push({
+      seq: field.seq,
+      mismatch: { kind: "field-without-label", at: field.index, end: field.index + 1, ref: field.ref, signals },
+    });
+  }
+  return mm.found
+    .sort((a, b) => a.mismatch.at - b.mismatch.at || a.seq - b.seq)
+    .map(({ mismatch }) => ({ ...mismatch, signals: orderSignals(mismatch.signals) }));
+}
+
+/**
+ * The text run just before the field (just after a checkbox, radio, or switch) is 60 characters
+ * or fewer and comes from the field's parent or a sibling, and not from a `<label>` that labels
+ * another control (AC-14; SPEC-005 backfill from SPEC-006, point 6).
+ */
+function hasNearbyText(field: MismatchWalk["fields"][number], walk: Walk): boolean {
+  const index = field.toggle ? field.index + 1 : field.index - 1;
+  const node = walk.out[index];
+  if (!node || node.role !== "text" || node.name.length > 60) return false;
+  const holder = walk.mm!.runs.get(index)?.holder;
+  const parent = walk.ctx.parentOf(field.el);
+  if (!holder || !parent) return false;
+  for (let e: Element | null = holder; e; e = walk.ctx.parentOf(e)) {
+    if (e.tagName.toLowerCase() === "label") {
+      const control = labelledControl(e);
+      if (control && control !== field.el) return false;
+    }
+    if (e === parent) return true;
+  }
+  return false;
 }
 
 function collapseWhitespace(s: string): string {
