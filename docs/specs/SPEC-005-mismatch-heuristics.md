@@ -1,7 +1,7 @@
 ---
 id: SPEC-005
 title: Visual-versus-semantic mismatch heuristics
-status: spec-reviewed
+status: implemented # feat/SPEC-005-mismatch-heuristics
 journeys: [JNY-005]
 target: core
 created: 2026-10-26
@@ -133,6 +133,21 @@ created: 2026-10-26
 >    still excluded, in both modes.
 > 4. Privacy: unchanged. A mismatch carries a tag, indices, and signal identifiers; the option
 >    selects bundled rules. No network.
+
+> **Backfill (2026-10-27, from the implementation).** What the code and the Chrome runs showed:
+> 1. A live region with no role of its own is a node before its text (SPEC-004), so its heading
+>    line is the run after that node; the mismatch covers the run only (§5, `heading-live`).
+> 2. The bold rule (AC-8) gives a false alarm on a label over its value split by a `<br>` in one
+>    block, when the value is at least twice as long: the component demo's `<strong>Due</strong>
+>    <br>18 Dec`, in Chrome mode only, where the layout table's cells have no role. Recorded in
+>    the log; tightening the rule (the next run must start in a new block) is left to the
+>    operator as a threshold change.
+> 3. Chrome exposes an `<a>` with an `onclick` attribute and no `href` as a link. Chrome mode
+>    reads it as plain text, as the default does, so `clickable-not-button` fires on it in both
+>    modes. That is a new SPEC-006 inventory difference, not part of this spec; it is listed as
+>    a follow-up and is the probe page's 2 differing lines in Chrome mode.
+> 4. The dist smoke test's size guard went from 32 KiB to 64 KiB: the engine's own unminified
+>    bundle is about 48 KiB now. A bundled dependency would still be far larger.
 
 ## 1. Summary
 
@@ -623,16 +638,16 @@ page text or a URL. Nothing is stored. `core` stays client-side and offline.
 
 Branch `feat/SPEC-005-mismatch-heuristics` from `main` after this spec merges.
 
-- [ ] `types.ts`, `index.ts`: `Interpretation`, `Mismatch`, `MismatchSignal`, `interpret`.
-- [ ] `linearize.ts`: `interpret()`, the heuristics flag, `at`/`end`, the cached style helper.
-- [ ] `roles.ts`: move the presentation test out of `isLayoutTable` into a shared helper; table
+- [x] `types.ts`, `index.ts`: `Interpretation`, `Mismatch`, `MismatchSignal`, `interpret`.
+- [x] `linearize.ts`: `interpret()`, the heuristics flag, `at`/`end`, the cached style helper.
+- [x] `roles.ts`: move the presentation test out of `isLayoutTable` into a shared helper; table
       roles unchanged (the existing tests and goldens prove it). Fix the stale "see #11" comment
       in the `table` case, since `isLayoutTable` already reads borders and backgrounds.
-- [ ] `mismatch.ts`: the four heuristics, in the order of §3.
-- [ ] Probe page and `mismatches.test.ts`, one fixture per AC; real-page mismatches (AC-16).
-- [ ] Oracle: `interpret` in `ax-compare.mjs`, mismatches printed; run the probe page and the
+- [x] `mismatch.ts`: the four heuristics, in the order of §3.
+- [x] Probe page and `mismatches.test.ts`, one fixture per AC; real-page mismatches (AC-16).
+- [x] Oracle: `interpret` in `ax-compare.mjs`, mismatches printed; run the probe page and the
       four real pages; record every mismatch as right or a false alarm in the log (AC-17).
-- [ ] ADR-0004 amendment, README, `minor` changeset, `pnpm verify` green, log.
+- [x] ADR-0004 amendment, README, `minor` changeset, `pnpm verify` green, log.
 
 ## 8. Test plan
 
