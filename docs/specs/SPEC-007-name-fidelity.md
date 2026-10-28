@@ -1,7 +1,7 @@
 ---
 id: SPEC-007
 title: Names read once, spaced as Chrome spaces them, and Chrome's anchor links
-status: spec-reviewed # draft | spec-reviewed | in-progress | done | superseded
+status: implemented # feat/SPEC-007-name-fidelity; draft | spec-reviewed | in-progress | done | superseded
 journeys: [JNY-007]
 target: core
 created: 2026-10-28
@@ -252,15 +252,15 @@ listeners. The oracle runs locally. No content is recorded beyond the existing g
 
 Branch `feat/SPEC-007-name-fidelity` from `main` at b84cc86.
 
-- [ ] `browser.ts`: rows 12 and 13.
-- [ ] `roles.ts`: `hasAuthorLabel` export, `contentJoinsAncestorName`, row 12, row 13 hook.
-- [ ] `linearize.ts`: name scopes.
-- [ ] Probe cases in `fidelity-followups.html`, one `data-case` each.
-- [ ] Tests: `fidelity-followups.test.ts`, `browser-modes.test.ts`, `mismatches.test.ts`; update
+- [x] `browser.ts`: rows 12 and 13.
+- [x] `roles.ts`: `hasAuthorLabel` export, `contentJoinsAncestorName`, row 12, row 13 hook.
+- [x] `linearize.ts`: name scopes.
+- [x] Probe cases in `fidelity-followups.html`, one `data-case` each.
+- [x] Tests: `fidelity-followups.test.ts`, `browser-modes.test.ts`, `mismatches.test.ts`; update
       the pins that change and list them in the log.
-- [ ] Oracle in Chrome mode on `fidelity-followups.html`, `mismatches.html`, and the four real
+- [x] Oracle in Chrome mode on `fidelity-followups.html`, `mismatches.html`, and the four real
       pages, before and after; goldens only if intended, every diff listed.
-- [ ] README, SPEC-001 and SPEC-006 backfills, `patch` changeset, `pnpm verify`, log.
+- [x] README, SPEC-001 and SPEC-006 backfills, `patch` changeset, `pnpm verify`, log.
 
 ## 8. Test plan
 

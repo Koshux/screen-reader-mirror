@@ -500,7 +500,8 @@ function buildNode(el: Element, role: string, tag: string, walk: Walk, live?: Li
   // Chrome (row 12) names an `a` without `href` that it reads as a link from its content. The
   // name library maps that element to generic, which has no name from content, so the name is
   // what the walk reads inside it, as for a term (row 7).
-  if (role === "link" && tag === "a" && !el.hasAttribute("href") && isHandlerLink(el, ctx) && !hasAuthorLabel(el)) {
+  const unlinked = !el.hasAttribute("href") && !el.hasAttribute("xlink:href");
+  if (role === "link" && tag === "a" && unlinked && isHandlerLink(el, ctx) && !hasAuthorLabel(el)) {
     name = contentName(el, walk) || name;
   }
   // HTML-AAM still names a table from its obsolete summary attribute, and so does Chrome.
@@ -522,7 +523,8 @@ function buildNode(el: Element, role: string, tag: string, walk: Walk, live?: Li
  * sharing the options and role context, whose output is discarded.
  */
 function contentName(el: Element, walk: Walk): string {
-  const inner: Walk = { ...walk, out: [], pending: "", frames: 0, nameScopes: [], mm: undefined };
+  const { options, frame, parents, ctx } = walk;
+  const inner: Walk = { out: [], options, pending: "", frames: 0, frame, parents, ctx, nameScopes: [] };
   walkChildren(el, inner, false);
   flushText(inner);
   return collapseWhitespace(inner.out.map((n) => n.name).join(" "));
