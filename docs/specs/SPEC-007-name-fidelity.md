@@ -84,7 +84,7 @@ Three changes for JNY-007, each checked against the W3C texts and Chrome's tree 
 - **AC-6** (item 2, row 13) In Chrome mode, inside a name built from content, a child is
   separated from its neighbours by a space when it is an atomic inline (`img`, `svg`, `input`,
   `select`, `textarea`, `button`, `canvas`, `object`, `embed`, `iframe`, `video`, `audio`,
-  `meter`, `progress`, or a computed display of `inline-block`, `inline-flex`, `inline-grid`, or
+  `meter`, `progress`, but not an `img` with `alt=""`, or a computed display of `inline-block`, `inline-flex`, `inline-grid`, or
   `inline-table`), a control (a widget role), or named by an attribute (non-empty `alt`,
   `aria-label`, `aria-labelledby`, or a `title` on an element with no text), as Chromium's
   `ShouldInsertSpaceBetweenObjectsIfNeeded` does. `<a href><img alt="Logo">Home</a>` is
@@ -96,7 +96,8 @@ Three changes for JNY-007, each checked against the W3C texts and Chrome's tree 
   result in the unit tests. The existing text-run pin (Chrome's tree reads "Sameline" between two
   inline-block spans; the engine keeps "Same line") is unchanged.
 - **AC-8** (oracle) `pnpm ax:compare` in Chrome mode: `fidelity-followups.html` goes from 4
-  differing lines to 1 (the "Sameline" oracle limit), `mismatches.html` from 2 to 0, the four
+  differing lines to 2 on its existing cases (the "Sameline" oracle limit, one removed and one
+  added line), `mismatches.html` from 2 to 0, the four
   real pages stay at 0, and the new probe cases match Chrome apart from any line listed in the
   log with its reason. Both goldens per real page are regenerated only if the change is intended,
   and every golden diff is listed in the log.
@@ -229,9 +230,10 @@ inside a name scope, and the Chrome mode output for rows 12 and 13.
   a fresh walk (`emitElement(doc.body, walk, false)`), unchanged.
 - **`aria-hidden` / `display:none`:** skipped before any of this. Row 13 never reveals: a hidden
   element keeps its hidden style in the hook.
-- **Empty `alt=""` vs missing `alt`:** an `alt=""` image is not named by an attribute, but it is
-  an atomic inline, so Chrome mode puts a space around it ("Go now" for `Go<img alt="">now`, as
-  Chrome gives). A missing-alt image inside a button is still a node with `missingAlt`.
+- **Empty `alt=""` vs missing `alt`:** an `alt=""` image is presentational and Chrome leaves it
+  out of the tree, so it is no neighbour and gets no space: `Go<img alt="">now` is "Gonow" in both
+  modes (Chrome's tree, 2026-10-28; corrected during implementation, the first draft guessed
+  "Go now"). A missing-alt image inside a button is still a node with `missingAlt`.
 - **Circular `aria-labelledby`:** the hook does not follow references; the library's cycle
   handling is untouched.
 - **Live regions:** a live region inside a name scope whose text joined the name is a node with

@@ -55,6 +55,20 @@ describe("shadow DOM and slots (SPEC-003)", () => {
     expect(pairs("host-name")).toEqual([["button", "Mute audio"]]);
   });
 
+  it("keeps a button's name scope to its own tree, as the name library reads it (SPEC-007 AC-1)", () => {
+    // The library names the host from its light children only (upstream #768): the slotted light
+    // list joined the name and is not read again; the shadow list did not, so its text is read.
+    // Chrome names it "inner light" and reads neither.
+    expect(pairs("scope-shadow")).toEqual([
+      ["button", "light"],
+      ["list", ""],
+      ["listitem", ""],
+      ["text", "inner"],
+      ["list", ""],
+      ["listitem", ""],
+    ]);
+  });
+
   it("composes nested roots recursively, with a slotted li as a listitem, as Chrome does (AC-4)", () => {
     expect(pairs("nested")).toEqual([
       ["navigation", "App"],

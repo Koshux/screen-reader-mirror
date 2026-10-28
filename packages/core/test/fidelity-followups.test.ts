@@ -22,21 +22,19 @@ describe("names from content follow AccName 1.2", () => {
     // AccName 1.2 (recursive name from content) takes every descendant's text, whatever its role.
     // Chrome leaves out the content of roles that do not count toward an ancestor's name
     // (Chromium SupportsNameFromContents, recursive): it gives "Save", "Send", "Go", and "Orders".
-    // Pinned difference; matching Chrome is the job of a later option, not the default.
-    // Each emitted container starts a fresh text context (SPEC-001 §3), so the text inside the
-    // status, group, list, note, alert, and details is read again after the name, as a list
-    // inside a table cell is.
+    // Pinned difference; Chrome mode applies it (SPEC-006 row 4).
+    // A button has presentational children (WAI-ARIA 1.2 §5.2.9), so it is a name scope
+    // (SPEC-007): text that went into its name is not read again inside it, at any depth. A link
+    // and a heading are not, so each emitted container inside them starts a fresh text context
+    // (SPEC-001 §3) and the note's and alert's text is read again after the name.
     expect(pairs("name-from-content")).toEqual([
       ["button", "Save 3"],
       ["status", ""],
-      ["text", "3"],
       ["button", "Send to all"],
       ["group", ""],
-      ["text", "to all"],
       ["button", "Open menu"],
       ["list", ""],
       ["listitem", ""],
-      ["text", "menu"],
       ["button", "Mark read"], // an author name stands in for the region's content, in both
       ["region", "read"],
       ["text", "unread"],
@@ -49,7 +47,6 @@ describe("names from content follow AccName 1.2", () => {
       ["button", "Show more details"],
       ["group", ""],
       ["button", "more"],
-      ["text", "details"],
     ]);
   });
 
@@ -65,6 +62,70 @@ describe("names from content follow AccName 1.2", () => {
       ["text", "9"],
       ["textbox", "Total 9"],
     ]);
+  });
+});
+
+describe("a role with presentational children reads its name once (SPEC-007)", () => {
+  it("does not read text again that went into the name, and keeps the nodes inside (AC-1 to AC-3)", () => {
+    // WAI-ARIA 1.2 §5.2.9: descendants of button, tab, option, and the other roles with
+    // presentational children are not to be exposed, else "some information may be read twice".
+    // The nodes stay (SPEC-001: a missing-alt image inside a button is what a developer needs to
+    // see); their text, already in the name, is not read again. Chrome's tree keeps them too.
+    const both = [
+      ["button", "Pick red blue"],
+      ["list", ""],
+      ["listitem", ""],
+      ["listitem", ""],
+      ["button", "Save file"],
+      ["img", ""],
+      ["button", "Card Read more"],
+      ["link", "Read"],
+      ["tablist", ""],
+      ["tab", "Tab one"],
+      ["list", ""],
+      ["listitem", ""],
+      ["listbox", "Colour"],
+    ];
+    const rest = [
+      // A list named by its author did not give its content to the name: its item is read.
+      ["button", "Inbox unread"],
+      ["list", "unread"],
+      ["listitem", ""],
+      ["text", "4"],
+      // A button with an author name reads as before (SPEC-007 keeps today's reading there).
+      ["button", "Close"],
+      ["list", ""],
+      ["listitem", ""],
+      ["text", "x"],
+      // A link and a heading do not have presentational children: unchanged (AC-3).
+      ["link", "Link item"],
+      ["list", ""],
+      ["listitem", ""],
+      ["text", "item"],
+      ["heading", "Head entry"],
+      ["list", ""],
+      ["listitem", ""],
+      ["text", "entry"],
+    ];
+    // AccName 1.2 keeps a group's content in the option's name; Chrome leaves it out (row 4) and
+    // reads it as text (AC-2).
+    expect(pairs("name-scope")).toEqual([...both, ["option", "Opt grouped"], ["group", ""], ...rest]);
+    const inChrome = linearize(loadCase(PAGE, "name-scope").root, { browser: "chrome" }).map((n) => [n.role, n.name]);
+    expect(inChrome).toEqual([...both, ["option", "Opt"], ["group", ""], ["text", "grouped"], ...rest]);
+    const img = linearize(loadCase(PAGE, "name-scope").root).find((n) => n.role === "img");
+    expect(img?.flags).toEqual({ missingAlt: true });
+  });
+
+  it("spaces inline elements in a name in the test DOM, where Chrome does not (AC-7)", () => {
+    // The test DOM gives a span or b no computed display, and the name library puts a space
+    // around anything that is not display: inline. Chrome, and the engine running in Chrome,
+    // give "Savenow" and "Boldtext" (pnpm ax:compare, 2026-10-28). A test-environment artefact,
+    // pinned rather than worked around; the name-spacing case sets display: inline to test the
+    // browser result.
+    for (const options of [{}, { browser: "chrome" as const }]) {
+      const out = linearize(loadCase(PAGE, "name-spacing-test-dom").root, options);
+      expect(out.map((n) => n.name)).toEqual(["Save now", "Bold text"]);
+    }
   });
 });
 
