@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live regions: Firefox manual check</title>
+<style>
+  body { font: 16px/1.5 system-ui, sans-serif; max-width: 46rem; margin: 2rem auto; padding: 0 1rem; }
+  section { border-top: 1px solid #999; padding: 1rem 0; }
+  .region { border: 1px dashed #666; padding: 0.25rem 0.5rem; margin: 0.5rem 0; }
+  button { margin: 0.25rem 0.5rem 0.25rem 0; }
+</style>
+</head>
+<body>
+<h1>Live regions: Firefox manual check</h1>
+<p>
+  Companion page for <code>firefox-live-regions.md</code>. Open it from disk in Firefox with NVDA
+  running and the NVDA Speech Viewer open. Each button changes its region three seconds after it
+  is pressed, so there is time to move NVDA elsewhere first. Nothing on this page loads anything
+  from the network.
+</p>
+
+<section>
+  <h2>1. Invalid aria-live tokens</h2>
+  <div id="p1-bogus" class="region" aria-live="bogus">Bogus region, waiting.</div>
+  <div id="p1-upper" class="region" aria-live=" ASSERTIVE ">Upper-case region, waiting.</div>
+  <button type="button" data-target="p1-bogus" data-text="Bogus region changed.">Change the bogus region</button>
+  <button type="button" data-target="p1-upper" data-text="Upper-case region changed.">Change the upper-case region</button>
+</section>
+
+<section>
+  <h2>2. Nested regions</h2>
+  <div id="p2-outer" class="region" aria-live="polite" aria-atomic="true">
+    Outer polite, atomic.
+    <div id="p2-inner" class="region" aria-live="assertive" aria-atomic="false">Inner assertive, waiting.</div>
+  </div>
+  <button type="button" data-target="p2-inner" data-text="Inner assertive changed.">Change the inner region</button>
+</section>
+
+<section>
+  <h2>3. A region inside a sentence</h2>
+  <p>Total: <span id="p3-total" aria-live="polite">12</span> items in the basket.</p>
+  <button type="button" data-target="p3-total" data-text="13">Change the total</button>
+</section>
+
+<section>
+  <h2>4. role="alert" with aria-live="polite"</h2>
+  <div id="p4-alert" class="region" role="alert" aria-live="polite"></div>
+  <div id="p4-plain" class="region" role="alert"></div>
+  <button type="button" data-target="p4-alert" data-text="Polite alert fired.">Fire the polite alert</button>
+  <button type="button" data-target="p4-plain" data-text="Plain alert fired.">Fire the plain alert</button>
+</section>
+
+<section>
+  <h2>5. aria-atomic and aria-relevant</h2>
+  <div class="region" aria-live="polite" aria-atomic="true">Cart: <span id="p5-atomic">2</span> items.</div>
+  <div class="region" aria-live="polite" aria-atomic="false">Saved: <span id="p5-part">2</span> items.</div>
+  <button type="button" data-target="p5-atomic" data-text="3">Change the atomic count</button>
+  <button type="button" data-target="p5-part" data-text="3">Change the non-atomic count</button>
+  <ul id="p5-additions" class="region" aria-live="polite" aria-relevant="additions"><li>Alpha</li><li>Beta</li></ul>
+  <ul id="p5-all" class="region" aria-live="polite" aria-relevant="all"><li>Alpha</li><li>Beta</li></ul>
+  <button type="button" data-remove="p5-additions">Remove an item (relevant: additions)</button>
+  <button type="button" data-remove="p5-all">Remove an item (relevant: all)</button>
+</section>
+
+<section>
+  <h2>Long text for timing</h2>
+  <p id="long">
+    Start NVDA reading this paragraph with say all (NVDA+Down Arrow), then press a button above
+    with the mouse. A polite announcement should wait until NVDA finishes speaking; an assertive
+    one may interrupt it. This paragraph is long on purpose, so there is speech to interrupt. It
+    goes on for a few more sentences. The quick brown fox jumps over the lazy dog. Pack my box
+    with five dozen liquor jugs. How vexingly quick daft zebras jump. Sphinx of black quartz,
+    judge my vow.
+  </p>
+</section>
+
+<script>
+  for (const button of document.querySelectorAll("button")) {
+    button.addEventListener("click", () => {
+      setTimeout(() => {
+        if (button.dataset.remove) {
+          document.getElementById(button.dataset.remove)?.lastElementChild?.remove();
+          return;
+        }
+        const target = document.getElementById(button.dataset.target);
+        if (target) target.textContent = button.dataset.text;
+      }, 3000);
+    });
+  }
+</script>
+</body>
+</html>
