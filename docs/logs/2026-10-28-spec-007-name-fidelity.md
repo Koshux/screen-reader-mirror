@@ -125,7 +125,7 @@ Stage 5.5 on `git diff origin/main...HEAD`, 2026-10-28.
 
 ## State at end of session
 
-Branch `feat/SPEC-007-name-fidelity` from `main` at b84cc86, pushed; PR open, awaiting the
+Branch `feat/SPEC-007-name-fidelity` from `main` at b84cc86, pushed; PR #73 open, awaiting the
 operator.
 
 ## Hand-off notes
