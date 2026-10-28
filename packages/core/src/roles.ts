@@ -107,7 +107,8 @@ function implicitRole(el: Element, ctx: RoleContext): string | null {
   switch (tag) {
     case "a":
     case "area":
-      return el.hasAttribute("href") ? "link" : null; // generic without href
+      if (el.hasAttribute("href")) return "link";
+      return tag === "a" && isHandlerLink(el, ctx) ? "link" : null; // generic without href
     case "button":
       return "button";
     case "h1":
@@ -471,7 +472,7 @@ function svgRole(el: Element, tag: string, ctx: RoleContext): string | null {
     if (ctx.parentOf(el)?.namespaceURI === SVG_NS) return svgIncluded(el) ? "group" : null;
     return el.firstElementChild || svgIncluded(el) ? "graphics-document" : null;
   }
-  if (tag === "a") return el.hasAttribute("href") || el.hasAttribute("xlink:href") ? "link" : null;
+  if (tag === "a") return el.hasAttribute("href") || el.hasAttribute("xlink:href") || isHandlerLink(el, ctx) ? "link" : null;
   if (SVG_SHAPES.has(tag)) return svgIncluded(el) ? "graphics-symbol" : null;
   const role = SVG_INCLUDED_ROLES[tag];
   return role && svgIncluded(el) ? role : null;
@@ -649,13 +650,60 @@ function nameStyle(
       if (!contributesToAncestorName(node, role, ctx) && !(role && NAMED_BY_LIBRARY.has(role))) return HIDDEN_STYLE;
     }
     const view = node.ownerDocument?.defaultView;
-    return view ? view.getComputedStyle(node, pseudo) : EMPTY_STYLE;
+    const style = view ? view.getComputedStyle(node, pseudo) : EMPTY_STYLE;
+    if (ctx.rules.spaceAroundAtomicAndNamedChildren && node !== root && spacedByChrome(node, style, ctx)) {
+      return withDisplay(style, "inline-block");
+    }
+    return style;
   };
 }
 
+// Elements Chrome lays out as one atomic inline box: replaced elements and form controls.
+const ATOMIC_INLINE_TAGS = new Set([
+  "img", "svg", "input", "select", "textarea", "button", "canvas", "object", "embed", "iframe",
+  "video", "audio", "meter", "progress",
+]);
+const ATOMIC_INLINE_DISPLAYS = new Set(["inline-block", "inline-flex", "inline-grid", "inline-table"]);
+
+/**
+ * Chrome (row 13) puts a space around a child of a name from content that is an atomic inline, a
+ * control, or named by an attribute (Chromium `ShouldInsertSpaceBetweenObjectsIfNeeded`). The
+ * library adds a space only around an element whose display is not `inline`, so such a child is
+ * reported as `inline-block`. A hidden one keeps its style.
+ */
+function spacedByChrome(node: Element, style: CSSStyleDeclaration, ctx: RoleContext): boolean {
+  const display = style.getPropertyValue("display");
+  if (display === "none" || style.getPropertyValue("visibility") === "hidden") return false;
+  const tag = node.tagName.toLowerCase();
+  // An image with alt="" is presentational: Chrome leaves it out of the tree, so it is no neighbour.
+  if (tag === "img" && node.getAttribute("alt") === "" && !hasAuthorLabel(node)) return false;
+  if (ATOMIC_INLINE_TAGS.has(tag) || ATOMIC_INLINE_DISPLAYS.has(display)) return true;
+  if (hasAuthorLabel(node) || (node.getAttribute("alt") ?? "").trim() !== "") return true;
+  if ((node.getAttribute("title") ?? "").trim() !== "" && (node.textContent ?? "").trim() === "") return true;
+  return isWidget(resolveRole(node, ctx));
+}
+
+/** The style with `display` read as the given value, every other property as it is. */
+function withDisplay(style: CSSStyleDeclaration, display: string): CSSStyleDeclaration {
+  return {
+    getPropertyValue: (p: string) => (p === "display" ? display : style.getPropertyValue(p)),
+  } as unknown as CSSStyleDeclaration;
+}
+
 /** True when the author named the element with a non-empty aria-label or an aria-labelledby. */
-function hasAuthorLabel(el: Element): boolean {
+export function hasAuthorLabel(el: Element): boolean {
   return (el.getAttribute("aria-label") ?? "").trim() !== "" || el.hasAttribute("aria-labelledby");
+}
+
+/**
+ * True when the element's content went into the name an ancestor built from content (SPEC-007
+ * AC-1, AC-2): it has no author label, which would stand in for its content, and in Chrome mode
+ * its role is one whose content Chrome counts (row 4). The same test the name hook applies, so the
+ * walk and the name agree.
+ */
+export function contentJoinsAncestorName(el: Element, role: string | null, ctx: RoleContext): boolean {
+  if (hasAuthorLabel(el)) return false;
+  return !ctx.rules.nameFromContentExclusions || contributesToAncestorName(el, role, ctx);
 }
 
 // Roles whose content counts toward an ancestor's name in Chrome besides the name-from-content
@@ -749,6 +797,19 @@ export function rowInGrid(row: Element, ctx: RoleContext): boolean {
 /** True if the author supplied a name source: aria-label, aria-labelledby, or title. */
 export function hasAuthorName(el: Element): boolean {
   return el.hasAttribute("aria-label") || el.hasAttribute("aria-labelledby") || el.hasAttribute("title");
+}
+
+// The inline handlers for Chromium's mouse-button events (click, mousedown, mouseup, DOMActivate,
+// which has no attribute). A listener added by script is not in the markup and is not seen.
+const MOUSE_BUTTON_HANDLERS = ["onclick", "onmousedown", "onmouseup"];
+
+/**
+ * Chrome (row 12) exposes an `a` or SVG `a` without an `href` as a link when it has a click,
+ * mousedown, mouseup, or DOMActivate listener (Chromium `NativeRoleIgnoringAria`); HTML-AAM maps
+ * it to generic. The caller has already checked that there is no `href`.
+ */
+export function isHandlerLink(el: Element, ctx: RoleContext): boolean {
+  return ctx.rules.anchorWithClickHandlerIsLink && MOUSE_BUTTON_HANDLERS.some((a) => el.hasAttribute(a));
 }
 
 /**

@@ -11,6 +11,9 @@ import {
   isWidget,
   hasAuthorName,
   hasOnlyEmptyLabels,
+  hasAuthorLabel,
+  contentJoinsAncestorName,
+  isHandlerLink,
   isImplicitSvgRoot,
   labelledControl,
   rowInGrid,
@@ -91,8 +94,9 @@ const SVG_TEMPLATE_TAGS = new Set(["defs", "symbol"]);
 /**
  * State threaded through one traversal: the output, the options, the text run in progress, the
  * number of frames met so far, the index of the frame being walked (undefined at the top), the
- * composed parent of each element met, and the role context the rules read (SPEC-006 AC-5): its
- * `parentOf` answers from `parents`.
+ * composed parent of each element met, the role context the rules read (SPEC-006 AC-5): its
+ * `parentOf` answers from `parents`, and the open name scopes (SPEC-007 AC-1), each the root node
+ * of its element.
  */
 interface Walk {
   out: InterpretationNode[];
@@ -102,6 +106,7 @@ interface Walk {
   frame: number | undefined;
   parents: WeakMap<Element, Element>;
   ctx: RoleContext;
+  nameScopes: Node[];
   /** Present only in `interpret()`: the mismatch heuristics run and keep their state here. */
   mm?: MismatchWalk;
 }
@@ -217,7 +222,7 @@ function walkTree(root: Element, options: LinearizeOptions, heuristics: boolean)
     rules,
     grids: new WeakMap(),
   };
-  const walk: Walk = { out: [], options, pending: "", frames: 0, frame: undefined, parents, ctx };
+  const walk: Walk = { out: [], options, pending: "", frames: 0, frame: undefined, parents, ctx, nameScopes: [] };
   if (heuristics) {
     walk.mm = {
       found: [], seq: 0, text: 0, runStart: 0, holder: null, runs: new Map(), brEnded: new Set(), deferred: [], lines: [],
@@ -313,9 +318,20 @@ function emitByRole(
   // Leaf: nothing below is exposed.
   if (isLeaf(tag, role) || (isChildrenPresentational(role) && !consumesText)) return;
 
-  // Container: fresh text context, suppressed only if this node's own name came from content.
+  // Container: fresh text context, suppressed only if this node's own name came from content,
+  // except inside a name scope (SPEC-007 AC-1): a role with presentational children named from
+  // its content, whose descendants WAI-ARIA 1.2 says not to expose. There, a nested container
+  // whose content went into the scope's name keeps that text consumed, so it is not read twice.
+  // Only a container in the scope's own tree joins: the name library does not enter a host's
+  // shadow root.
+  const opensScope = consumesText && isChildrenPresentational(role) && !hasAuthorLabel(el);
+  const scope = walk.nameScopes[walk.nameScopes.length - 1];
+  const keepsConsumed =
+    textConsumed && scope !== undefined && el.getRootNode() === scope && contentJoinsAncestorName(el, role, walk.ctx);
   const start = walk.out.length;
-  walkChildren(el, walk, consumesText);
+  if (opensScope) walk.nameScopes.push(el.getRootNode());
+  walkChildren(el, walk, consumesText || keepsConsumed);
+  if (opensScope) walk.nameScopes.pop();
   flushText(walk);
   const rules = walk.ctx.rules;
   // Chrome (row 9): an svg root with nothing readable inside is an image.
@@ -481,6 +497,13 @@ function buildNode(el: Element, role: string, tag: string, walk: Walk, live?: Li
       name = collapseWhitespace(el.getAttribute("placeholder") ?? "");
     }
   }
+  // Chrome (row 12) names an `a` without `href` that it reads as a link from its content. The
+  // name library maps that element to generic, which has no name from content, so the name is
+  // what the walk reads inside it, as for a term (row 7).
+  const unlinked = !el.hasAttribute("href") && !el.hasAttribute("xlink:href");
+  if (role === "link" && tag === "a" && unlinked && isHandlerLink(el, ctx) && !hasAuthorLabel(el)) {
+    name = contentName(el, walk) || name;
+  }
   // HTML-AAM still names a table from its obsolete summary attribute, and so does Chrome.
   if (name === "" && tag === "table") name = collapseWhitespace(el.getAttribute("summary") ?? "");
   // SVG-AAM 7.1 names any SVG element from its first title child; the name library does this for
@@ -493,6 +516,18 @@ function buildNode(el: Element, role: string, tag: string, walk: Walk, live?: Li
   if (flags) node.flags = flags;
   if (live) node.live = live;
   return node;
+}
+
+/**
+ * The names of what a walk reads inside the element, joined: a separate walk with no heuristics,
+ * sharing the options and role context, whose output is discarded.
+ */
+function contentName(el: Element, walk: Walk): string {
+  const { options, frame, parents, ctx } = walk;
+  const inner: Walk = { out: [], options, pending: "", frames: 0, frame, parents, ctx, nameScopes: [] };
+  walkChildren(el, inner, false);
+  flushText(inner);
+  return collapseWhitespace(inner.out.map((n) => n.name).join(" "));
 }
 
 /** A pointer back to an element: its tag, and whether it sits in a shadow tree or a frame. */

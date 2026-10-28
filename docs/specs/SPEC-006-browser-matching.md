@@ -52,6 +52,17 @@ created: 2026-10-26
 > 5. Row 3's Chrome column: Chrome names a row from content inside a grid or treegrid, which the
 >    Chrome mode applies.
 
+> **Backfill (2026-10-28, from SPEC-007).** Two rows added, both checked in Chrome's tree and
+> Chromium's source on 2026-10-28:
+>
+> | # | Case | W3C (default) | Chrome (`browser: "chrome"`) | Today's default |
+> |---|---|---|---|---|
+> | 12 | `<a>` (or SVG `a`) without `href` that has an `onclick`, `onmousedown`, or `onmouseup` attribute | no role: HTML-AAM maps it to `generic` | `link`, named from its content (Chromium `NativeRoleIgnoringAria`: an href or a click, mousedown, mouseup, or DOMActivate listener; the engine sees the attributes only) | W3C |
+> | 13 | Spaces between the parts of a name from content | AccName 1.2 has none (AccName #225 open); `dom-accessibility-api`'s rule, a space around a child that is not `display: inline` | also a space around an atomic inline (not an `img` with `alt=""`), a control, or a child named by an attribute (Chromium `ShouldInsertSpaceBetweenObjectsIfNeeded`) | W3C |
+>
+> The double read of a list or `<details>` inside a button is not a row: SPEC-007 fixes it in
+> both modes.
+
 ## 1. Summary
 
 The engine was calibrated against Chrome, and in several places its default follows Chrome
