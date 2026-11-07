@@ -134,6 +134,19 @@ operator.
    - Text under a labelled transparent element inside a button stays unread (above).
    - A list inside an `aria-label` button still reads its items (SPEC-007 keeps today's reading
      there; WAI-ARIA §5.2.9 would hide them, and so does the oracle).
+
+   Answered by the operator on 2026-11-07:
+   - The labelled span: the reading stays. The operator's point is that a developer who writes
+     `<button><span aria-label="You will close by pressing">X</span></button>` expects to hear
+     both, "You will close by pressing X", since the web is what you see is what you get.
+     Chrome's tree (checked 2026-11-07) names the button "You will close by pressing" and keeps
+     "X" out of the name, as AccName 1.2 step 2C says, so the mirror does not read "X" as if it
+     were spoken. The gap between what the developer assumes and what is spoken goes to a new
+     spec instead: an `interpret()` mismatch for visible text missing from an author-given name
+     (WCAG 2.5.3 Label in Name).
+   - The list inside an `aria-label` button: accepted as it is. The same argument applies there
+     (the items are not in the name), so the new spec carries it as a note: that case is
+     reported by the same mismatch.
 2. Follow-ups found while probing, not changed here:
    - `dom-accessibility-api` skips a descendant's `title` in a name from content
      (`<a><i title="Bell"></i>Alerts</a>` is "Alerts"); AccName 1.2's Tooltip step would give
