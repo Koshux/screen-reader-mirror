@@ -211,15 +211,21 @@ describe("looks like a table (AC-10, AC-11)", () => {
 
 describe("clickable, not a button or link (AC-12, AC-13)", () => {
   it("fires on click attributes, tabindex, and a pointer cursor, listing every signal (AC-12)", () => {
-    expect(marksInBoth("click")).toEqual([
+    const divs = [
       ["clickable-not-button", 0, 1, "div", ["click-attribute"]],
       ["clickable-not-button", 1, 2, "div", ["click-attribute"]],
       ["clickable-not-button", 2, 3, "div", ["tabindex"]],
       ["clickable-not-button", 3, 4, "div", ["cursor-pointer"]],
       ["clickable-not-button", 4, 5, "div", ["click-attribute", "tabindex", "cursor-pointer"]],
+    ];
+    expect(marks("click")).toEqual([
+      ...divs,
       ["clickable-not-button", 5, 6, "a", ["click-attribute"]],
       ["clickable-not-button", 6, 7, "img", ["click-attribute"]],
     ]);
+    // Chrome (SPEC-006 row 12, SPEC-007 AC-5) reads an a without href that has onclick as a link,
+    // so it is not reported there.
+    expect(marks("click", chrome)).toEqual([...divs, ["clickable-not-button", 6, 7, "img", ["click-attribute"]]]);
   });
 
   it("does not fire on roles, labels, cards with a link, inherited cursors, -1, scrolling regions, or script listeners (AC-13)", () => {

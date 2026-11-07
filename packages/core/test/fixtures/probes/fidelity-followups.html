@@ -10,6 +10,9 @@
   .inline { display: inline; }
   .block { display: block; }
   .inline-block { display: inline-block; }
+  /* The test DOM gives inline elements no display; set it here so the name library sees what a
+     browser gives (SPEC-007 AC-6). Chrome's defaults are the same. */
+  .inline-names span, .inline-names em, .inline-names i, .inline-names img, .inline-names svg { display: inline; }
 </style>
 
 <div data-case="name-from-content">
@@ -64,4 +67,50 @@
   <div><span class="block">Own</span><span class="block">line</span></div>
   <div><span class="inline-block">Same</span> <span class="inline-block">line</span></div>
   <div><div class="inline">Inline</div> <div class="inline">divs</div></div>
+</div>
+
+<!-- SPEC-007. A role with presentational children named from its content is a name scope: text
+     that went into its name is not read again inside it. -->
+<div data-case="name-scope">
+  <button>Pick <span role="list"><span role="listitem">red</span> <span role="listitem">blue</span></span></button>
+  <button>Save <img src="disk.png"> file</button>
+  <div role="button" tabindex="0">Card <a href="#ns-a">Read</a> more</div>
+  <div role="tablist"><div role="tab">Tab <span role="list"><span role="listitem">one</span></span></div></div>
+  <div role="listbox" aria-label="Colour"><div role="option">Opt <span role="group">grouped</span></div></div>
+  <button>Inbox <span role="list" aria-label="unread"><span role="listitem">4</span></span></button>
+  <button aria-label="Close"><span role="list"><span role="listitem">x</span></span></button>
+  <a href="#ns-b">Link <span role="list"><span role="listitem">item</span></span></a>
+  <h3>Head <span role="list"><span role="listitem">entry</span></span></h3>
+</div>
+
+<!-- SPEC-007 row 13: Chrome spaces a child that is an atomic inline, a control, or named by an
+     attribute; plain inline elements join. -->
+<div data-case="name-spacing" class="inline-names">
+  <a href="#sp-1"><img src="logo.png" alt="Logo">Home</a>
+  <a href="#sp-2">Go<img src="arrow.png" alt="">now</a>
+  <a href="#sp-3"><span role="img" aria-label="Heart"></span>Like</a>
+  <a href="#sp-4"><i aria-label="Gear"></i>Settings</a>
+  <button><span>Save</span><span>now</span></button>
+  <a href="#sp-6"><em>Em</em>phasis</a>
+</div>
+
+<!-- SPEC-007 AC-7: no author display. The test DOM leaves inline elements without one, so the
+     name library spaces them; Chrome gives "Savenow" and "Boldtext". -->
+<div data-case="name-spacing-test-dom">
+  <button><span>Save</span><span>now</span></button>
+  <button><b>Bold</b>text</button>
+</div>
+
+<!-- SPEC-007 row 12: Chrome reads an a without href that has a mouse-button handler as a link. -->
+<div data-case="anchor-click">
+  <a onclick="void 0">Click me</a>
+  <a onmousedown="void 0">Mouse down</a>
+  <a onmouseup="void 0">Mouse up</a>
+  <a onkeydown="void 0">Key down</a>
+  <a tabindex="0">Tab only</a>
+  <a>Bare</a>
+  <a onclick="void 0" role="button">Role button</a>
+  <a onclick="void 0" aria-label="Labelled">Text</a>
+  <a onclick="void 0"><img src="zoom.png" alt="Zoom"> in</a>
+  <svg width="80" height="20"><a onclick="void 0"><text x="0" y="15">Vector</text></a></svg>
 </div>

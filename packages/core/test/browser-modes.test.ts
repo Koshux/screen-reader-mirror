@@ -3,7 +3,7 @@
  * SPEC-006: the W3C specifications by default, and `browser: "chrome"` to read the page as Chrome
  * does. Each inventory row is tested in both modes. The cases live in
  * fixtures/probes/browser-modes.html (rows 1 to 3 and 7 to 11) and fidelity-followups.html (rows
- * 4 to 6). In Chrome mode, `pnpm ax:compare` shows 0 differing lines on browser-modes.html
+ * 4 to 6, 12, and 13). In Chrome mode, `pnpm ax:compare` shows 0 differing lines on browser-modes.html
  * against Chrome 2026-10-26, so the Chrome values below are Chrome's own.
  */
 import { describe, it, expect, afterEach } from "vitest";
@@ -122,7 +122,6 @@ describe("the inventory, each row in both modes (AC-2)", () => {
       ["button", "Open menu"],
       ["list", ""],
       ["listitem", ""],
-      ["text", "menu"],
       ["button", "Mark read"],
       ["region", "read"],
       ["text", "unread"],
@@ -135,7 +134,6 @@ describe("the inventory, each row in both modes (AC-2)", () => {
       ["button", "Show more details"],
       ["group", ""],
       ["button", "more"],
-      ["text", "details"],
     ]);
     // A label's content follows the same rule; inside aria-labelledby Chrome keeps all content.
     expect(pairs(page, "label-name", chrome)).toEqual([
@@ -345,11 +343,73 @@ describe("the inventory, each row in both modes (AC-2)", () => {
   });
 });
 
+describe("SPEC-007 rows: Chrome's anchor links and name spacing", () => {
+  const page = "fidelity-followups.html";
+
+  it("row 12: HTML-AAM maps an a without href to generic; Chrome makes it a link when it has a mouse-button handler", () => {
+    // Chromium NativeRoleIgnoringAria: an href or a click, mousedown, mouseup, or DOMActivate
+    // listener. The engine sees handler attributes only. onkeydown and tabindex do not count, and
+    // an explicit role wins, in both. Chrome names the link from its content.
+    expect(pairs(page, "anchor-click")).toEqual([
+      ["text", "Click me Mouse down Mouse up Key down Tab only Bare"],
+      ["button", "Role button"],
+      ["text", "Text"],
+      ["img", "Zoom"],
+      ["text", "in"],
+      ["graphics-document", ""],
+      ["text", "Vector"],
+    ]);
+    expect(pairs(page, "anchor-click", chrome)).toEqual([
+      ["link", "Click me"],
+      ["link", "Mouse down"],
+      ["link", "Mouse up"],
+      ["text", "Key down Tab only Bare"],
+      ["button", "Role button"],
+      ["link", "Labelled"],
+      ["link", "Zoom in"],
+      ["img", "Zoom"],
+      ["graphics-document", ""],
+      ["link", "Vector"],
+    ]);
+  });
+
+  it("row 13: AccName 1.2 has no spacing rule; Chrome spaces atomic inlines, controls, and attribute names", () => {
+    // AccName 1.2 appends each child's text with no separator and leaves display-based spacing
+    // open (AccName #225); the default keeps dom-accessibility-api's rule, a space around anything
+    // not display: inline. Chrome adds one around an image, a control, or a child named by alt or
+    // aria-label (Chromium ShouldInsertSpaceBetweenObjectsIfNeeded); an image with alt="" is left
+    // out of its tree and adds none. Plain inline elements join in both.
+    expect(pairs(page, "name-spacing")).toEqual([
+      ["link", "LogoHome"],
+      ["img", "Logo"],
+      ["link", "Gonow"],
+      ["link", "HeartLike"],
+      ["img", "Heart"],
+      ["link", "GearSettings"],
+      ["button", "Savenow"],
+      ["link", "Emphasis"],
+    ]);
+    expect(pairs(page, "name-spacing", chrome)).toEqual([
+      ["link", "Logo Home"],
+      ["img", "Logo"],
+      ["link", "Gonow"],
+      ["link", "Heart Like"],
+      ["img", "Heart"],
+      ["link", "Gear Settings"],
+      ["button", "Savenow"],
+      ["link", "Emphasis"],
+    ]);
+  });
+});
+
 describe("markup outside the inventory reads the same in both modes (AC-3)", () => {
   // Each probe case from SPEC-003, SPEC-004, and the fidelity follow-ups, except those that hold
   // an inventory row (named here with the row).
   const INVENTORY_CASES: Record<string, string[]> = {
-    "fidelity-followups.html": ["name-from-content", "label-name", "empty-labels", "header-scope"], // rows 4, 5, 6
+    // rows 4, 5, 6, then 4 (a group inside an option), 13, and 12
+    "fidelity-followups.html": [
+      "name-from-content", "label-name", "empty-labels", "header-scope", "name-scope", "name-spacing", "anchor-click",
+    ],
     "web-components.html": ["labels"], // row 8
   };
   const pages = ["web-components.html", "frames.html", "live-regions.html", "fidelity-followups.html"];

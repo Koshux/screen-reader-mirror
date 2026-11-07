@@ -31,6 +31,13 @@ export interface BrowserRules {
   readonly headerCellFromSiblings: boolean;
   /** Row 11: text inside an SVG `defs` or `symbol`, which is never rendered, is read. */
   readonly svgTemplateTextRead: boolean;
+  /** Row 12: an `a` without `href` that has a mouse-button handler attribute is a link. */
+  readonly anchorWithClickHandlerIsLink: boolean;
+  /**
+   * Row 13: in a name from content, a space separates a child that is an atomic inline, a control,
+   * or named by an attribute; otherwise the name library's rule (a space around non-inline display).
+   */
+  readonly spaceAroundAtomicAndNamedChildren: boolean;
 }
 
 /** The values `LinearizeOptions.browser` accepts. */
@@ -48,6 +55,8 @@ const W3C: BrowserRules = Object.freeze({
   svgImageWhenNoContent: false,
   headerCellFromSiblings: false,
   svgTemplateTextRead: false,
+  anchorWithClickHandlerIsLink: false,
+  spaceAroundAtomicAndNamedChildren: false,
 });
 
 const CHROME: BrowserRules = Object.freeze({
@@ -62,6 +71,8 @@ const CHROME: BrowserRules = Object.freeze({
   svgImageWhenNoContent: true,
   headerCellFromSiblings: true,
   svgTemplateTextRead: true,
+  anchorWithClickHandlerIsLink: true,
+  spaceAroundAtomicAndNamedChildren: true,
 });
 
 /**

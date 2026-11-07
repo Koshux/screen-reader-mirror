@@ -71,6 +71,10 @@ Reading it:
 - **`name`** is the accessible name per AccName 1.2. An element whose name comes from its content
   (heading, link, cell…) carries that text in `name`; it is not read twice. Nested elements
   (the link inside a heading, the image inside a button) are still emitted after their parent.
+  Inside a button, tab, option, checkbox, radio, or switch named from its content, whose
+  descendants WAI-ARIA 1.2 says not to expose, text that went into the name is not read again at
+  any depth: a list inside a button shows its list and items, without their words. Inside a
+  heading, link, or cell, each nested element with a role reads its own text.
 - **`level`** is the heading level (`<h1>`–`<h6>`, or `aria-level`; `role="heading"` defaults to 2).
 - **`flags.unnamed`**: an interactive control with no accessible name.
   **`flags.missingAlt`**: an `<img>` with no `alt` attribute at all (`alt=""` is treated as
@@ -188,12 +192,23 @@ to differ. Each difference was read from Chromium's source and checked against C
 | An `<svg>` with nothing readable inside | `graphics-document` | `img`; left out when it is unnamed and empty |
 | A `<th>` without `scope` | HTML's table model; can be a plain `cell` | decided from the cells beside it |
 | Text inside an SVG `<defs>` or `<symbol>` | not read | read |
+| `<a>` without `href` that has `onclick`, `onmousedown`, or `onmouseup` | no role, plain text | `link`, named from its content |
+| A name from content over an image, a control, or a child named by `alt` or `aria-label` | joined as the name library joins it (`<img alt="Logo">Home` is "LogoHome") | a space around that child ("Logo Home") |
 
 Only `"chrome"` is accepted today; any other value throws a `RangeError`. The engine never
 detects the browser it runs in: running in Chrome does not change the default. Markup outside
 this table reads the same in both modes. Where the specifications give no ARIA role (`<input
 type=file>`, `password`, the date and time types, the first `<summary>`, `<iframe>`), both modes
 use the role every platform exposes: button, textbox, textbox, button, and document.
+
+Chrome also makes an `<a>` a link when a script adds a click listener to it. The engine reads
+the markup only, so it cannot see that listener in either mode.
+
+AccName 1.2 has no rule for spaces between the parts of a name (the working group is still
+deciding, AccName #225). The default keeps `dom-accessibility-api`'s rule: a space around
+anything that is not `display: inline`. Test DOMs such as happy-dom give inline elements no
+computed display, so there the library spaces them too ("Save now" where a browser gives
+"Savenow").
 
 A tool that shows this output should say which mode it shows.
 

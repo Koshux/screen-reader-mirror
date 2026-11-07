@@ -100,6 +100,13 @@ reason to stop descending (that mistake dropped every table body and every neste
 emitted container starts a fresh text context: text is suppressed only directly under a node whose
 own name came from content, so a list inside a table cell keeps its item text.
 
+*Name scopes (backfilled 2026-10-28, SPEC-007):* the fresh text context has one exception. A
+role with presentational children in WAI-ARIA 1.2 that takes its name from content (button, tab,
+option, checkbox, radio, switch, menuitemcheckbox, menuitemradio) and has no `aria-label` or
+`aria-labelledby` is a name scope: inside it, a nested container whose content went into the
+name keeps its text consumed, so a list inside a button is not read twice. Its nodes are still
+emitted. A list inside a table cell, link, or heading is unchanged.
+
 *Fidelity notes (backfilled 2026-10-26, Phase A of the 1.0 scope):* bare text is emitted as
 **runs**: adjacent text and inline formatting merge into one `text` node, and block-level
 elements, `<br>`, and emitted nodes end a run, so "Loose `<em>`text`</em>` here" is one line as

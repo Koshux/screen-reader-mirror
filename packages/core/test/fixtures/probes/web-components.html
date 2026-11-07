@@ -86,3 +86,9 @@
     <template shadowrootmode="open"><label for="agree">I agree</label><input id="agree" type="checkbox"></template>
   </x-field>
 </div>
+
+<!-- SPEC-007: a name scope joins only its own tree. The name library names the host from its
+     light children ("light"); the shadow list did not join, so its text is read. -->
+<div data-case="scope-shadow">
+  <x-menu-button role="button" tabindex="0"><template shadowrootmode="open"><span role="list"><span role="listitem">inner</span></span> <slot></slot></template><span role="list"><span role="listitem">light</span></span></x-menu-button>
+</div>
